@@ -11,7 +11,7 @@
 - Course title: Computer Architecture
 - Course number and section: CSC 255.01
 - Meeting Times: Mon-Wed-Fri from 03:00-03:50 pm
-- Meeting place: Lyon Building Computer Lab Room 104
+- Meeting place: Derby Science Center Room 239
 - Professor: Marcus Birkenkrahe
 - Professor's Office: Derby Science Building 210
 - Phone: (870) 307-7254 (office) / (501) 422-4725 (private)
