@@ -1,0 +1,150 @@
+#+title: Computer Architecture (CSC 255) Syllabus
+#+author: Marcus Birkenkrahe
+#+startup: overview hideblocks indent
+#+subtitle: CSC255 Computer Architecture - Syllabus - Fall 2025
+#+OPTIONS: toc:nil num:nil ^:nil:
+#+attr_html: :width 400px :float nil:
+[[../img/cover.png]]
+
+* General Course Information
+
+- Course title: Computer Architecture
+- Course number and section: CSC 255.01
+- Meeting Times: Mon-Wed-Fri from 03:00-03:50 pm
+- Meeting place: Lyon Building Computer Lab Room 104
+- Professor: Marcus Birkenkrahe
+- Professor's Office: Derby Science Building 210
+- Phone: (870) 307-7254 (office) / (501) 422-4725 (private)
+- Office hours: [[https://tinyurl.com/fa25-booking][by appointment]] MWF 4pm–5pm
+- Textbook (free, online): The Elements of Computing Systems: Building
+  a Modern Computer from First Principles (2nd ed.) by Nisan &
+  Schocken. [[https://www.nand2tetris.org/][nand2tetris.org]]
+- Additional recommended texts:
+  + Computer Systems: A Programmer’s Perspective (CS:APP) by R. Bryant
+    & D. O’Hallaron
+  + Introduction to Computer Organization by Robert Plantz (No Starch
+    Press)
+  + Computer Architecture by Douglas E. Fox (No Starch Press)
+  + The Art of ARM Assembly by Randall Hyde (No Starch Press)
+
+* Objectives
+
+This course explores how computers work from the ground up. Students
+will build a modern computer system from first principles, starting
+with logic gates and ending with a virtual machine and assembler. This
+hands-on journey introduces key topics in digital logic design,
+instruction sets, memory, the CPU, and machine-level programming.
+
+* Target audience
+
+CSC 255 is a required course for all CS majors and is suitable for
+students interested in hardware/software integration, computer
+engineering, systems programming, or just understanding how their
+computer works at the lowest level.
+
+* Student Learning Outcomes
+
+Students who complete CSC 255 will be able to:
+
+- Understand how high-level programs translate to machine instructions
+- Build logic gates and arithmetic circuits using hardware description
+  language (HDL)
+- Understand and implement sequential logic with memory elements
+- Design and implement a CPU architecture
+- Write machine-level programs in a Hack-like assembly language
+- Build an assembler that translates assembly code to machine code
+- Understand the layered abstraction of computing systems
+- Present a working integrated computer demo from gates to assembler
+
+* Course prerequisites
+
+- CSC 100 (Introduction to Programming in C)
+- CSC 245 (Digital Logic)
+- Interest in systems-level thinking and abstraction
+- No prior knowledge of assembly or HDL required
+
+* Grading
+
+| WHEN    | DESCRIPTION            | IMPACT |
+|---------+------------------------+--------|
+| Weekly  | Chip build + test      |    30% |
+| Biweekly| Progress demos         |    30% |
+| Weekly  | Quizzes                |    20% |
+| Final   | Hack computer demo     |    20% |
+
+* Rubric
+| Component               | Weight | Excellent (90–100)                                                          | Good (80–89)                                 | Satisfactory (70–79)                             | Needs Improvement (60–69)                 | Unsatisfactory (0–59)                        |
+|-------------------------+--------+-----------------------------------------------------------------------------+----------------------------------------------+--------------------------------------------------+-------------------------------------------+----------------------------------------------|
+| Chip build + test       |    25% | All chips complete and fully tested; correct and elegant HDL                | Most chips correct and tested                | Some chips incorrect or incomplete               | Many chips not working or poorly written  | Little or no progress on chip implementation |
+| Progress demos          |    25% | Clear, complete demos with deep understanding of components                 | Mostly complete with minor errors            | Basic demo functionality with gaps               | Limited demo or major misunderstandings   | No demo or severe confusion                  |
+| Quizzes                 |    25% | Strong understanding of concepts, precise answers                           | Mostly correct with small mistakes           | Understands basics but lacks depth               | Limited understanding, significant errors | Little understanding of course content       |
+| Final exam or project   |    25% | Fully integrated CPU + Assembler working, clear presentation                | Minor issues, mostly working                 | Basic system functional but not fully integrated | Incomplete or broken integration          | No meaningful demo or effort                 |
+| presentation (optional) |    25% | Demonstrates comprehensive understanding and application of course concepts | Shows strong understanding with minor errors | Displays adequate understanding with some errors | Limited understanding with several errors | Minimal understanding and many errors        |
+
+* Learning Management System
+
+We will use Canvas for this course. It will contain:
+
+- Assignments and due dates
+- Quiz access and grading feedback
+- Final demo submission
+- Supplementary links, pages, and Zoom recordings
+
+* GitHub and HDL Tools
+
+- Project code and starter files will be provided via GitHub
+- You must install the Nand2Tetris HDL simulator locally or use a virtual machine
+- You must install LogiSim Evolution locally on the Lyon PCs
+- GitHub Codespaces is available for assembling code and documentation
+- Documentation and test scripts will be reviewed in class
+
+* Lyon College Standard Policies
+
+Standard Lyon College Policies are incorporated into this syllabus and
+can be found at the following link:
+http://www.lyon.edu/standard-course-policies.
+
+Note the amended attendance policy (from Fall 2025):
+https://catalog.lyon.edu/class-attendance
+
+Note the new [[https://assets.speakcdn.com/assets/2433/generative_ai_guidelines_(combined_files).pdf][Generative AI Guidelines]] for students, faculty, and
+staff.
+
+* Weekly Schedule
+
+| Week(s) | Topic                           | Notes                             |
+|---------+---------------------------------+-----------------------------------|
+| 1-3     | Intro to Systems & Architecture | Abstractions, tools, setup        |
+| 4–5     | Project 1: Boolean Logic        | HDL, logic gates, test scripts    |
+| 6-7     | Project 2: Combinational Chips  | Adders, ALU parts, multiplexers   |
+| 8–9     | Project 3: Sequential Chips     | Flip-flops, RAM, memory hierarchy |
+| 10–11   | Project 4: Machine Language     | Hack code, write simple programs  |
+| 12–13   | Project 5: Hack CPU             | Build CPU, connect components     |
+| 14–15   | Project 6: Assembler            | Write assembler, resolve symbols  |
+| 16      | Hack Computer Demo              | Demo: HDL → CPU → Assembler stack |
+
+* A note on using AI to write code for you or debug your code
+
+[[https://github.com/birkenkrahe/org/blob/master/fall25/UsingAItoCode.org][See full PDF on GitHub (Fall 2025 update).]]
+
+Summary:
+
+1. Only use AI if you don't (deeply) care about the result, if you
+   don't depend on it, and if you have ample time to waste.
+
+2. AI lies unpredictably, and worse, it makes you forget stuff you
+   already knew. It's an unreliable helper without understanding.
+
+3. There is little solid research into the human-AI interaction and
+   its benefits and dangers - because of the pace of development but
+   also because of the reigning commercial interests.
+
+4. The value of AI increases somewhat when you use it for topics and
+   on issues that you are already an expert in. Then you can
+   second-guess and monitor the results much better. It still boils
+   down to a waste of time whenever the issues are complex.
+
+I got to these insights through my own experience as a teacher of
+computer and data science, as someone who hears a lot from other
+faculty what they're experiencing, and as a coder.
+
