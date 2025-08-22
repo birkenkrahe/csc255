@@ -1,0 +1,648 @@
+#+TITLE:Course Overview
+#+AUTHOR:Marcus Birkenkrahe
+#+SUBTITLE:Computer Architecture (CSC 255) - Fall 2025
+#+STARTUP: overview hideblocks indent
+#+OPTIONS: toc:1 num:1 ^:nil
+#+PROPERTY: header-args:R :session *R* :results output :exports both :noweb yes
+#+PROPERTY: header-args:python :session *Python* :results output :exports both :noweb yes
+#+PROPERTY: header-args:C :main yes :includes <stdio.h> <stdlib.h> <string.h> <time.h> :results output :exports both :noweb yes
+#+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
+* Objectives
+
+- [ ] Course questions and answers
+- [ ] Why study computer architecture
+- [ ] Computer arithmetic
+- [ ] Assembly and disassembling
+- [ ] Memory layout and bugs
+- [ ] Low-level optimization
+- [ ] Computer networks
+- [ ] Books
+- [ ] Schedule and topics
+
+* Some questions To Begin With
+#+attr_html: :width 400px :float nil:
+[[../img/cover.png]]
+
+1) What is a computer system?
+   #+begin_quote
+   A computer system consists of
+   1. hardware (e.g. a CPU or a keyboard)
+   2. systems software (e.g. a Linux kernel or a shell)
+   3. application programs (e.g. a browser or a compiler).
+   #+end_quote
+
+2) What is computer architecture?
+   #+begin_quote
+   Computer architecture is the design and structure of a computer
+   system. It defines how the CPU, memory, I/O, and instructions
+   interact to execute programs.
+
+   It is the answer to the question: How does a computer actually
+   work?
+   #+end_quote
+
+3) What are the parts of a computer architecture?
+   #+begin_quote
+   1. Instruction set architecture (ISA) that interfaces software and
+      hardware. Specific to x86-64, or ARM, or RISC-V processors.
+   2. Microarchitecture that says how data flow inside the computer,
+      and how its parts are connected logically.
+   3. System organization explaining how components interact via buses
+      involving different types of memory (cache, RAM).
+   #+end_quote
+
+4) What will you learn?
+   #+begin_quote
+   You will learn practical skills, including:
+   - How to avoid strange numerical errors by the way computers
+     represent numbers.
+   - How to optimize your code (especially C code) exploiting
+     processor and memory architecture.
+   - How the compiler implements procedure calls and how to detect and
+     avoid security holes from buffer overflow.
+   - You will get started on: Concurrency (multiple core threading),
+     operating systems and shell design, network programming.
+   #+end_quote
+
+5) What does the catalog promise?
+   #+begin_quote
+   "Introduction to computer organization and the basic structure of a
+   modern programmable computer. Topics covered include the von Neumann
+   architecture, the CPU, pipelining, memory hierarchy, assembly/
+   machine language, and the basic laws underlying performance
+   evaluation."
+   #+end_quote
+
+6) Why am I teaching this course?
+   #+begin_quote
+   I've always wanted to learn assembly language with a purpose, and
+   I've always wanted to systematically understand how a computer
+   works (similar to understanding cars through detailed design of a
+   real car engine).
+
+   This is my first time so bear with me!
+   #+end_quote
+
+7) What are the prerequisites?
+   #+begin_quote
+   1. Working knowledge of C (the systems programming language) and
+      especially its basic data structures (variables, arrays,
+      pointers, typedef, struct) as taught in CSC 100 [and 240].
+   2. Knowledge of high school algebra. Boolean algebra basics and
+      digital logic basics as taught in CSC 245 and MTH 115/290. Go
+      through the free [[https://brilliant.org/courses/digital-circuits/]["digital circuits" course on brilliant.org]]
+   3. Working knowledge of using Emacs and Org-mode for literate
+      programming in any language (as taught in any of my courses). To
+      (re)gain fluency with Emacs, work through my online tutorial.
+
+   We will re-introduce all of these topics as we go along. But if you
+   feel (now or later) that you're missing basics, do let me know, and
+   we'll come up with a plan for you and/or for everyone.
+   #+end_quote
+
+8) What's the best way to brush up on C? Why C?
+   #+begin_quote
+   Getting up to speed on C:
+   1. Work through the first 100 pages of K&R's classic ([[https://github.com/media-lib/c_lib/blob/master/c/Kernighan%2C%20Ritchie%20-%20The%20C%20Programming%20Language%2C%202nd%20edition.pdf][PDF]], 260 pg.)
+   2. Work through the W3schools online tutorial ([[https://www.w3schools.com/c/index.php][w3schools.com/c]])
+
+   Why C?
+   1. C is closely tied to Unix operating system (mother of all OS)
+   2. C is small and simple
+   3. C was designed for a practical purpose
+   4. C is language of choice for system-level programming
+   5. C is not used for application level programming
+   #+end_quote
+
+9) What are we going to do in this course?
+   #+begin_quote
+   1. Theory: Data representation and memory management
+   2. Programming: C and Assembler (machine language)
+   3. Practice: LogiSim (processor architecture)
+   #+end_quote
+
+10) What are we really going to do in this course?
+    #+begin_quote
+    1. Listen and work through many practice examples.
+    2. Code along with C and assembler on Linux.
+    3. Simulate digital circuits with the LogiSim software.
+    #+end_quote
+
+Your turn! What (if anything) is most interesting to you?
+#+begin_quote
+
+#+end_quote
+
+* Reality check: Why Computer Architecture
+
+Link: [[https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=d8c83d3a-8074-4afe-ae3b-693e2250999a][video lecture]]
+
+Some things that are not as you think they are. And ~gdb~.
+
+* Computer arithmetic matters
+
+- ~int~ is not integer, ~float~ is not real.
+  #+begin_example
+  (gdb) print 40000 * 40000
+  $1 = 1600000000
+  (gdb) print 50000 * 50000
+  $2 = -1794967296
+  (gdb) print 300*400*500*600
+  $3 = 1640261632
+  #+end_example
+
+- Associativity: Is =(x + y) + z= is not =x + (y + z)= ?
+  #+begin_example
+  (gdb) print (1e20 + -1e20) + 3.14
+  $4 = 3.1400000000000001
+  (gdb) print 1e20 + (-1e20 + 3.14)
+  $5 = 0
+  #+end_example
+
+- All computer representations of numbers are finite but numbers in
+  the real world are usually not: must understand the implications!
+
+- Common issues: Overflow (~int~), and rounding errors (~float~).
+
+- You cannot assume that all usual mathematical properties hold:
+
+  1) Integer operations satisfy *ring* properties (commutativity,
+     associativity, distributivity).
+
+  2) Floating point operations satisfy *ordering* properties
+     (monotonicity, values of signs).
+
+- Crucial for all computer applications. More crucial when safety,
+  accuracy and speed are an issue (rocketry, healthcare, finance).
+
+* Assembly matters
+
+- What's assembly?
+  #+begin_quote
+  Assembly is a low-level programming language with human-readable
+  instructions specific to a computer's CPU architecture.
+  #+end_quote
+
+- Example: Hello World
+  #+begin_src C :tangle ../src/hello.c
+    #include <stdio.h>
+    int main(void)
+    {
+      printf("Hello, World");
+      return 0;
+    }
+  #+end_src
+
+  #+RESULTS:
+  : Hello, World
+
+- Generate assembly code using GCC
+  #+begin_src bash :results output :exports both
+    cd ../src
+    gcc -S hello.c
+    ls -lt hello*
+  #+end_src
+
+  #+RESULTS:
+  : -rw-rw-r-- 1 aletheia aletheia 682 Jun 25 21:22 hello.s
+  : -rw-rw-r-- 1 aletheia aletheia 101 Jun 25 21:18 hello.c
+
+- Resulting assembly file ~hello.s~ for x86-64 architecture:
+  #+begin_example
+        .file   "hello.c"
+        .text
+        .section        .rodata
+.LC0:
+        .string "Hello, World"
+        .text
+        .globl  main
+        .type   main, @function
+main:
+.LFB0:
+        .cfi_startproc
+        endbr64
+        pushq   %rbp
+        .cfi_def_cfa_offset 16
+        .cfi_offset 6, -16
+        movq    %rsp, %rbp
+        .cfi_def_cfa_register 6
+        leaq    .LC0(%rip), %rax
+        movq    %rax, %rdi
+        movl    $0, %eax
+        call    printf@PLT
+        movl    $0, %eax
+        popq    %rbp
+        .cfi_def_cfa 7, 8
+        ret
+        .cfi_endproc
+.LFE0:
+        .size   main, .-main
+        .ident  "GCC: (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0"
+        .section        .note.GNU-stack,"",@progbits
+        .section        .note.gnu.property,"a"
+        .align 8
+        .long   1f - 0f
+        .long   4f - 1f
+        .long   5
+0:
+        .string "GNU"
+1:
+        .align 8
+        .long   0xc0000002
+        .long   3f - 2f
+2:
+        .long   0x3
+3:
+        .align 8
+4:
+
+  #+end_example
+
+- And on an ARMv7 chip (see [[https://cpulator.01xz.net/?sys=arm][online ARM CPUlator]]):
+  #+begin_example
+        .cpu arm1176jzf-s
+        .file   "hello.c"
+        .section        .rodata
+.LC0:
+        .string "Hello, World"
+        .text
+        .align  2
+        .global main
+        .type   main, %function
+main:
+        @ Function prologue
+        push    {fp, lr}
+        add     fp, sp, #4
+        sub     sp, sp, #8
+
+        @ Load address of format string into r0
+        ldr     r0, .L2
+        bl      printf
+
+        @ Return 0
+        mov     r0, #0
+
+        @ Function epilogue
+        sub     sp, fp, #4
+        pop     {fp, pc}
+
+.L2:
+        .word   .LC0
+        .size   main, .-main
+        .ident  "GCC: (Ubuntu 13.2.0-4ubuntu3) 13.2.0"
+  #+end_example
+
+- You will never have to write an assembly program: Modern compilers
+  are much better at it than you'll ever be, and more patient, too.
+
+- Why assembly?
+  #+begin_quote
+  Assembly is the key to machine-level execution:
+  1. Behavior of programs with bugs
+  2. Tuning program performance
+  3. Implementing system software
+  4. Creating/fighting malware
+  #+end_quote
+
+- A concrete example: You've written a C function that manipulates a
+  data structure. Sometimes you get a segmentation fault when you call
+  it.
+
+  #+begin_src C :tangle ../src/segfault.c :main no :includes <stdio.h> <stdlib.h> <string.h> :results output :exports both :noweb yes
+    int get_value(int *array, int index) {
+      return array[index];
+    }
+    int main() {
+      int *array = NULL;
+      int value = get_value(array,0); // dereferencing NULL
+      printf("Value: %d\n",value);
+      return 0;
+    }
+  #+end_src
+
+  #+RESULTS:
+
+- Compile this with debugging information using ~gcc -g~:
+  #+begin_src bash :results output :exports both
+    cd ../src
+    gcc -g -o segfault segfault.c
+    ls -l segfault*
+  #+end_src
+
+  #+RESULTS:
+  : -rwxrwxr-x 1 aletheia aletheia 17424 Jun 30 11:02 segfault
+  : -rw-rw-r-- 1 aletheia aletheia   244 Jun 30 10:08 segfault.c
+
+- Run the program inside ~gdb~ and disassemble it to see the machine
+  instructions:
+  #+begin_src bash :results output :exports both
+    cd ../src
+    gdb -ex run -ex "disassemble get_value" -ex bt -ex quit ./segfault
+  #+end_src
+
+- Relevant output:
+  #+begin_example
+  Program received signal SIGSEGV, Segmentation fault.
+  0x000055555555516c in get_value (a=0x0, n=0) at segfault.c:11
+  11      return a[n];
+  Dump of assembler code for function get_value:
+     0x0000555555555149 <+0>:   endbr64
+     0x000055555555514d <+4>:   push   %rbp
+     0x000055555555514e <+5>:   mov    %rsp,%rbp
+     0x0000555555555151 <+8>:   mov    %rdi,-0x8(%rbp)
+     0x0000555555555155 <+12>:  mov    %esi,-0xc(%rbp)
+     0x0000555555555158 <+15>:  mov    -0xc(%rbp),%eax
+     0x000055555555515b <+18>:  cltq
+     0x000055555555515d <+20>:  lea    0x0(,%rax,4),%rdx
+     0x0000555555555165 <+28>:  mov    -0x8(%rbp),%rax
+     0x0000555555555169 <+32>:  add    %rdx,%rax
+  => 0x000055555555516c <+35>:  mov    (%rax),%eax
+     0x000055555555516e <+37>:  pop    %rbp
+     0x000055555555516f <+38>:  ret
+  End of assembler dump.
+  #0  0x000055555555516c in get_value (a=0x0, n=0) at segfault.c:11
+  #1  0x0000555555555195 in main () at segfault.c:15
+  #+end_example
+
+- The segmentation fault originates at the following instruction: It
+  attempts to read from the memory address stored in the register
+  =%rax= - if it is ~NULL~ (~0x0~) or invalid, dereferencing it cause
+  'segmentation fault'.
+  #+begin_example asm
+            => 0x000055555555516c <+35>:        mov    (%rax),%eax
+  #+end_example
+
+- Let's break down the instructions:
+  1. +20 — compute offset:
+     #+begin_example asm
+     lea 0x0(,%rax,4),%rdx
+     #+end_example
+     - =%rax= contains =index=.
+     - =lea= computes =index * 4= and stores it in =%rdx=.
+
+  2. +28 — load base pointer
+     #+begin_example asm
+     mov -0x8(%rbp),%rax
+     #+end_example
+     - Retrieves =array= pointer from the stack.
+
+  3. +32 — add offset to base
+     #+begin_example asm
+     add %rdx,%rax
+     #+end_example
+     - =%rax= now points to =array[index]=.
+
+  4. +35 — faulting instruction
+     #+begin_example asm
+     mov (%rax),%eax
+     #+end_example
+     - Attempts to read the int at =array[index]= → causes segfault if
+       =%rax= is invalid.
+
+- You can also enter ~gdb~ interactively (=M-x gdb= in the =src/= directory:
+  #+begin_example
+  (gdb) run
+  (gdb) disassemble
+  (gb) info registers rax
+  #+end_example
+
+- We will spend more time understanding disassembled code than writing
+  assembler (which machines are much better at).
+
+* Memory matters
+
+- Reasons:
+  1) RAM (Random Access Memory) is an unphysical abstraction.
+  2) Memory is not unbounded: It must be allocated and managed.
+  3) Memory reference bugs are especially pernicious.
+  4) Memory performance is not uniform across computer architectures.
+
+- Here is a memory referencing bug example[fn:1]:
+  #+begin_src C :tangle ../src/memory.c
+    typedef struct {
+      int a[2];
+      double d;
+    } struct_t;
+
+    double fun(int i) {
+      volatile struct_t s;
+      s.d = 3.14;
+      s.a[i] = 1073741824; // possibly out of bounds
+      return s.d;
+    }
+
+    int main() {
+      printf("%.12f \n", fun(0));
+      printf("%.12f \n", fun(1));
+      printf("%.12f \n", fun(2));
+      printf("%.12f \n", fun(3));
+      printf("%.12f \n", fun(4));
+      // fun(6) leads to "segmentation fault"
+      return 0;
+    }
+  #+end_src
+
+  #+RESULTS:
+  : 3.140000000000
+  : 3.140000000000
+  : 3.139999866486
+  : 2.000000610352
+  : 3.140000000000
+
+- Explanation: Memory corruption due to out-of-bounds access. =s.a[i]=
+  writes past the end of the array stack for i > 1 and overwrites
+  parts of the adjacent =s.d=. For i>5, the OS protects memory.
+
+  #+attr_html: :width 600px :float nil:
+  #+caption: Source: Bryant/O'Halloran (2016)
+  [[../img/memory.png]]
+
+- To debug errors like these, you can use ~valgrind~, which is a virtual
+  machine used mostly to debug memory errors on Linux systems. Its
+  most popular tool is ~memcheck~.
+
+* Low-level optimization matters
+
+- You cannot improve performance without system understanding.
+
+- Code optimization must be done at multiple levels:
+  1) Algorithm (Big-O)
+  2) Data representation (picking data structures)
+  3) Procedures (program functions)
+  4) Loops (iteration)
+
+- Example: The functions =copyij= and =copyji= do the same thing exactly -
+  copy a matrix from =src= to =dst=. Can you spot the difference?
+
+  #+name: copyij_copyji
+  #+begin_src C :results none :main no :includes
+    void copyij(int src[2048][2048], // source matrix
+                int dst[2048][2048]) // target matrix
+    {
+      int i,j;
+      for (i = 0; i < 2048; i++)
+        for (j = 0; j < 2048; j++)
+          dst[i][j] = src[i][j];    // copy matrix
+    }
+
+    void copyji(int src[2048][2048], // source matrix
+                int dst[2048][2048]) // target matrix
+    {
+      int i,j;
+      for (j = 0; j < 2048; j++)
+        for (i = 0; i < 2048; i++)
+          dst[i][j] = src[i][j];    // copy matrix
+    }
+  #+end_src
+
+- Do you think these two perform differently? Let's test this:
+  #+begin_src C :noweb yes :tangle ../src/copy.c :main no
+    <<copyij_copyji>>
+
+    int main() {
+      static int src[2048][2048], dst1[2048][2048], dst2[2048][2048];
+      clock_t start, end;
+
+      // Initialize source matrix
+      for (int i = 0; i < 2048; i++)
+        for (int j = 0; j < 2048; j++)
+          src[i][j] = i + j;
+
+      // Test copyij
+      start = clock();
+      copyij(src,dst1);
+      end = clock();
+      printf("copyij time: %.6f seconds.\n", (double)(end - start) / CLOCKS_PER_SEC);
+
+
+      // Test copyji
+      start = clock();
+      copyji(src,dst2);
+      end = clock();
+      
+      // checksum to prohibit the compiler from optimizing
+      printf("copyji time: %.6f seconds.\n", (double)(end - start) / CLOCKS_PER_SEC);
+
+      return 0;
+      }
+  #+end_src
+
+  #+RESULTS:
+  : copyij time: 0.007474 seconds.
+  : copyji time: 0.051486 seconds.
+
+- The two difference sit at different positions in the memory access
+  pattern:
+  #+attr_html: :width 600px :float nil:
+  [[../img/copy.png]]
+
+  =copyij= (row-major traversal) uses the memory layout (rows are
+  contingent in memory). This minimizes cache misses (when the CPU
+  tries to access data that is not in the cache and instead fetches it
+  from slower memory).
+
+  =copyji= (column-major) jumps from one row to the next. The memory
+  access is strided - between consecutive accesses, many memory
+  addresses are skipped. This results in more cache misses and poorer
+  performance.
+
+* Computer networks matter
+
+- The input/output system is critical to program performance, and also
+  to the file management (the computer talking to itself)
+
+- Many applications are networked and require concurrency (things
+  happening in parellel), coping with unreliable media, and different
+  platforms.
+
+- Standard libraries try to steel programs against network issues but
+  to use their tools you need to understand file stream architecture.
+
+- Example: Computers use sockets (~man socket(2)~) as endpoints for
+  communication.
+
+  1. Sockets are file descriptors (everything in UNIX is a file). The
+     socket is backed by a kernel structure like a file ~inode(7)~.
+
+  2. Sockets depend on interrupt-driven I/O and memory-mapped
+     communication. The kernel's interrupt calls and its memory are
+     hardware-level structures.
+
+  3. Calling a ~socket(2)~ or a file with ~write(2)~ involves a system
+     call, which switches context from user to kernel space. This
+     separation is hardware-protected and part of the CPU design.
+
+* Sources
+
+Ordered according to ease of access and depth of discussion. See
+[[https://mail.google.com/chat/u/0/#chat/space/AAQAQdCVYB0][Google Chat]] for additional information, clips, articles etc. (Let me
+know if you do [not] wish to be added to the chat.)
+
+1. Scott, J. Clark. *But How Do It Know? - The Basic Principles of
+   Computers for Everyone*. CreateSpace, 2009.
+
+2. Plantz, Robert. *Introduction to Computer Organization: ARM
+   Edition*. No Starch Press, 2025. ISBN: 9781718503124.
+
+3. Fox, Charles. *Computer Architecture*. No Starch
+   Press, 2024. ISBN: 9781718502864.
+
+4. Hyde, Randall. *The Art of ARM Assembly, Vol 1: 64-Bit ARM Machine
+   Organization and Programming*. No Starch Press, 2025.
+
+5. Bryant, Randal E., and David R. O’Hallaron. *Computer Systems: A
+   Programmer’s Perspective*. 3rd ed., Pearson, 2016. ISBN:
+   9780134092669. Also known as: [[http://csapp.cs.cmu.edu/3e/home.html][CS:APP]].
+
+6. Duntemann, Jeff. *x64 *Assembly Language Step-by-Step: Programming
+   with Linux*. 4th ed., Wiley, 2023. ISBN: 9781394155255.
+
+7. Dumas II, Joseph D. *Computer Architecture: Fundamentals and
+   Principles of Computer Design*. 2nd ed., CRC Press, 2017. ISBN:
+   9781498772716.
+
+8. McGowan, Ross. *Design a CPU: Learn Computer Architecture by
+   Building Your Own*. Udemy, 2024. Available at:
+   [[https://www.udemy.com/course/design-a-cpu/][udemy.com/course/design-a-cpu/]] - based on Scott (2009).
+
+* Schedule and topics
+
+| Week | CSC 255 Course Schedule                                  |
+|------+----------------------------------------------------------|
+|    1 | Introduction to Computer Systems + Architecture Overview |
+|    2 | Memory, Assembly, and Debugging (gdb, stack/heap, cache) |
+|    3 | OS Abstractions: Processes, Threads, I/O, Virtual Memory |
+|    4 | N2T Lecture: Boolean Logic, HDL syntax, simulator setup  |
+|    5 | Project 1: Logic Gates                                   |
+|    6 | N2T Lecture: Combinational Logic, ALU Design             |
+|    7 | Project 2: ALU and combinational chips                   |
+|    8 | N2T Lecture: Sequential Logic, memory abstraction        |
+|    9 | Project 3: Flip-flops, registers, sequential circuits    |
+|   10 | N2T Lecture: RAM, PC, memory systems                     |
+|   11 | Project 4: Memory integration and testing                |
+|   12 | N2T Lecture: CPU architecture and Hack instruction set   |
+|   13 | Project 5: CPU construction                              |
+|   14 | N2T Lecture: Assemblers, parsing, instruction formats    |
+|   15 | Project 6: Assembler implementation + Hack demo          |
+
+*Who*?
+- You already have a foundation in digital logic (CSC 245).
+- You know basic C (CSC 100/240).
+- You want to learn architecture top-down and bottom-up.
+
+*Why?* At many universities, CS architecture is a prerequisite for
+application-oriented courses (and all 300-400 level
+courses). Especially:
+
+- Databases (CSC 330)
+- Operating systems (CSC 420)
+
+*Weak?*
+- Hands-on engagement (LogiSim, HDL) delayed
+- Late assembler project
+- Split conceptual direction (top-down to bottom-up)
+
+* Footnotes
+
+[fn:1] The ~volatile~ keyword tells the compiler not to optimize a
+variable. This is useful for shared variables in multi-threaded code.
