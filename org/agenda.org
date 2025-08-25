@@ -1,0 +1,139 @@
+#+TITLE:Agenda - Computer Architecture
+#+AUTHOR:Marcus Birkenkrahe
+#+SUBTITLE:CSC 255 Agenda Fall 2025
+#+STARTUP: overview hideblocks indent
+#+OPTIONS: toc:nil num:nil ^:nil
+#+PROPERTY: header-args:R :session *R* :results output :exports both :noweb yes
+#+PROPERTY: header-args:python :session *Python* :results output :exports both :noweb yes
+#+PROPERTY: header-args:C :main yes :includes <stdio.h> :results output :exports both :noweb yes
+#+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
+* Week 0: Overview
+
+- Tools used and plans made
+- Motivation to enrol in the course
+
+* Week 1: Overview: Why computer architecture, LogiSim installation
+
+** Review
+
+1. Which tools are we going to use in this course?
+   #+begin_quote
+   - Hardware Description Language (HDL)
+   - LogiSim (digital circuit simulator)
+   - GDB (GNU DeBugger) and GCC (GNU C Compiler)
+   #+end_quote
+2. What stands between source code and machine code?
+   #+begin_quote
+   Source code (in any high level language) is compiled into
+   human-readable Assembly code and then linked to not human-readable
+   object code for execution. (Though some compilers generate object
+   code directly - Assembly is not always exposed.)
+   #+end_quote
+3. What is specialy about this intermediate step?
+   #+begin_quote
+   What's special about Assembly is that it depends on the CPU. Each
+   machine has an instruction set architecture (ISA) that is
+   specific. The assembly file and the object code of one CPU will not
+   run on another.
+   #+end_quote
+4. Which programming languages are portable?
+   #+begin_quote
+   No language is "portable". Their implementation makes them
+   portable:
+
+   - C and C++: The source code is portable, but the compiled binary
+     is not. You need a compiler for each target architecture.
+   - Python and JavaScript: Interpreted (or Just-In-Time compiled) -
+     source runs cross-platform if the interpreter is available.
+   - Java: uses intermediate bytecode that runs on a Java Virtual
+     Machine (JVM), which is ported to many hardware platforms.
+   #+end_quote
+5. What is the Gestalt principle, and how does it apply to computer
+   architecture?
+   #+begin_quote
+   The Gestalt (German for 'shape') principle comes from psychology:
+   "The whole is greater than the sum of its parts." It means that we
+   perceive systems as unified structures, not just isolated
+   components.
+
+   In computer architecture, the Gestalt idea applies because a
+   computer is not just CPU + memory + I/O in isolation. The
+   organization and interaction of these components give rise to
+   capabilities (like parallelism, pipelining, or memory hierarchies)
+   that cannot be understood by looking at the parts alone.
+   #+end_quote
+
+** Syllabus
+
+- New attendance policy and app (QR code)
+- Updated AI guidelines
+- Project-centered grading
+- Textbooks (optional): CS:APP / Nand2Tetris
+
+** Schedule
+
+| Week(s) | Topic                           | Notes                             |
+|---------+---------------------------------+-----------------------------------|
+| 1       | Intro to Systems & Architecture | Abstractions, tools, setup        |
+| 2–3     | Project 1: Boolean Logic        | HDL, logic gates, test scripts    |
+| 4–5     | Project 2: Combinational Chips  | Adders, ALU parts, multiplexers   |
+| 6–7     | Project 3: Sequential Chips     | Flip-flops, RAM, memory hierarchy |
+| 8–9     | Project 4: Machine Language     | Hack code, write simple programs  |
+| 10–11   | Project 5: Hack CPU             | Build CPU, connect components     |
+| 12–13   | Project 6: Assembler            | Write assembler, resolve symbols  |
+| 14      | Integration & Demo Prep         | I/O mapping, final integration    |
+| 15      | Hack Computer Demo              | Demo: HDL → CPU → Assembler stack |
+
+** Projects
+
+*** The Idea of Nand2Tetris
+#+attr_html: :width 400px :float nil:
+[[../img/michelangelo.png]]
+
+*** The course projects (Hack hardware)
+#+attr_html: :width 600px :float nil:
+#+Caption: Nand2Tetris projects we may be able to complete in CSC 255.
+[[../img/projects.png]]
+
+*** Other projects (Hack software)
+#+attr_html: :width 600px :float nil:
+#+Caption: Nand2Tetris projects that we will not cover in CSC 255.
+[[../img/projectsOS.png]]
+
+*** Install LogiSim
+
+- [[https://cdn.hackaday.io/files/1814287762215552/logisim_tutorial.pdf][The Guide to Being a LogiSim User (tutorial)]]
+
+- Go to [[https://github.com/logisim-evolution/][github.com/logisim-evolution/]]
+
+- Navigate to the [[https://github.com/logisim-evolution/logisim-evolution/releases][releases repo]]
+
+- Download what you need for Windows (msi), MacOS (dmg), or Linux
+  (rpm)
+
+- You must have Java installed (in a terminal, run =java --version=)
+
+- On Windows, double-click the .msi file and change the location to
+  your local disk (=C:/Users/yourname=). Or download and run the .jar
+  file.
+
+- On MacOS, double-click the .dmg file then drag the Logisim-Evolution
+  icon into the Applications folder.
+
+- On Linux, if you're on Debian, download the .deb file and run
+  #+begin_example
+  sudo dpkg -i logisim-evolution-3.9.0_[cpu].deb
+  #+end_example
+
+- Check that your program exists and open it to create your first
+  diagram.
+
+** Overview
+
+- [ ] Some questions to begin with
+- [ ] Why Computer Architecture
+- [ ] Arithmetic
+- [ ] Assembly
+- [ ] Memory
+- [ ] Optimization
+- [ ] Networks
