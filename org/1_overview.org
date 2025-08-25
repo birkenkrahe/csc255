@@ -142,22 +142,14 @@ Some things that are not as you think they are. And ~gdb~.
 * Computer arithmetic matters
 
 - ~int~ is not integer, ~float~ is not real.
-  #+begin_example
-  (gdb) print 40000 * 40000
-  $1 = 1600000000
-  (gdb) print 50000 * 50000
-  $2 = -1794967296
-  (gdb) print 300*400*500*600
-  $3 = 1640261632
-  #+end_example
+
+- You can show this using ~gdb~. You need to open a Linux shell to do
+  this.
+
+- If you don't have Linux on your laptop or desktop, use
+  =ide.cloud.google.com= - open the terminal and check for ~gdb~.
 
 - Associativity: Is =(x + y) + z= is not =x + (y + z)= ?
-  #+begin_example
-  (gdb) print (1e20 + -1e20) + 3.14
-  $4 = 3.1400000000000001
-  (gdb) print 1e20 + (-1e20 + 3.14)
-  $5 = 0
-  #+end_example
 
 - All computer representations of numbers are finite but numbers in
   the real world are usually not: must understand the implications!
@@ -182,6 +174,9 @@ Some things that are not as you think they are. And ~gdb~.
   Assembly is a low-level programming language with human-readable
   instructions specific to a computer's CPU architecture.
   #+end_quote
+
+- Do these examples in a Linux environment, e.g. Google Cloud Shell,
+  or WSL if you're on Windows.
 
 - Example: Hello World
   #+begin_src C :tangle ../src/hello.c
@@ -330,8 +325,8 @@ main:
   #+end_src
 
   #+RESULTS:
-  : -rwxrwxr-x 1 aletheia aletheia 17424 Jun 30 11:02 segfault
-  : -rw-rw-r-- 1 aletheia aletheia   244 Jun 30 10:08 segfault.c
+  : -rwxrwxr-x 1 marcus marcus 17408 Aug 25 14:50 segfault
+  : -rw-rw-r-- 1 marcus marcus   264 Aug 25 14:50 segfault.c
 
 - Run the program inside ~gdb~ and disassemble it to see the machine
   instructions:
