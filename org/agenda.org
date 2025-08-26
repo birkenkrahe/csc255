@@ -14,7 +14,7 @@
 
 * Week 1: Overview: Why computer architecture, LogiSim installation
 
-** Review
+** DONE Review Week 0
 
 1. Which tools are we going to use in this course?
    #+begin_quote
@@ -63,14 +63,14 @@
    that cannot be understood by looking at the parts alone.
    #+end_quote
 
-** Syllabus
+** DONE Syllabus
 
 - New attendance policy and app (QR code)
 - Updated AI guidelines
 - Project-centered grading
 - Textbooks (optional): CS:APP / Nand2Tetris
 
-** Schedule
+** DONE Schedule
 
 | Week(s) | Topic                           | Notes                             |
 |---------+---------------------------------+-----------------------------------|
@@ -84,7 +84,7 @@
 | 14      | Integration & Demo Prep         | I/O mapping, final integration    |
 | 15      | Hack Computer Demo              | Demo: HDL → CPU → Assembler stack |
 
-** Projects
+** DONE Projects
 
 *** The Idea of Nand2Tetris
 #+attr_html: :width 400px :float nil:
@@ -100,7 +100,7 @@
 #+Caption: Nand2Tetris projects that we will not cover in CSC 255.
 [[../img/projectsOS.png]]
 
-*** Install LogiSim
+** DONE Install LogiSim
 
 - [[https://cdn.hackaday.io/files/1814287762215552/logisim_tutorial.pdf][The Guide to Being a LogiSim User (tutorial)]]
 
@@ -128,9 +128,42 @@
 - Check that your program exists and open it to create your first
   diagram.
 
+
+** Review (Monday)
+
+1. What is a compiler flag - can you give an example?
+   #+begin_src bash :results output :exports both
+     cd ../src
+     echo -e "#include <iostream>\nint main(){cout<<\"Hello, world!\";return 0;}" > hello.cpp
+     cat hello.cpp
+     g++ hello.cpp -o hello
+     ./hello
+   #+end_src
+
+   #+RESULTS:
+   : #include <iostream>
+   : int main(){cout<<"Hello, world!";return 0;}
+   : hello, world
+
+2. What does a digital NOT circuit consist of?
+   #+begin_quote
+   1) An input pin (Voltage ON/OFF)
+   2) An output pin (Voltage OFF/ON)
+   3) A Not gate
+      
+   [[../img/Not.png]]      
+   #+end_quote
+
+3. What kind of application is LogiSim Evolution?
+   #+begin_quote
+   - Free open source software (FOSS)
+   - Java application (.jar)
+   - Circuit simulation software
+   #+end_quote
+
 ** Overview
 
-- [ ] Some questions to begin with
+- [X] Some questions to begin with
 - [ ] Why Computer Architecture
 - [ ] Arithmetic
 - [ ] Assembly
