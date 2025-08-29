@@ -14,6 +14,12 @@
 
 * Week 1: Overview: Why computer architecture, LogiSim installation
 
+- [X] Reviews
+- [X] Installation: LogiSim
+- [X] Nand2Tetris projects
+- [ ] *Research mixer on Tuesday, September 30 @Lyon - tinyurl.com/res-mix*
+- [ ] Why Computer architecture?
+
 ** DONE Review Week 0
 
 1. Which tools are we going to use in this course?
@@ -129,12 +135,42 @@
   diagram.
 
 
-** Review (Monday)
+** DONE Research mixer - why you should do this
+#+attr_html: :width 400px :float nil:
+[[../img/research_mixer.png]]
+
+- Doing research is a great excuse to build a relationship with a
+  business: People love to help, especially techies!
+
+- This is practical networking that can help you get an internship or
+  a job: You can put it on your resume, too!
+
+- Through research, you learn to update your knowledge, and you may
+  find out about interesting applications that define your career!
+
+- Science is at crossroads for multiple reasons: It's too bloated,
+  it's too expensive, it's getting too difficult, and there's AI.
+
+** DONE Brilliant course
+#+attr_html: :width 400px :float nil:
+[[../img/brilliant2.png]]
+
+- Start the free [[https://brilliant.org/courses/digital-circuits/]["digital circuits" course on brilliant.org]] to
+  revitalize your digital logics knowledge and to get a view of all
+  the different aspect of the CPU.
+
+- I am on day 56 currently, starting with Nand gates - which we're
+  assuming as prerequisite knowledge here.
+
+- Includes 3 daily practice questions. You can finish in 1 month.
+
+** DONE Review (Monday)
 
 1. What is a compiler flag - can you give an example?
    #+begin_src bash :results output :exports both
      cd ../src
-     echo -e "#include <iostream>\nint main(){cout<<\"Hello, world!\";return 0;}" > hello.cpp
+     echo -e "#include <iostream>\nint main(){\
+     std::cout<<\"Hello, world!\";return 0;}" > hello.cpp
      cat hello.cpp
      g++ hello.cpp -o hello
      ./hello
@@ -142,26 +178,74 @@
 
    #+RESULTS:
    : #include <iostream>
-   : int main(){cout<<"Hello, world!";return 0;}
-   : hello, world
+   : int main(){std::cout<<"Hello, world!";return 0;}
+   : Hello, world!
 
 2. What does a digital NOT circuit consist of?
    #+begin_quote
    1) An input pin (Voltage ON/OFF)
    2) An output pin (Voltage OFF/ON)
    3) A Not gate
-      
-   [[../img/Not.png]]      
-   #+end_quote
 
+   [[../img/Not.png]]
+   #+end_quote
+   
 3. What kind of application is LogiSim Evolution?
    #+begin_quote
    - Free open source software (FOSS)
    - Java application (.jar)
-   - Circuit simulation software
+   - Digital Circuit simulation software
    #+end_quote
 
-** Overview
+4. Discuss this with your neighbor and come to a presentable
+   conclusion: Do logical statements, truth tables, and circuit
+   diagrams express *exactly* the same information? For example,
+   consider NOT:
+
+   - Logical statement: =NOT(A)= or algebraically y = \not x
+
+   - Truth table:
+     | A | NOT(A) |
+     |---+--------|
+     | 0 |      1 |
+     | 1 |      0 |
+
+   - Digital circuit diagram:
+     #+attr_html: :width 400px :float nil:
+     [[../img/Not.png]]
+
+   - Answer:
+     #+begin_quote
+     Yes: Logical statement, truth table and circuit diagram all show a
+     representation of the same Boolean function f:x^{1}{0,1}->{0,1}.
+
+     And No: The level and kind of of abstraction differs: Logic
+     notation show algebraic manipulation; truth tables show the state
+     space; and circuits show physical realization (voltage, wires,
+     gates).
+
+     If the level and kind of abstraction differs, then different
+     details have been eliminated and the result has a different
+     information content.
+     #+end_quote
+
+5. Which of these representations is your personal favorite? Why do
+   you think that is?
+   #+begin_quote
+     - Some properties like identities and laws (De Morgan,
+       distribution) are only visible algebraically. Expressions can
+       be transformed using these laws. More information for the
+       *mathematician* and fan of symbolic manipulation.
+     - The truth table completely describes the function for a fixed
+       number of inputs, listing all outputs. Its abstraction is close
+       to the capabilities of a brute force machine (loop over all
+       values). More information for the *computer scientist*.
+     - Some properties (timing, propagation delay, power use) are only
+       visible in the circuit-level representation: More information
+       for the *engineer* and spatial thinker.
+   #+end_quote
+
+** IN PROGRESS Overview
 
 - [X] Some questions to begin with
 - [ ] Why Computer Architecture
@@ -170,3 +254,44 @@
 - [ ] Memory
 - [ ] Optimization
 - [ ] Networks
+
+** Review (Wednesday)
+
+1. Can you write and run a C++ "hello world" pgm on the command-line?
+   #+begin_src bash :results output :exports both
+     # write text to stdout and redirect it into a C++ file
+     echo -e "#include <iostream>\nint main() {\n  std::cout<<\"hello world\";\n}" > hello.cpp
+     cat hello.cpp
+     # compile and run C++ file
+     g++ hello.cpp -o hello
+     ./hello
+   #+end_src
+
+2. What are the three parts of a computer system?
+   #+begin_quote
+   1) Hardware (CPU),
+   2) system software (OS),
+   3) application programs (compiler)
+   #+end_quote
+
+3. What are the parts of a computer architecture?
+   #+begin_quote
+   1) ISA (instruction set architecture/CPU),
+   2) microarchitecture (data flow/ALU/cache),
+   3) system organization (memory bus).
+   #+end_quote
+
+** NEXT Assignments for next week
+
+- [ ] Test 1 in Canvas (open book) - by September 7 (Friday)
+- [ ] Watch "How are transistors manufactured?" (2024) - 30 min
+- [ ] Watch "Transistors explained" (2021) - 20 min
+- [ ] Install LogiSim on your home desktop or laptop
+
+
+* Week 2
+
+Friday: Review videos
+
+
+
