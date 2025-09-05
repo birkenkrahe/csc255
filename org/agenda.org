@@ -189,7 +189,7 @@
 
    [[../img/Not.png]]
    #+end_quote
-   
+
 3. What kind of application is LogiSim Evolution?
    #+begin_quote
    - Free open source software (FOSS)
@@ -232,17 +232,17 @@
 5. Which of these representations is your personal favorite? Why do
    you think that is?
    #+begin_quote
-     - Some properties like identities and laws (De Morgan,
-       distribution) are only visible algebraically. Expressions can
-       be transformed using these laws. More information for the
-       *mathematician* and fan of symbolic manipulation.
-     - The truth table completely describes the function for a fixed
-       number of inputs, listing all outputs. Its abstraction is close
-       to the capabilities of a brute force machine (loop over all
-       values). More information for the *computer scientist*.
-     - Some properties (timing, propagation delay, power use) are only
-       visible in the circuit-level representation: More information
-       for the *engineer* and spatial thinker.
+   - Some properties like identities and laws (De Morgan,
+     distribution) are only visible algebraically. Expressions can
+     be transformed using these laws. More information for the
+     *mathematician* and fan of symbolic manipulation.
+   - The truth table completely describes the function for a fixed
+     number of inputs, listing all outputs. Its abstraction is close
+     to the capabilities of a brute force machine (loop over all
+     values). More information for the *computer scientist*.
+   - Some properties (timing, propagation delay, power use) are only
+     visible in the circuit-level representation: More information
+     for the *engineer* and spatial thinker.
    #+end_quote
 
 ** IN PROGRESS Overview
@@ -267,7 +267,14 @@
      ./hello
    #+end_src
 
-2. What are the three parts of a computer system?
+   #+RESULTS:
+   : #include <iostream>
+   : int main() {
+   :   std::cout<<"hello world";
+   : }
+   : hello world
+
+2. What are the three parts of a computer *system*?
    #+begin_quote
    1) Hardware (CPU),
    2) system software (OS),
@@ -283,15 +290,218 @@
 
 ** NEXT Assignments for next week
 
-- [ ] Test 1 in Canvas (open book) - by September 7 (Friday)
-- [ ] Watch "How are transistors manufactured?" (2024) - 30 min
-- [ ] Watch "Transistors explained" (2021) - 20 min
-- [ ] Install LogiSim on your home desktop or laptop
+- [X] [[https://lyon.instructure.com/courses/3673/assignments/50009/edit?quiz_lti][Test 1 in Canvas]] (open book) - by September 7 (Friday)
+
+  This first test covers the material seen and taught until Friday,
+  August 29. Check the reviews in the agenda.org file to prepare.
 
 
-* Week 2
+- [X] Watch "[[https://youtu.be/dX9CGRZwD-w?si=KDARgJLQz7Bd3IEu][How are transistors manufactured?]]" (2024) - 30 min
 
-Friday: Review videos
+  This video explains how modern microchips, containing billions of
+  nanoscopic (distances of 1 billionth of a meter) transistors, are
+  manufactured in semiconductor fabrication plants. Though we're not
+  primarily interested in manufacturing chips, this is both
+  interesting and relevant to appreciate the complexity of computer
+  systems. [Review & Test].
+
+- [X] Watch "[[https://youtu.be/sTu3LwpF6XI?si=k1DRLefz6b9OSKTu][Making logic gates from transistors]]" (2015) - 15 min
+
+  The video introduces transistors and shows how they can be used as
+  building blocks for digital logic. Though this concerns physics and
+  electrical engineering, seeing how logic gates are implemented via
+  transistors and circuits will add to your understanding of the
+  microarchitecture of computer systems. [Review & Test].
+
+- [X] [[https://lyon.instructure.com/courses/3673/assignments/50014][Install LogiSim on your home desktop or laptop:]]
+
+  1) Install LogiSim on your own computer.
+  2) Build a NOT gate as seen in class.
+  3) Take a screenshot and upload it to Canvas.
+
+* Week 2: Microchips, logic gates, (Sep 5)
+
+- [ ] Popquiz! What do you remember from the videos? Take the
+  solutions home, grade yourself, and return the test next week.
+
+- [ ] Finish: Assembly and the machine.
+
+** Review: How are Microchips made? ([[https://youtu.be/dX9CGRZwD-w?si=KDARgJLQz7Bd3IEu][Branch Education, YouTube 2024]])
+
+1. What is the approximate number of steps required to manufacture a
+   modern CPU chip?
+   #+begin_quote
+   Around 940 steps, taking about 3 months.
+   #+end_quote
+2. What type of transistor structure is commonly used in today’s CPUs,
+   and how small are they?
+   #+begin_quote
+   FinFET (Fin Field-Effect) transistors, with dimensions on the order
+   of tens of nanometers (e.g., 36×6×52 nm). A 3D transistor rather
+   than a planar design leading to better control of the current.
+   #+end_quote
+3. What are the six main categories of fabrication tools used in a
+   semiconductor fab?
+   #+begin_quote
+   Mask-making, deposition, etching/planarization, ion implantation,
+   cleaning, and metrology/inspection.
+
+   In the video: Mask layer, adding, removing, modifying, cleaning and
+   inspecting  material.
+   #+end_quote
+4. How does chip “binning” affect the product lines (e.g., i9, i7,
+   i5)?
+   #+begin_quote
+   Chips with defects are categorized based on functional cores and
+   features, sold under different product tiers.
+   #+end_quote
+5. Why is photolithography considered one of the most important steps
+   in chip fabrication?
+   #+begin_quote
+   It transfers nanoscopic circuit patterns from photomasks onto
+   wafers, enabling billions of identical transistors and wires.
+   #+end_quote
+
+** Summary: How are Microchips made? ([[https://youtu.be/dX9CGRZwD-w?si=KDARgJLQz7Bd3IEu][Branch Education, YouTube 2024]])
+
+The video explains how modern microchips, containing billions of
+nanoscopic transistors, are manufactured in semiconductor fabrication
+plants:
+  - Scale & Complexity: A CPU may hold 26 billion transistors across 80
+    layers of metal interconnects, manufactured in cleanrooms the size
+    of eight football fields, using machines costing up to $170M.
+  - Transistor Structures: Modern CPUs use FinFET transistors, only tens
+    of nanometers in size, smaller than dust particles or mitochondria.
+  - Manufacturing Analogy: Building a chip is like baking an 80-layer
+    cake with 940 steps — requiring precision at every stage or the
+    product fails.
+  - Core Process Steps: Each layer is built by depositing insulators,
+    applying light-sensitive photoresist, using photolithography with UV
+    light and masks, etching away unwanted areas, depositing copper, and
+    leveling the wafer with chemical mechanical planarization
+    (CMP). These steps are repeated layer by layer, with frequent
+    cleaning and inspection.
+  - Fabrication Plant Tools: Six categories of tools are used:
+    1. Mask-making (photoresist, lithography, stripping)
+    2. Deposition (adding metals, oxides, silicon)
+    3. Etching & planarization
+    4. Ion implantation (doping regions for transistors)
+    5. Wafer cleaning
+    6. Metrology/inspection
+  - Throughput & Cost: A fab may hold 435 tools and produce 50,000
+    wafers monthly. Each wafer, costing ~$100, becomes worth ~$100,000
+    once populated with CPUs.
+  - Post-Fab Steps: Chips are tested and “binned” (e.g., i9, i7, i5)
+    depending on defects, cut from wafers, mounted on packages, fitted
+    with heat spreaders, and tested again before sale.
+  - Broader Context: Microchip fabrication is secretive and
+    technologically advanced, requiring immense time and resources. The
+    video notes future plans for deep dives on transistors, GPUs, and
+    CPU architectures.
+
+** Review: Making logic gates from transistors ([[https://youtu.be/sTu3LwpF6XI?si=k1DRLefz6b9OSKTu][Ben Eater, 2015]])
+
+1. What are the three terminals of a transistor and what do they
+   represent?
+   #+begin_quote
+   Emitter, Base, Collector. The base controls current flow between
+   collector and emitter.
+
+   #+attr_html: :width 400px :float nil:
+   [[../img/transistor.png]]
+   #+end_quote
+2. What happens in the LED circuit when current flows from the base to
+   the emitter?
+   #+begin_quote
+   The transistor switches on and allows a larger current from collector
+   to emitter, lighting the LED.
+
+   #+attr_html: :width 300px :float nil:
+   [[../img/led.png]]
+   #+end_quote
+3. Which logic gate does a single transistor implement when it inverts the input?
+   #+begin_quote
+   A NOT gate (inverter): input ON → output OFF, input OFF → output ON.
+
+   #+attr_html: :width 300px :float nil:
+   [[../img/inverter.png]]
+
+   #+end_quote
+4. How is an AND gate built with two transistors?
+   #+begin_quote
+   The transistors are placed in series. Current flows and the LED turns
+   on only if both are conducting (both inputs ON).
+
+   #+attr_html: :width 300px :float nil:
+   [[../img/and_circuit2.png]]
+
+   #+end_quote
+5. What is the difference between an OR gate and an XOR gate?
+   #+begin_quote
+   OR: output ON if one or both inputs are ON.  XOR: output ON only if
+   exactly one input is ON (off when both are ON).
+
+   #+attr_html: :width 300px :float nil:
+   [[../img/or_circuit2.png]]
+
+   #+attr_html: :width 300px :float nil:
+   [[../img/xor_circuit2.png]]
+
+   #+end_quote
+** Summary: Making logic gates from transistors ([[https://youtu.be/sTu3LwpF6XI?si=k1DRLefz6b9OSKTu][Ben Eater, 2015]])
+#+attr_html: :width 600px :float nil:
+[[../img/all_gates.png]]
+
+The video introduces transistors and shows how they can be used as
+building blocks for digital logic.
+
+- A transistor has three terminals: *emitter*, *base*, *collector*.
+- A small base-to-emitter current controls a larger collector-to-emitter current:
+  the transistor acts as a *switch*.
+- Example 1: Push button + transistor turns an LED on or off.
+- Example 2: A transistor can act as an *inverter (NOT gate)*: input ON → LED OFF,
+  input OFF → LED ON.
+- Combining transistors yields logic gates:
+  - *AND gate*: LED on only if both inputs are on.
+  - *OR gate*: LED on if either input is on.
+  - *XOR gate*: LED on if exactly one input is on (requires five transistors).
+- Other gates (NAND, NOR, XNOR, Buffer) can be built by adding inversion.
+- With these gates, more complex circuits can be built for arithmetic,
+  memory, and eventually entire computers.
 
 
+** TODO Assembly and the machine
 
+1. Why Assembly at all?
+   #+begin_quote
+   Assembly is the key to machine-level execution:
+   1. Behavior of programs with bugs
+   2. Tuning program performance
+   3. Implementing system software
+   4. Creating/fighting malware
+   #+end_quote
+
+2. How can you generate an Assembly file from a C file =hello.c=?
+   #+begin_example
+   g++ -S hello.c -o hello.s  # output = Assembly
+   #+end_example
+
+3. How can you look at the Assembly file?
+   #+begin_quote
+   With any text editor, or with ~cat~ on the command-line.
+   #+end_quote
+
+4. How must you compile to debug your file =segfault.c=?
+   #+begin_example
+   g++ -g segfault.c -o segfault  # output = Ready for gdb
+   #+end_example
+
+5. How can you debug the object code =segfault= with ~gdb~?
+   #+begin_example
+   gdb segfault  # import segfault and run it in gdb
+   #+end_example
+
+* Week 3: (Sep 8, 10, 12)
+* Week 4: Expo (Sep 15, 17, 19)
+#+attr_html: :width 200px :float nil:
+[[../img/expo.png]]
