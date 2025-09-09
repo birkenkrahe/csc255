@@ -8,8 +8,6 @@
 #+PROPERTY: header-args:C :main yes :includes <stdio.h> <stdlib.h> <string.h> <time.h> :results output :exports both :noweb yes
 #+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
 * Objectives
-#+attr_html: :width 400px :float nil:
-[[../img/cover.png]]
 
 - [ ] Course questions and answers
 - [ ] Why study computer architecture
@@ -22,6 +20,8 @@
 - [ ] Schedule and topics
 
 * Some questions To Begin With
+#+attr_html: :width 400px :float nil:
+[[../img/cover.png]]
 
 1) What is a computer system?
    #+begin_quote
@@ -81,15 +81,26 @@ Some things that are not as you think they are. And ~gdb~.
 * Computer arithmetic matters
 
 - ~int~ is not integer, ~float~ is not real.
-
-- You can show this using ~gdb~. You need to open a Linux shell to do
-  this.
-
-- If you don't have Linux on your laptop or desktop, use
-  =ide.cloud.google.com= - open the terminal and check for ~gdb~.
+  #+begin_example
+  (gdb) print 40000 * 40000
+  $1 = 1600000000
+  (gdb) print 50000 * 50000
+  $2 = -1794967296
+  (gdb) print 300*400*500*600
+  $3 = 1640261632
+  #+end_example
 
 - Associativity: Is =(x + y) + z= is not =x + (y + z)= ?
+  #+begin_example
+  (gdb) print (1e20 + -1e20) + 3.14
+  $4 = 3.1400000000000001
+  (gdb) print 1e20 + (-1e20 + 3.14)
+  $5 = 0
+  #+end_example
 
+- Notice that $4 already shows a tiny rounding error. In $5, the
+  correction 3.14 is lost, so the result wrongly shown as exactly 0.
+  
 - All computer representations of numbers are finite but numbers in
   the real world are usually not: must understand the implications!
 
@@ -106,6 +117,9 @@ Some things that are not as you think they are. And ~gdb~.
 - Crucial for all computer applications. More crucial when safety,
   accuracy and speed are an issue (rocketry, healthcare, finance).
 
+- Guarantees on finite precision operations are laid out in IEEE-754
+  ([[https://www.geeksforgeeks.org/computer-organization-architecture/ieee-standard-754-floating-point-numbers/][see for example here]]).
+
 * Assembly matters
 
 - What's assembly?
@@ -113,9 +127,6 @@ Some things that are not as you think they are. And ~gdb~.
   Assembly is a low-level programming language with human-readable
   instructions specific to a computer's CPU architecture.
   #+end_quote
-
-- Do these examples in a Linux environment, e.g. Google Cloud Shell,
-  or WSL if you're on Windows.
 
 - Example: Hello World
   #+begin_src C :tangle ../src/hello.c
@@ -133,13 +144,56 @@ Some things that are not as you think they are. And ~gdb~.
 - Generate assembly code using GCC
   #+begin_src bash :results output :exports both
     cd ../src
-    gcc -S hello.c
-    ls -lt hello*
+    # -S emits assembly
+    # -O0 keeps it simple
+    # -fasynchronous-unwind-tables to reduce debugger output
+    gcc -O0 -S -fno-asynchronous-unwind-tables hello.c -o hello.s
+    ls -l hello.s
+    head -n 40 hello.s
   #+end_src
 
   #+RESULTS:
-  : -rw-rw-r-- 1 aletheia aletheia 682 Jun 25 21:22 hello.s
-  : -rw-rw-r-- 1 aletheia aletheia 101 Jun 25 21:18 hello.c
+  #+begin_example
+  -rw-rw-r-- 1 aletheia aletheia 552 Aug 27 11:38 hello.s
+          .file	"hello.c"
+          .text
+          .section	.rodata
+  .LC0:
+          .string	"Hello, World"
+          .text
+          .globl	main
+          .type	main, @function
+  main:
+          endbr64
+          pushq	%rbp
+          movq	%rsp, %rbp
+          leaq	.LC0(%rip), %rax
+          movq	%rax, %rdi
+          movl	$0, %eax
+          call	printf@PLT
+          movl	$0, %eax
+          popq	%rbp
+          ret
+          .size	main, .-main
+          .ident	"GCC: (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0"
+          .section	.note.GNU-stack,"",@progbits
+          .section	.note.gnu.property,"a"
+          .align 8
+          .long	1f - 0f
+          .long	4f - 1f
+          .long	5
+  0:
+          .string	"GNU"
+  1:
+          .align 8
+          .long	0xc0000002
+          .long	3f - 2f
+  2:
+          .long	0x3
+  3:
+          .align 8
+  4:
+  #+end_example
 
 - Resulting assembly file ~hello.s~ for x86-64 architecture:
   #+begin_example
@@ -243,12 +297,19 @@ main:
   it.
 
   #+begin_src C :tangle ../src/segfault.c :main no :includes <stdio.h> <stdlib.h> <string.h> :results output :exports both :noweb yes
+    // Takes pointer to first element of an int array and an index
+    // returns the element at that index without bounds or NULL check
     int get_value(int *array, int index) {
       return array[index];
     }
     int main() {
-      int *array = NULL;
+      int *array = NULL; // invalid (null) pointer - points to nothing
+
+      // call get_value with a NULL pointer and index 0
+      // inside get_value, array[0] dereferences NULL -> undefined behavior
+      // compiles but triggers segmentation fault at runtime
       int value = get_value(array,0); // dereferencing NULL
+      // print statement is never reached - program crashes
       printf("Value: %d\n",value);
       return 0;
     }
@@ -264,8 +325,8 @@ main:
   #+end_src
 
   #+RESULTS:
-  : -rwxrwxr-x 1 marcus marcus 17408 Aug 25 14:50 segfault
-  : -rw-rw-r-- 1 marcus marcus   264 Aug 25 14:50 segfault.c
+  : -rwxrwxr-x 1 aletheia aletheia 17424 Aug 27 11:41 segfault
+  : -rw-rw-r-- 1 aletheia aletheia   264 Aug 27 11:41 segfault.c
 
 - Run the program inside ~gdb~ and disassemble it to see the machine
   instructions:
@@ -273,6 +334,55 @@ main:
     cd ../src
     gdb -ex run -ex "disassemble get_value" -ex bt -ex quit ./segfault
   #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  GNU gdb (Ubuntu 12.1-0ubuntu1~22.04.2) 12.1
+  Copyright (C) 2022 Free Software Foundation, Inc.
+  License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+  This is free software: you are free to change and redistribute it.
+  There is NO WARRANTY, to the extent permitted by law.
+  Type "show copying" and "show warranty" for details.
+  This GDB was configured as "x86_64-linux-gnu".
+  Type "show configuration" for configuration details.
+  For bug reporting instructions, please see:
+  <https://www.gnu.org/software/gdb/bugs/>.
+  Find the GDB manual and other documentation resources online at:
+      <http://www.gnu.org/software/gdb/documentation/>.
+
+  For help, type "help".
+  Type "apropos word" to search for commands related to "word"...
+  Reading symbols from ./segfault...
+  Starting program: /home/marcus/GitHub/admin/fall25/csc255/src/segfault 
+  [Thread debugging using libthread_db enabled]
+  Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+  Program received signal SIGSEGV, Segmentation fault.
+  0x000055555555516c in get_value (array=0x0, index=0) at segfault.c:12
+  12	  return array[index];
+  Dump of assembler code for function get_value:
+     0x0000555555555149 <+0>:	endbr64 
+     0x000055555555514d <+4>:	push   %rbp
+     0x000055555555514e <+5>:	mov    %rsp,%rbp
+     0x0000555555555151 <+8>:	mov    %rdi,-0x8(%rbp)
+     0x0000555555555155 <+12>:	mov    %esi,-0xc(%rbp)
+     0x0000555555555158 <+15>:	mov    -0xc(%rbp),%eax
+     0x000055555555515b <+18>:	cltq   
+     0x000055555555515d <+20>:	lea    0x0(,%rax,4),%rdx
+     0x0000555555555165 <+28>:	mov    -0x8(%rbp),%rax
+     0x0000555555555169 <+32>:	add    %rdx,%rax
+  => 0x000055555555516c <+35>:	mov    (%rax),%eax
+     0x000055555555516e <+37>:	pop    %rbp
+     0x000055555555516f <+38>:	ret    
+  End of assembler dump.
+  #0  0x000055555555516c in get_value (array=0x0, index=0) at segfault.c:12
+  #1  0x0000555555555195 in main () at segfault.c:17
+  A debugging session is active.
+
+          Inferior 1 [process 12917] will be killed.
+
+  Quit anyway? (y or n) [answered Y; input not from terminal]
+  #+end_example
 
 - Relevant output:
   #+begin_example
@@ -319,6 +429,7 @@ main:
      mov -0x8(%rbp),%rax
      #+end_example
      - Retrieves =array= pointer from the stack.
+     - loads the 8 bytes stored at =[rbp-0x8]= into register =%rax=
 
   3. +32 — add offset to base
      #+begin_example asm
@@ -333,16 +444,49 @@ main:
      - Attempts to read the int at =array[index]= → causes segfault if
        =%rax= is invalid.
 
+- The operations in an overview:
+  #+begin_example
+    get_value:
+    push   %rbp                      # prologue: save old frame pointer
+    mov    %rsp, %rbp                # set up new frame pointer
+
+    mov    %rdi, -0x8(%rbp)          # save param 'array'   (int *),  in stack slot [rbp-8]
+    mov    %esi, -0xc(%rbp)          # save param 'index'   (int, 32b), in stack slot [rbp-12]
+
+    mov    -0x8(%rbp), %rax          # %rax = array (base address)
+    mov    -0xc(%rbp), %edx          # %edx = index (32-bit load is fine)
+
+    # scale index by sizeof(int) = 4
+    lea    (%rdx,%rdx,4), %rdx       # %rdx = index*5 (rdx + rdx*4)
+    lea    0x0(,%rdx,4), %rdx        # (alt scaling if compiler chooses) %rdx = index*4
+    # (You will see ONE of the above, not both; the simplest is index*4.)
+
+    add    %rdx, %rax                # %rax = array + (index*4)  -> &array[index]
+
+    mov    (%rax), %eax              # load 4 bytes at &array[index] into %eax (return register)
+
+    pop    %rbp                      # epilogue
+    ret
+  #+end_example
+
 - You can also enter ~gdb~ interactively (=M-x gdb= in the =src/= directory:
   #+begin_example
   (gdb) run
   (gdb) disassemble
-  (gb) info registers rax
+  (gdb) info registers rax
   #+end_example
 
 - We will spend more time understanding disassembled code than writing
   assembler (which machines are much better at).
 
+- What is the meaning of the "offset"?
+
+  In C, =array[index]= is defined as =*(array + index)=. The compiler computes:
+  #+begin_example
+  address = base address of array + (index * element size)
+  #+end_example
+  The offset is =index * element size=: =array[k]= is offset by k * 4.
+  
 * Memory matters
 
 - Reasons:
@@ -359,7 +503,7 @@ main:
     } struct_t;
 
     double fun(int i) {
-      volatile struct_t s;
+      volatile struct_t s; // don't optimize this
       s.d = 3.14;
       s.a[i] = 1073741824; // possibly out of bounds
       return s.d;
@@ -371,22 +515,33 @@ main:
       printf("%.12f \n", fun(2));
       printf("%.12f \n", fun(3));
       printf("%.12f \n", fun(4));
-      // fun(6) leads to "segmentation fault"
+      //printf("%.12f \n", fun(6));
+      //fun(6) leads to "segmentation fault"
       return 0;
     }
   #+end_src
 
   #+RESULTS:
-  : 3.140000000000
-  : 3.140000000000
-  : 3.139999866486
-  : 2.000000610352
-  : 3.140000000000
+  : 3.140000000000 
+  : 3.140000000000 
+  : 3.139999866486 
+  : 2.000000610352 
+  : 3.140000000000 
 
-- Explanation: Memory corruption due to out-of-bounds access. =s.a[i]=
-  writes past the end of the array stack for i > 1 and overwrites
-  parts of the adjacent =s.d=. For i>5, the OS protects memory.
-
+- Explanation:
+  #+begin_quote
+  Memory corruption due to out-of-bounds access. =s.a[i]= writes past
+  the end of the array stack for i > 1 and overwrites parts of the
+  adjacent =s.d=. For i>5, the OS protects memory leading to
+  segmentation fault.
+  
+  - =int a[2]= occupies bytes 0-7 (4 bytes each).
+  - =double d= starts at offset 8 and spans bytes 8-15.
+  - ~volatile~ forces =s= to live in memory (non-optimized).
+  - On little-endian systems (least significant byte is stored at the
+    lowest memory address), =a[2]= wrecks the low 4 bytes of =d= (small
+    nudge), while =a[3]= wrecks the high 4 bytes (dramatic change).
+  #+end_quote
   #+attr_html: :width 600px :float nil:
   #+caption: Source: Bryant/O'Halloran (2016)
   [[../img/memory.png]]
