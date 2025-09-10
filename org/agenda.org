@@ -321,10 +321,10 @@
 
 * Week 2: Microchips, logic gates, (Sep 5)
 
-- [ ] Popquiz! What do you remember from the videos? Take the
+- [X] Popquiz! What do you remember from the videos? Take the
   solutions home, grade yourself, and return the test next week.
 
-- [ ] Finish: Assembly and the machine.
+- [X] Finish: Assembly and the machine.
 
 ** Review: How are Microchips made? ([[https://youtu.be/dX9CGRZwD-w?si=KDARgJLQz7Bd3IEu][Branch Education, YouTube 2024]])
 
@@ -367,37 +367,37 @@
 The video explains how modern microchips, containing billions of
 nanoscopic transistors, are manufactured in semiconductor fabrication
 plants:
-  - Scale & Complexity: A CPU may hold 26 billion transistors across 80
-    layers of metal interconnects, manufactured in cleanrooms the size
-    of eight football fields, using machines costing up to $170M.
-  - Transistor Structures: Modern CPUs use FinFET transistors, only tens
-    of nanometers in size, smaller than dust particles or mitochondria.
-  - Manufacturing Analogy: Building a chip is like baking an 80-layer
-    cake with 940 steps — requiring precision at every stage or the
-    product fails.
-  - Core Process Steps: Each layer is built by depositing insulators,
-    applying light-sensitive photoresist, using photolithography with UV
-    light and masks, etching away unwanted areas, depositing copper, and
-    leveling the wafer with chemical mechanical planarization
-    (CMP). These steps are repeated layer by layer, with frequent
-    cleaning and inspection.
-  - Fabrication Plant Tools: Six categories of tools are used:
-    1. Mask-making (photoresist, lithography, stripping)
-    2. Deposition (adding metals, oxides, silicon)
-    3. Etching & planarization
-    4. Ion implantation (doping regions for transistors)
-    5. Wafer cleaning
-    6. Metrology/inspection
-  - Throughput & Cost: A fab may hold 435 tools and produce 50,000
-    wafers monthly. Each wafer, costing ~$100, becomes worth ~$100,000
-    once populated with CPUs.
-  - Post-Fab Steps: Chips are tested and “binned” (e.g., i9, i7, i5)
-    depending on defects, cut from wafers, mounted on packages, fitted
-    with heat spreaders, and tested again before sale.
-  - Broader Context: Microchip fabrication is secretive and
-    technologically advanced, requiring immense time and resources. The
-    video notes future plans for deep dives on transistors, GPUs, and
-    CPU architectures.
+- Scale & Complexity: A CPU may hold 26 billion transistors across 80
+  layers of metal interconnects, manufactured in cleanrooms the size
+  of eight football fields, using machines costing up to $170M.
+- Transistor Structures: Modern CPUs use FinFET transistors, only tens
+  of nanometers in size, smaller than dust particles or mitochondria.
+- Manufacturing Analogy: Building a chip is like baking an 80-layer
+  cake with 940 steps — requiring precision at every stage or the
+  product fails.
+- Core Process Steps: Each layer is built by depositing insulators,
+  applying light-sensitive photoresist, using photolithography with UV
+  light and masks, etching away unwanted areas, depositing copper, and
+  leveling the wafer with chemical mechanical planarization
+  (CMP). These steps are repeated layer by layer, with frequent
+  cleaning and inspection.
+- Fabrication Plant Tools: Six categories of tools are used:
+  1. Mask-making (photoresist, lithography, stripping)
+  2. Deposition (adding metals, oxides, silicon)
+  3. Etching & planarization
+  4. Ion implantation (doping regions for transistors)
+  5. Wafer cleaning
+  6. Metrology/inspection
+- Throughput & Cost: A fab may hold 435 tools and produce 50,000
+  wafers monthly. Each wafer, costing ~$100, becomes worth ~$100,000
+  once populated with CPUs.
+- Post-Fab Steps: Chips are tested and “binned” (e.g., i9, i7, i5)
+  depending on defects, cut from wafers, mounted on packages, fitted
+  with heat spreaders, and tested again before sale.
+- Broader Context: Microchip fabrication is secretive and
+  technologically advanced, requiring immense time and resources. The
+  video notes future plans for deep dives on transistors, GPUs, and
+  CPU architectures.
 
 ** Review: Making logic gates from transistors ([[https://youtu.be/sTu3LwpF6XI?si=k1DRLefz6b9OSKTu][Ben Eater, 2015]])
 
@@ -469,8 +469,7 @@ building blocks for digital logic.
 - With these gates, more complex circuits can be built for arithmetic,
   memory, and eventually entire computers.
 
-
-** TODO Assembly and the machine
+** Assembly and the machine
 
 1. Why Assembly at all?
    #+begin_quote
@@ -501,7 +500,67 @@ building blocks for digital logic.
    gdb segfault  # import segfault and run it in gdb
    #+end_example
 
-* Week 3: (Sep 8, 10, 12)
+* Week 3: Memory, Compilation, Hardware Organization  (Sep 8, 10, 12)
+
+- [X] Guest speaker on Wednesday 10 Sept 1 pm in Derby 255
+- [X] Memory layout errors
+- [X] Code optimization
+- [X] Network dependency
+
+- [ ] The compiler chain
+- [ ] Hardware organization
+- [ ] Running the =hello world= executable
+
+- [ ] The OS and its abstractions
+- [ ] The memory organization
+- [ ] Amdahl's Law
+- [ ] Networks
+- [ ] Concurrency and parallelism
+
+** Review: Memory (Monday)
+
+1. What's an architecture problem related to memory?
+   #+begin_quote
+   Memory: Out-of-bounds access can corrupt nearby data because memory
+   must be explicitly allocated and managed.
+   #+end_quote
+2. What's an architecture problem related to performance?
+   #+begin_quote
+   Performance: Poor memory access patterns (like column-wise instead
+   of row-wise) increase cache misses and slow programs.
+   #+end_quote
+3. What's an architecture problem related to networks?
+   #+begin_quote
+   Networks: Concurrency, unreliable media, and cross-platform
+   differences make network programming complex despite standard
+   libraries.
+   #+end_quote
+4. What's a socket?
+   #+begin_quote
+   A socket is an endpoint for communication between two programs over
+   a network (including communication of a computer with itself). On
+   Unix-like systems (Linux, MacOS) it's like a file descriptor - you
+   can read from and write to it, but instead of accessing a file, the
+   data go through the network stack.
+   #+end_quote
+5. What's the little/big endian problem?
+   #+begin_quote
+   The little/big endian problem is about how multi-byte data (like an
+   ~int~ or ~double~) is stored in memory:
+   - *Little-endian*: the least significant byte goes in the lowest
+     memory address.
+   - *Big-endian:* the most significant byte goes in the lowest memory
+     address.
+   The "problem" arises when data is shared between systems with
+   different endianness (e.g., over a network or in files). The same
+   bytes can be interpreted differently unless both sides agree on the
+   byte order.
+   #+end_quote
+
+** Review: Compiler chain (Wednesday)
+
+** Review: Hardware organization (Friday)
+
 * Week 4: Expo (Sep 15, 17, 19)
 #+attr_html: :width 200px :float nil:
 [[../img/expo.png]]
