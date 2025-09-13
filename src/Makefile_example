@@ -1,0 +1,18 @@
+# Makefile for CreditCard class and test
+CXX      = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -g
+
+TARGET   = Hello
+OBJS     = Hello.o HelloTest.o
+
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
+
+Hello.o: Hello.cpp Hello.h
+	$(CXX) $(CXXFLAGS) -c Hello.cpp
+
+HelloTest.o: HelloTest.cpp Hello.h
+	$(CXX) $(CXXFLAGS) -c HelloTest.cpp
+
+clean:
+	rm -f *.o $(TARGET)
