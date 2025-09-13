@@ -1,0 +1,269 @@
+#+TITLE:A Tour of Computer Systems
+#+AUTHOR:Marcus Birkenkrahe
+#+SUBTITLE:Computer Architecture (CSC 255) - Fall 2025
+#+STARTUP: overview hideblocks indent
+#+OPTIONS: toc:1 num:1 ^:nil
+#+PROPERTY: header-args:R :session *R* :results output :exports both :noweb yes
+#+PROPERTY: header-args:python :session *Python* :results output :exports both :noweb yes
+#+PROPERTY: header-args:C :main yes :includes <stdio.h> :results output :exports both :noweb yes
+#+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
+:LOGBOOK:
+CLOCK: [2025-05-30 Fri 12:59]
+:END:
+* Objectives
+
+- [ ] The original =hello world= program in C
+- [ ] The compilation system
+- [ ] Hello World in ASCII
+- [ ] Hardware organization of a computer system
+- [ ] What happens when you run =hello world=
+- [ ] The purpose of an "abstraction"
+- [ ] How memory is organized
+- [ ] How the Operating System manages the hardware
+- [ ] Networks as Input/Output devices
+- [ ] Amdahl's Law
+- [ ] Concurrency and parallelism
+- [ ] The importance of abstractions
+
+* The classic: "hello world"
+
+- K&R (1978) introduce readers to C using the "hello, world"
+  program[fn:1]:
+  #+begin_src C :tangle ../src/hello.c
+    #include <stdio.h>
+    int main(){printf("hello, world\n");return 0;}
+  #+end_src
+
+- The program =hello= begins life as a *source* program or source file
+  created with an editor and saved to a text file =hello.c=.
+
+- In this course, we're not concerned with the C syntax but instead
+  with what exactly the computer does with it down to the bit level.
+
+- The source file is a *sequence of bits*, each with a value of 0 or 1,
+  organized in *8-bit* chunks called *bytes*. Each byte represents a text
+  *character* in the program.
+
+- Most computer systems represent text characters using the *ASCII*
+  standard - each character is coded as a unique byte-sized integer
+  value:
+  #+attr_html: :width 400px :float nil:
+  #+begin_example
+  #  i    n    c   l   u   d   e   SP <  s   t   d   i   o   .  h   >
+ 35  105  110  99  108 117 100 101 32 60 115 116 100 105 111 46 104 62
+
+  i   n   t   SP   m   a   i   n   (  )
+  105 110 116 32   109 97  105 110 40 41
+
+  {
+  123
+      p   r   i   n   t   f   (  "  h   e   l   l   o   ,  SP w   o   r   l   d   \  n   "  )  ;
+      112 114 105 110 116 102 40 34 104 101 108 108 111 44 32 119 111 114 108 100 92 110 34 41 59
+
+      r   e   t   u   r   n   SP 0  ;
+      114 101 116 117 114 110 32 48 59
+  }
+  125
+  #+end_example
+
+- How could you check that this is the encoding for the characters?
+  #+begin_quote
+  To check the ASCII encoding you could print the characters as
+  integer values.
+  #+end_quote
+  #+begin_src C :main no :includes :results output :exports both :tangle ascii.c
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    int main()
+    {
+      char line[]="#include <stdio.h>";
+      int len = strlen(line);
+      for (int i = 0; i < len; i++)
+        {
+        printf("%c ", line[i]);    // %c: ASCII, %d: integer
+        printf("%d ", line[i]);    // %c: ASCII, %d: integer
+      }
+      return 0;
+    }
+  #+end_src
+
+  #+RESULTS:
+  : # 35 i 105 n 110 c 99 l 108 u 117 d 100 e 101   32 < 60 s 115 t 116 d 100 i 105 o 111 . 46 h 104 > 62 
+
+- Our story begins with compilation and the creation of an *executable*, =hello=:
+  #+begin_src bash :results output :exports both
+    ls ascii.c
+    gcc ascii.c -o ascii
+    #make ascii
+    ./ascii
+  #+end_src
+
+  #+RESULTS:
+  : ascii.c
+  : # 35 i 105 n 110 c 99 l 108 u 117 d 100 e 101   32 < 60 s 115 t 116 d 100 i 105 o 111 . 46 h 104 > 62 
+
+- How exactly does the computer create and run this executable?
+
+* The compiler driver
+
+- How can you print "Hello, world!" on the screen? What are the steps?
+  #+begin_quote
+  #+attr_html: :width 600px :float nil:
+  #+caption: Compilation chain. Source: Bryant/O'Halloran 2016 (Fig 1.3)
+  [[../img/fig1.3_compilation.png]]
+
+  1. Write a source program -> =hello.c= (text editor ~emacs~)
+  2. Modify source program =hello.c= -> =hello.i= (preprocessor ~cpp~)
+  3. Compile to assembly =hello.i= -> =hello.s= (compiler ~cc1~)
+  4. Assemble to object file =hello.s= -> =hello.o= (assembler ~as~)
+  5. Link object file to library object files -> =hello= (linker ~ld~)
+  6. Run exexutable =hello= on system using ~stdout~ and the ~bash~ shell.
+
+  #+end_quote
+
+* Demo: Compilation chain
+
+- We're using the GNU compiler GCC (~gcc~). What is it exactly?
+  #+begin_quote
+  Look at gcc.gnu.org - front-end for multiple languages including
+  FORTRAN, Ada, Go, Modula-2, C, C++...originally the compiler for
+  UNIX, the original multi-user, time-sharing Operating System.
+  #+end_quote
+
+- How can you find out more about this program?
+  #+begin_quote
+  Open the man page for gcc (500 pages).
+  #+end_quote
+  #+begin_example
+         gcc [-c|-S|-E] [-std=standard]
+           [-g] [-pg] [-Olevel]
+           [-Wwarn...] [-Wpedantic]
+           [-Idir...] [-Ldir...]
+           [-Dmacro[=defn]...] [-Umacro]
+           [-foption...] [-mmachine-option...]
+           [-o outfile] [@file] infile...
+  #+end_example
+
+- Let's look at the steps and results of the compiler chain. Do this
+  in a terminal (e.g. ide.cloud.google.com).
+
+-----  
+
+1. *Preprocessing*: =hello.c= -> =hello.i=
+   #+begin_src bash :results output :exports both
+     cd ../src
+     gcc -E hello.c -o hello.i
+     ls -lt hello.c hello.i
+     file hello.c
+     file hello.i
+   #+end_src
+
+   #+RESULTS:
+   : -rw-rw-r-- 1 marcus marcus 60149 Sep 12 15:21 hello.i
+   : -rw-rw-r-- 1 marcus marcus   159 Aug 27 12:55 hello.c
+   : hello.c: C source, ASCII text
+   : hello.i: C source, ASCII text
+   
+2. *Compilation*: =hello.i= -> =hello.s=
+   #+begin_src bash :results output :exports both
+     cd ../src
+     gcc -S hello.i -o hello.s
+     ls -lt hello.s
+     file hello.s
+   #+end_src
+
+   #+RESULTS:
+   : -rw-rw-r-- 1 marcus marcus 684 Sep 12 15:21 hello.s
+   : hello.s: assembler source, ASCII text
+
+3. *Assembly*: =hello.s= -> =hello.o=
+   #+begin_src bash :results output :exports both
+     cd ../src
+     gcc -c hello.s -o hello.o
+     ls -lt hello.*
+     file hello.o
+   #+end_src
+
+   #+RESULTS:
+   : -rw-rw-r-- 1 marcus marcus  1504 Sep 12 15:23 hello.o
+   : -rw-rw-r-- 1 marcus marcus   684 Sep 12 15:21 hello.s
+   : -rw-rw-r-- 1 marcus marcus 60149 Sep 12 15:21 hello.i
+   : -rw-rw-r-- 1 marcus marcus    69 Aug 27 15:23 hello.cpp
+   : -rw-rw-r-- 1 marcus marcus   159 Aug 27 12:55 hello.c
+   : hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not strippedG
+
+   If you "touch" a file (change its timestamp), ~make~ will see it and
+   initiate a recompilation.
+   #+begin_src bash :results output
+     cd ../src
+     touch hello.c
+     make hello
+   #+end_src
+
+   #+RESULTS:
+   : cc    -c -o hello.o hello.c
+   : cc   hello.o   -o hello
+
+   Explanations:
+   #+begin_quote
+   - ELF: Executable and linkable format (64-bit)
+   - LSB: Least Significant Byte first -> Little Endian byte order
+   - "relocatable": you can use shared object libraries
+   - x86-64: 64-bit Intel/AMD CPU (x8600)
+   - version 1 (SYSV): System V application binary interface (Linux)
+   - "not stripped": contains symbol and debugging information
+   #+end_quote
+
+4. *Linking*: =hello.o= + =printf.o= -> =hello=
+   #+begin_src bash :results output :exports both
+     cd ../src
+     gcc hello.o -o hello
+     ls -lt hello.*
+     file hello
+   #+end_src
+
+   #+RESULTS:
+   : -rw-rw-r-- 1 marcus marcus  1504 Sep 12 15:24 hello.o
+   : -rw-rw-r-- 1 marcus marcus   159 Sep 12 15:24 hello.c
+   : -rw-rw-r-- 1 marcus marcus   684 Sep 12 15:21 hello.s
+   : -rw-rw-r-- 1 marcus marcus 60149 Sep 12 15:21 hello.i
+   : -rw-rw-r-- 1 marcus marcus    69 Aug 27 15:23 hello.cpp
+   : hello: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=bada948b7806816ed4ed6a628ba7d7702771dee0, for GNU/Linux 3.2.0, not stripped
+
+   Explanations:
+   #+begin_quote
+   - "pie executable": position independent excecutable = it can be loaded
+     anywhere into the memory.
+   - "dynamically linked": uses shared libraries and it will load the
+     libraries (e.g. the one to print) at run-time.
+   #+end_quote
+
+5. *Running*: =hello= -> ~stdout~
+   #+begin_src bash :results output :exports both
+     cd ../src
+     ./hello
+   #+end_src
+
+   #+RESULTS:
+   : Hello, World
+
+* What happens when we run =hello= on a computer
+
+1) The shell e.g. ~bash(1)~ loads and runs the program and then waits for it
+   to terminate. 
+
+2) The ~hello~ program prints the message to the screen (stdout) and
+   then terminates (end of run-time).
+
+3) The shell program prints a prompt ~$~ and waits for the next input
+
+4) There are obviously a number of devices involved. Which are they?
+   #+begin_quote
+   1. The CPU to execute the program proper
+   2. The input/output system (e.g. move data to the screen)
+   3. The graphics system (to present the output on the screen)
+   4. The keyboard to type and enter commands
+   5. The memory to hold data during running
+   #+end_quote
+
