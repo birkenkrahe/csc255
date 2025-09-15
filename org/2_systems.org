@@ -487,7 +487,8 @@ display device.
 
 - For this to work smoothly, low-level hardware and OS software have
   to cooperate closely. This is part of a much larger topic,
-  *exceptions* - commands and data structures used to signal events.
+  *exceptions* - commands and data structures used to signal events. See
+  more in the man page for =signal(7)=.
 
 * OS: Threads
 
@@ -499,6 +500,15 @@ display device.
     way of making programs run faster especially when multiple
     processors are available.
 
+  - Each process has its own address space (primate memory), the
+    kernel keeps process control separate, and processes communicate
+    via explicit inter-process communications.
+
+  - All threads of a process share memory, code, data, open
+    files. Each thread has its own stack and CPU
+    registers. Communication is much easier and faster but bugs are
+    more likely, too.
+  
   - Mastering concurrency means writing multi-threaded
     programs. Example:
     #+begin_src C
