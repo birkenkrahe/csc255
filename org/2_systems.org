@@ -267,3 +267,1328 @@ CLOCK: [2025-05-30 Fri 12:59]
    5. The memory to hold data during running
    #+end_quote
 
+* Hardware organization
+#+attr_html: :width 600px :float nil:
+#+caption: Hardware architecture (Bryan/O'Halloran Fig.1.4)
+[[../img/fig1.4_hardware.png]]
+
+- The figure shows the hardware organization of a typical system.
+
+- *Buses*:
+  #+begin_quote
+
+  #+end_quote
+
+- *I/O Devices*: System's connections to the real world. Which I/O
+  devices are there?
+  #+begin_quote
+  1. 
+  2. 
+  3. 
+  4. 
+  5. 
+  #+end_quote
+
+- *Controllers* and *Adapters*: 
+  #+begin_quote
+  1. 
+  2. 
+  3. 
+  #+end_quote
+
+- *Main memory*:
+  #+begin_quote
+
+  #+end_quote
+
+- *Processor*:
+  #+begin_quote
+
+  #+end_quote
+
+- *CPU transactions:*
+  #+begin_quote
+
+  #+end_quote
+
+* Example: Hardware organization of a Raspberry Pi 5
+#+attr_html: :width 900px :float nil:
+#+caption: Raspberry Pi 5 motherboard layout (Source: hackatronic.com)
+[[../img/Raspberry-Pi-5-Specification.jpg]]
+
+| Label                        | Explanation                             | HW Diagram Element       |
+|------------------------------+-----------------------------------------+--------------------------|
+| SRAM (1GB–8GB)               | System RAM for programs and data.       | Main memory              |
+| BCM2712 processor            | Main quad-core ARM Cortex-A76 CPU.      | CPU (PC, ALU, registers) |
+| Dual-band WiFi + Bluetooth 5 | Wireless networking and BT peripherals. | Expansion slot (I/O bus) |
+| PCI Express interface        | High-speed peripheral connection.       | Expansion slot (I/O bus) |
+| On/off button                | Powers the board on or off.             | I/O subsystem            |
+| PMIC                         | Manages power across board components.  | Not shown (power logic)  |
+| UART connector               | Serial port for debug or comms.         | USB controller / I/O bus |
+| USB-C Power jack             | Power input (usually 5V, 3A+).          | Not shown (power logic)  |
+| RTC battery connector        | Keeps time when power is off.           | Not shown (optional RTC) |
+| 2 × micro-HDMI               | Dual display output up to 4K.           | Graphics adapter         |
+| RP1 I/O controller           | Handles USB, Ethernet, GPIO I/O.        | I/O bridge               |
+| Fan connector                | Connects to an optional cooling fan.    | I/O subsystem            |
+| 2 × USB 2.0                  | Standard-speed USB ports.               | USB controller           |
+| 2 × USB 3.0                  | High-speed USB ports for storage, etc.  | USB controller           |
+| Ethernet transceiver         | Converts Ethernet signals.              | Expansion slot (I/O bus) |
+| Ethernet jack                | Wired network port (RJ45).              | Expansion slot (I/O bus) |
+| PoE HAT connector            | Power over Ethernet support.            | Expansion slot (I/O bus) |
+| 2 × MIPI DSI/CSI connectors  | Interfaces for camera and display.      | Expansion slot (I/O bus) |
+
+* Running =hello=: Reading keyboard commands
+#+attr_html: :width 600px :float nil:
+#+caption: Keyboard commands. Source: Bryant/O'Halloran 2016 (Fig 1.5)
+
+[[../img/fig1.5_keyboardread.png]]
+
+When we type the command, the shell program (~bash(1)~) knows when we're
+done typing, and the system asks for the code and data from the disk.
+
+* Running =hello=: Copy data from disk to main memory
+#+attr_html: :width 600px :float nil:
+#+caption: Loading data into main memory. Source: Bryant/O'Halloran 2016 (Fig 1.5)
+[[../img/fig1.6_helloload.png]]
+
+The data travel directly from disk to main memory using direct memory
+access (DMA) without passing through the processor.
+
+* Running =hello=: Copy data from disk to main memory
+#+attr_html: :width 600px :float nil:
+#+caption: Writing output string to display. Source: Bryant/O'Halloran 2016 (Fig 1.5)
+[[../img/fig1.7_displaywrite.png]]
+
+Once code and data are in memory, the processor executes machine
+instructions in the ~main~ program. The bytes in the ="hello, world\n"=
+string are copied from memory to CPU registers, and from there to the
+display device.
+
+* Running =hello=: Processor-memory gap
+
+- The system spends a lot of time moving information around.
+
+- Memory access varies massively across the architecture.
+  
+- Economies: fast memory or fast processors?
+
+- Cache memory.
+  #+attr_html: :width 600px :float nil:
+  #+caption: Cache memories (Source: Bryant/O'Halloran 2016)
+  [[../img/fig1.8_cachebus.png]]
+
+* Memory is organized hierarchically
+
+- The idea behind caches.
+  #+attr_html: :width 600px :float nil:
+  #+caption: Memory hierarchy (Source: Bryant/O'Halloran 2016)
+  [[../img/fig1.9_memhier.png]]
+
+- The main idea of the memory hierarchy.
+
+* Running =hello= - summary
+
+1. *Hello World as Binary Text*: The =hello.c= source file is just a
+   sequence of ASCII-encoded bytes representing characters, ultimately
+   interpreted by the machine as binary values.
+
+2. *Compilation Pipeline*: The C source file goes through preprocessing,
+   compilation, assembly, and linking to become an executable binary
+   like =hello=.
+
+3. *GCC and Compilation Stages*: GCC acts as a compiler driver,
+   coordinating tools like =cpp=, =cc1=, =as=, and =ld= to transform
+   human-readable code into machine-executable form.
+
+4. *File Creation to Execution*: The executable =hello= is run by the
+   shell (=bash=), which loads it into memory, starts a new process, and
+   prints output to the terminal.
+   
+5. *Hardware Overview*: A computer system includes the CPU, memory,
+   buses, and peripheral devices, all connected via controllers and
+   adapters orchestrated by the motherboard.
+
+6. *Raspberry Pi as Hardware Case Study*: The Raspberry Pi maps textbook
+   hardware components—CPU, memory, I/O buses, adapters—to real-world
+   chips and ports on a single board ("System-on-Chip", SOC design).
+
+7. *How Data Moves During Execution*: Running a program involves
+   transferring bytes from disk to memory (via DMA), then into CPU
+   registers, and finally to the screen or another output device.
+
+8. *Performance and the Processor-Memory Gap*: Because memory and disk
+   access are vastly slower than CPU operations, modern systems use
+   hierarchical caches to keep frequently used data close to the
+   processor.
+
+9. *Program Efficiency via Hardware Awareness*: Knowing about memory
+   hierarchies and execution flow allows programmers to write more
+   efficient code that minimizes costly memory transfers and cache
+   misses.
+
+10. *Memory is Organized Hierarchically*: The memory hierarchy places
+    fast, small storage (like caches) between the CPU and slower
+    storage layers, enabling efficient access to frequently used data.
+
+
+* The OS manages the hardware
+
+- The operating system (OS) is a layer of software between the
+  application program and the hardware. It protects the hardware from
+  misuse by runaway applications, and hands applications simple ways
+  to manipulate low-level hardware.
+  #+attr_html: :width 600px :float nil:
+  #+caption: Operating system between apps and hardware (Source: Bryant/O'Halloran 2016)
+  [[../img/fig1.10_os.png]]
+
+- The OS achieves this with three abstractions: Processes, virtual
+  memory, and files. As the illustration shows, these hide details of
+  the processor, the memory, and I/O devices.
+  #+attr_html: :width 550px :float nil:
+  #+caption: Operating system abstractions (Source: Bryant/O'Halloran 2016)
+  [[../img/fig1.11_abstractions-os.png]]
+
+* OS: Processes
+
+- The deep secret of the OS is that it maintains the illusion, for the
+  user, that his program is the only one running on the system, with
+  exclusive use of the processor, main memory, and I/O devices.
+
+- The *process* is the OS abstraction for running a program. Multiple
+  processes can run *concurrently* on the same system. Concurrent means
+  that the instructions of one process are interleaved with the
+  instructions of another process.
+
+- To see only the tip of the process iceberg, open a terminal (=M-x
+  term RET=) and run the ~top~ command. The output refreshes every 5
+  seconds or so and looks something like this:
+  #+attr_html: :width 600px :float nil:
+  [[../img/top.png]]
+- In a *uniprocessor* system (one core only), a single CPU appears to
+  execute multiple processes by *context switching* between user and
+  kernel mode.
+  #+attr_html: :width 550px :float nil:
+  #+caption: Process context switching (Source: Bryant/O'Halloran 2016)
+  [[../img/context_switching.png]]
+
+- The *kernel* is the part of the OS that is always resident in
+  memory. *System calls* transfer control to the kernel. The kernel
+  controls the action using system *interrupt calls*.
+
+- Context switching for the =hello= program run:
+  1) The shell process runs alone waiting for input.
+  2) When asked to run =hello=, the shell invokes a system call that
+     passes process control to the OS.
+  3) The OS saves the shell's context
+  4) The OS creates a =hello= process and its context
+  5) The OS passes control to the =hello= process
+  6) When =hello= is done, the OS restores the shell context
+  7) Control is passed back to the shell.
+
+- For this to work smoothly, low-level hardware and OS software have
+  to cooperate closely. This is part of a much larger topic,
+  *exceptions* - commands and data structures used to signal events.
+
+* OS: Threads
+
+  - A process doesn'tt have to have single control flow. It can consist
+    of multiple execution units, called *threads*. Each thread runs in the
+    process context, shares the same code and global data.
+
+  - Threads are more efficient than processes, and multi-threading is a
+    way of making programs run faster especially when multiple
+    processors are available.
+
+  - Mastering concurrency means writing multi-threaded
+    programs. Example:
+    #+begin_src C
+      #include <stdio.h>
+      #include <pthread.h>
+
+      void* print_hello(void* arg) {
+        printf("Hello from thread %d!\n", *(int*)arg);
+        return NULL;
+      }
+
+      int main() {
+        pthread_t threads[2];
+        int thread_ids[2] = {1, 2};
+
+        // Create threads
+        for (int i = 0; i < 2; i++) {
+          pthread_create(&threads[i], NULL, print_hello, &thread_ids[i]);
+        }
+
+        // Wait for threads to finish
+        for (int i = 0; i < 2; i++) {
+          pthread_join(threads[i], NULL);
+        }
+
+        printf("Main thread finished.\n");
+        return 0;
+      }
+    #+end_src
+
+    #+RESULTS:
+    : Hello from thread 1!
+    : Hello from thread 2!
+    : Main thread finished.
+
+  - What happens here?
+    #+begin_quote
+    1. Two threads are being created with ~pthread_create(3)~
+    2. Each thread runs the =print_hello= routine
+    3. The ~void*~ return type is a generic pointer (can return any
+       address), the argument can pass anything.
+    4. Inside =print_hello=, =arg= is passed as a ~void*~ but we know it's an
+       ~int*~ (to the thread ID) so =*(int*)arg= casts it back to an integer
+       pointer (address).
+    5. ~pthread_join~ waits for each thread to finish before exiting ~main~.
+    #+end_quote
+
+  - Just for fun: How would this look like in modern C++ (post-C++11)?
+    #+begin_src C++ :main no :includes :results output :exports both
+      #include <iostream>
+      #include <thread>
+
+      void print_hello(int id) {
+        std::cout << "Hello from thread " << id << "!\n";
+      }
+
+      int main() {
+        std::thread t1(print_hello, 1);
+        std::thread t2(print_hello, 2);
+
+        // Wait for both threads to finish
+        t1.join();
+        t2.join();
+
+        std::cout << "Main thread finished.\n";
+        return 0;
+      }
+    #+end_src
+
+    #+RESULTS:
+    : Hello from thread Hello from thread 2!
+    : 1!
+    : Main thread finished.
+
+  - You can see how concurrent writing to ~std::cout~ from multiple
+    threads is not safe: The ~ostream~ buffer is not protected against
+    interleaved output when multiple threads write to it simultaneously!
+
+  - The corrected version uses the ~<mutex>~ library to safeguard the
+    output stream. It is still simpler than the C version.
+    #+begin_src C++ :main no :includes :results output :exports both
+      #include <iostream>
+      #include <thread>
+      #include <mutex>
+
+      std::mutex cout_mutex;
+
+      void print_hello(int id) {
+        std::lock_guard<std::mutex> lock(cout_mutex);  // RAII-style lock
+        std::cout << "Hello from thread " << id << "!\n";
+      }
+
+      int main() {
+        std::thread t1(print_hello, 1);
+        std::thread t2(print_hello, 2);
+
+        t1.join();
+        t2.join();
+
+        std::cout << "Main thread finished.\n";
+        return 0;
+      }
+    #+end_src
+
+    #+RESULTS:
+    : Hello from thread 1!
+    : Hello from thread 2!
+    : Main thread finished.
+
+  - And how about Python? That's very simple using the ~threading~
+    library:
+    #+begin_src python :results output :exports both :session *Python* :python python3 
+      import threading
+
+      def print_hello(id):
+          print(f"Hello from thread {id}!")
+
+      # Create two threads
+      t1 = threading.Thread(target=print_hello, args=(1,))
+      t2 = threading.Thread(target=print_hello, args=(2,))
+
+      # Start threads
+      t1.start()
+      t2.start()
+
+      # Wait for both threads to finish
+      t1.join()
+      t2.join()
+
+      print("Main thread finished.")
+    #+end_src  
+
+    #+RESULTS:
+    : Hello from thread 1!
+    : Hello from thread 2!
+    : Main thread finished.
+
+  - Still: remember that it is C that's under the hood!
+
+  - Attended CSC 410 (Data Communications and Networks) and remember
+    ~fork(2)~? The difference is that ~fork~ creates a duplicate (child)
+    process with its own memory space (and the same process ID).
+
+* OS: Virtual Memory
+
+- The virtual memory abstraction gives each process the illusion that
+  it has exclusive use of the main memory. Each process has the same
+  view of memory, its *virtual address space*.
+
+- Virtual address space for a Linux OS:
+  #+attr_html: :width 600px :float nil:
+  [[../img/virtual.png]]
+
+- The machine code is mapped onto the structure shown in the
+  figure. It has the same composition for all processes, and consists
+  of a number of well-defined areas.
+
+- For virtual memory to work, every address generated by the processor
+  has to be translated to the address maintained by the OS. The
+  virtual memory of a process is stored on disk, and the main memory
+  is used as a cache for the disk.
+
+* Program code and data (R/O)
+  
+- At the bottom are code and (global) data from the executable object
+  file. The content is fixed and immutable at run-time. Always starts
+  at the same memory address[fn:2]. Important for linking and loading.
+
+- The example in C prints the address of the ~main~ function pointer and
+  of a global initialized variable. The corresponding memory segments
+  (at the bottom) are ~.text~ and ~.data~.
+  #+begin_src C :tangle ../src/address.c :main no :includes :results output :exports both
+    #include <stdio.h>
+
+    int global_var = 42;
+
+    int main()
+    {
+      printf("Address of main: %p\n", (void*)main);
+      printf("Address of main: %p\n", (void*)&global_var);      
+
+      return 0;
+    } 
+  #+end_src
+
+  #+RESULTS:
+  : Address of main: 0x5d6d0ad63149
+  : Address of main: 0x5d6d0ad66010
+
+* Heap (Dynamical R/W)
+
+- The heap, or the run-time "free" store, expands and contracts
+  dynamically (over time) in response to ~malloc~ and ~free~ calls (in C),
+  or ~new~ and ~delete~ (in C++).
+
+- Example: In C++, ~new T~ constructs an object of type ~T~ and allocates
+  heap memory, while ~delete~ frees the memory.
+
+  #+begin_src C++ :main no :includes :results output :exports both
+    #include <iostream>
+    using namespace std;
+
+    int global_var = 42;           // in .data segment
+
+    int main(void)                 // in .text segment
+    {
+      int local_var = 1;           // on the stack
+      int* heap_var = new int(99); // on the heap
+
+      cout << "local variable:  " << &local_var  << endl
+           << "heap variable:   " << heap_var    << endl
+           << "global variable: " << &global_var << endl;      
+     
+      return 0;
+    }
+  #+end_src
+
+  #+RESULTS:
+  : local variable:  0x7ffd3aeb270c
+  : heap variable:   0x650bd5722eb0
+  : global variable: 0x650bb3857010
+
+* Shared libraries (~.so~)
+
+- Near the middle of the address space is an area that holds code and
+  data for *shared libraries* which are dynamically (at runtime) linked
+  to the object file or executable.
+
+- The shared object ~.so~ files are the equivalent of Windows' ~.dll~
+  (dynamically linked library) files.
+
+- Examples: ~libm.so~ (math functions, ~libc.so~ (standard C library). On
+  Linux, these are located system-wide in ~/lib~ directories.
+  
+- How does this work? At compile time, your program is linked against
+  a shared library interface but not the actual code. At runtime, the
+  dynamic linker (~ld.so~) maps the ~.so~ files into the program's memory
+  space.
+
+- Example: ~sqrt~ from ~<math.h>~. 
+  #+begin_src C :main no :includes :tangle ../src/sqrt.c
+    #include <stdio.h>
+    #include <math.h>
+
+    int main()
+    {
+      printf("sqrt(2) = %f\n", sqrt(2));
+      return 0;
+    }
+  #+end_src
+
+  #+RESULTS:
+  : sqrt(2) = 1.414214
+
+  1) (org-babel-tangle) ~sqrt.c~ in ~../src~.
+
+  2) Build the executable but leave shared math library out:
+     #+begin_src bash :results output :exports both
+       cd ../src
+       gcc sqrt.c -lm -o sqrt -g
+       file sqrt
+     #+end_src
+
+     #+RESULTS:
+     : sqrt: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=96ce0e2a83cfdff8910f86df0fa2ccb5ded361c2, for GNU/Linux 3.2.0, with debug_info, not stripped
+
+  3) ~ldd~ shows which shared libraries ~sqrt~ will load dynamically at
+     runtime:
+     #+begin_src bash :results output :exports both
+       cd ../src
+       ldd sqrt
+       ./sqrt
+     #+end_src
+
+     #+RESULTS:
+     : 	linux-vdso.so.1 (0x0000765e1fbb2000)
+     : 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000765e1f800000)
+     : 	/lib64/ld-linux-x86-64.so.2 (0x0000765e1fbb4000)
+     : sqrt(2) = 1.414214
+
+  4) Check with ~gdb~ in a terminal, and you'll see ~libthread_db.so~,
+     which is a threaded debugger interface library so that ~gdb~ can
+     access thread information.
+     
+     #+attr_html: :width 600px :float nil:
+     [[../img/gdb_sqrt.png]]
+
+  5) You can inspect ~gdb~'s own dependencies:
+     #+begin_src bash :results output :exports both
+       ldd $(which gdb)
+     #+end_src
+
+     #+RESULTS:
+     #+begin_example
+             linux-vdso.so.1 (0x00007f7e92913000)
+             libreadline.so.8 => /lib/x86_64-linux-gnu/libreadline.so.8 (0x00007f7e9289d000)
+             libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f7e92881000)
+             libncursesw.so.6 => /lib/x86_64-linux-gnu/libncursesw.so.6 (0x00007f7e92845000)
+             libtinfo.so.6 => /lib/x86_64-linux-gnu/libtinfo.so.6 (0x00007f7e92813000)
+             libpython3.10.so.1.0 => /lib/x86_64-linux-gnu/libpython3.10.so.1.0 (0x00007f7e91800000)
+             libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f7e91719000)
+             libexpat.so.1 => /lib/x86_64-linux-gnu/libexpat.so.1 (0x00007f7e916e8000)
+             liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f7e916b5000)
+             libbabeltrace.so.1 => /lib/x86_64-linux-gnu/libbabeltrace.so.1 (0x00007f7e92802000)
+             libbabeltrace-ctf.so.1 => /lib/x86_64-linux-gnu/libbabeltrace-ctf.so.1 (0x00007f7e9166c000)
+             libipt.so.2 => /lib/x86_64-linux-gnu/libipt.so.2 (0x00007f7e91de5000)
+             libmpfr.so.6 => /lib/x86_64-linux-gnu/libmpfr.so.6 (0x00007f7e91200000)
+             libgmp.so.10 => /lib/x86_64-linux-gnu/libgmp.so.10 (0x00007f7e915ea000)
+             libsource-highlight.so.4 => /lib/x86_64-linux-gnu/libsource-highlight.so.4 (0x00007f7e91554000)
+             libxxhash.so.0 => /lib/x86_64-linux-gnu/libxxhash.so.0 (0x00007f7e9153f000)
+             libdebuginfod.so.1 => /lib/x86_64-linux-gnu/libdebuginfod.so.1 (0x00007f7e927f7000)
+             libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f7e90e00000)
+             libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f7e9151f000)
+             libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f7e90a00000)
+             /lib64/ld-linux-x86-64.so.2 (0x00007f7e92915000)
+             libglib-2.0.so.0 => /lib/x86_64-linux-gnu/libglib-2.0.so.0 (0x00007f7e910c6000)
+             libelf.so.1 => /lib/x86_64-linux-gnu/libelf.so.1 (0x00007f7e91501000)
+             libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007f7e91ddc000)
+             libboost_regex.so.1.74.0 => /lib/x86_64-linux-gnu/libboost_regex.so.1.74.0 (0x00007f7e90d0d000)
+             libcurl-gnutls.so.4 => /lib/x86_64-linux-gnu/libcurl-gnutls.so.4 (0x00007f7e90c6b000)
+             libpcre.so.3 => /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007f7e91050000)
+             libicui18n.so.70 => /lib/x86_64-linux-gnu/libicui18n.so.70 (0x00007f7e90600000)
+             libicuuc.so.70 => /lib/x86_64-linux-gnu/libicuuc.so.70 (0x00007f7e90405000)
+             libnghttp2.so.14 => /lib/x86_64-linux-gnu/libnghttp2.so.14 (0x00007f7e914d7000)
+             libidn2.so.0 => /lib/x86_64-linux-gnu/libidn2.so.0 (0x00007f7e914b6000)
+             librtmp.so.1 => /lib/x86_64-linux-gnu/librtmp.so.1 (0x00007f7e91031000)
+             libssh.so.4 => /lib/x86_64-linux-gnu/libssh.so.4 (0x00007f7e90992000)
+             libpsl.so.5 => /lib/x86_64-linux-gnu/libpsl.so.5 (0x00007f7e90c57000)
+             libnettle.so.8 => /lib/x86_64-linux-gnu/libnettle.so.8 (0x00007f7e9094c000)
+             libgnutls.so.30 => /lib/x86_64-linux-gnu/libgnutls.so.30 (0x00007f7e9021a000)
+             libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f7e901c6000)
+             libldap-2.5.so.0 => /lib/x86_64-linux-gnu/libldap-2.5.so.0 (0x00007f7e90166000)
+             liblber-2.5.so.0 => /lib/x86_64-linux-gnu/liblber-2.5.so.0 (0x00007f7e90c46000)
+             libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x00007f7e90097000)
+             libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x00007f7e90c38000)
+             libicudata.so.70 => /lib/x86_64-linux-gnu/libicudata.so.70 (0x00007f7e8e400000)
+             libunistring.so.2 => /lib/x86_64-linux-gnu/libunistring.so.2 (0x00007f7e8e256000)
+             libhogweed.so.6 => /lib/x86_64-linux-gnu/libhogweed.so.6 (0x00007f7e9004f000)
+             libcrypto.so.3 => /lib/x86_64-linux-gnu/libcrypto.so.3 (0x00007f7e8de00000)
+             libp11-kit.so.0 => /lib/x86_64-linux-gnu/libp11-kit.so.0 (0x00007f7e8dcc5000)
+             libtasn1.so.6 => /lib/x86_64-linux-gnu/libtasn1.so.6 (0x00007f7e90934000)
+             libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f7e8dbfa000)
+             libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f7e90020000)
+             libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f7e914b0000)
+             libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f7e90c2a000)
+             libsasl2.so.2 => /lib/x86_64-linux-gnu/libsasl2.so.2 (0x00007f7e8dbdf000)
+             libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x00007f7e8dbbc000)
+             libffi.so.8 => /lib/x86_64-linux-gnu/libffi.so.8 (0x00007f7e8e249000)
+             libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f7e8dbb5000)
+             libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f7e8dba1000)
+     #+end_example
+
+* Stack
+
+- At the top of the user's virtual address space is the *user stack*
+  that the compiler uses to implement function calls. It expands and
+  contracts dynamically during program execution when objects go into
+  and out of scope during function calls.
+
+- We will cover the stack in detail in the 3rd part of this course.
+
+- In C++, things are more complex than in C: For example ~vector~
+  objects (dynamically allocated arrays) - do they live on the stack
+  or on the heap?
+  #+begin_quote
+  The ~std::vector<int>~ object is created on the *stack* (unless it is
+  allocated manually with ~new~), but its contents, the actual integer
+  array, is allocated on the *heap* (because the size of ~vector~ is only
+  decided upon at runtime.
+  #+end_quote
+
+- The ~std::vector<int>~ class looks roughly like this:
+  #+begin_src C++ :main no :includes <iostream> <vector> :namespaces std :results output :exports both :noweb yes
+    struct Vector {
+      int* data = NULL;  // -> heap
+      size_t size;       // vector length
+      size_t capacity;   // max length
+    };
+
+    int main() {
+      Vector v;        // `v` is allocated on the stack
+      cout << v.data;  // `v.data` points to the heap
+      return 0;
+    }
+  #+end_src
+
+  #+RESULTS:
+  : 0
+
+- When growing the ~vector~ with ~.push_back~, the internal array is
+  reallocated on the heap while the stack remains unaffected apart
+  from metadata updates.
+  
+* Kernel
+
+- The top region of the address space is reserved for the kernel. No
+  application programs is allowed to read or write the contents of
+  this area or to directly call functions defined in kernel
+  code. Instead, to invoke system functions, the kernel must be
+  invoked.
+
+- Here is a minimal "Hello, kernel" example in C: It cannot just be
+  run it because it is unprivileged code. It uses kernel-only headers
+  (~<linux/.h>~), it must be compiled into an object file with a special
+  format (~.ko~), and it must be inserted in the kernel with ~insmod~.
+
+- The code:
+  #+begin_src C++ :main no :includes :results none :tangle ../src/hellokernel.c
+    #include <linux/init.h>
+    #include <linux/module.h>
+    #include <linux/kernel.h>
+
+    MODULE_LICENSE("GPL");
+    MODULE_AUTHOR("Marcus Birkenkrahe");
+    MODULE_DESCRIPTION("A simple kernel module");
+
+    static int __init hello_init(void) {
+      printk(KERN_INFO "Hello, kernel!\n");
+      return 0;
+    }
+
+    static void __exit hello_exit(void) {
+      printk(KERN_INFO "Goodbye, kernel!\n");
+    }
+
+    module_init(hello_init);
+    module_exit(hello_exit);
+  #+end_src
+
+- The ~Makefile~:
+  #+begin_src bash :tangle ../src/Makefile
+    # Makefile
+    obj-m += hellokernel.o
+    all:
+    	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+    clean:
+    	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+  #+end_src
+
+- Build and load: Use a terminal for this. Might get an error message
+  about "linux/init.h not found" in which case you have to install the
+  Linux headers. 
+  #+begin_example sh
+     make
+  #+end_example
+
+- Output:
+  #+attr_html: :width 800px :float nil:
+  [[../img/hellokernel.png]]
+
+- You can get some info on the module. The important point here is
+  that your kernel (~uname -r~) matches the kernel used here exactly.
+  #+begin_src bash :results output :exports both
+    cd ../src
+    modinfo hellokernel.ko    
+  #+end_src
+
+  #+RESULTS:
+  : filename:       /home/aletheia/GitHub/admin/fall25/csc255/src/hellokernel.ko
+  : description:    A simple kernel module
+  : author:         Marcus Birkenkrahe
+  : license:        GPL
+  : srcversion:     DC9CDE2F65196BC99420A07
+  : depends:        
+  : name:           hellokernel
+  : retpoline:      Y
+  : vermagic:       6.12.10-76061203-generic SMP preempt mod_unload modversions 
+
+- Load the executable into the kernel:
+  #+begin_example sh
+    sudo insmod hellokernel.ko   # insert module into kernel
+  #+end_example
+
+- Inspect runtime module info:
+  #+begin_example bash
+    lsmod | grep hellokernel     # Output: hellokernel [memory size] [used by]
+  #+end_example  
+
+- Display message from kernel buffer:
+  #+begin_example bash
+    sudo dmesg | tail -n 1       # Output: [33365.026728] Hello, kernel!
+
+- Remove the module from the kernel:
+  #+begin_example bash
+    sudo rmmod hellokernel       # Output: [33536.558614] Goodbye, kernel!
+  #+end_example
+
+- The numbers [33536.558614] are seconds and microseconds in system
+  (not wall clock) time (since boot - ca. 9-10 hours).
+
+- *Dreams:* You may recall that early in 2025 I shared one of my New
+  Year's resolutions: To contribute to the Linux kernel in whatever
+  small way possible. Was that a feasible ambition, what do you think?
+  #+begin_quote
+  It is not only feasible but commendable! The Linux kernel has > 30
+  mio lines of code and is always evolving. Small patches are its
+  lifeblood, including:
+  1) Fixing typos and documentation errors
+  2) Cleaning up code (fix warnings, remove zombies)
+  3) Update comments to match implementation
+  4) Fix coding style issues
+
+  To get started check out "kernel newbies" at [[https://kernelnewbies.org/][kernelnewbies.org/]] -
+  their Wiki is where the "Hello, kernel" example came from!
+  #+end_quote
+
+- These and other adventures are what awaits you in next year's new
+  edition of CSC 420 Operating Systems (check out [[https://pages.cs.wisc.edu/~remzi/OSTEP/][OSTEP]] online).
+
+* All memory segments without ASLR
+
+- Example to show all memory segments (C):
+  #+begin_src C :tangle ../src/address2.c :main no :includes :results output :exports both
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    void print_addresses();
+    
+    int global_var = 42;  // .data section
+
+    int main(void) {
+      print_addresses();
+      return 0;
+    }
+
+     void print_addresses() {
+      int local_var = 1;               // stack
+      int *heap_var = malloc(sizeof(int));  // heap
+      (*heap_var) = 99;
+
+      printf("Address of local_var (stack):  %p\n", (void*)&local_var);    // stack
+      printf("Address of heap_var (heap):    %p\n", (void*)heap_var);      // heap
+      printf("Address of global_var (.data): %p\n", (void*)&global_var);   // .data
+      printf("Address of main (.text):       %p\n", (void*)main);          // .text (code)
+
+      free(heap_var);
+    }
+  #+end_src  
+
+  #+RESULTS:
+  : Address of local_var (stack):  0x7ffcf2e9c6dc
+  : Address of heap_var (heap):    0x5b15544732a0
+  : Address of global_var (.data): 0x5b153e296010
+  : Address of main (.text):       0x5b153e2931a9
+
+- Run with temporarily disabled ASLR:
+  #+begin_src bash :results output :exports both
+    cd ../src
+    gcc address2.c -o addr
+    setarch $(uname -m) -R ./addr
+  #+end_src
+
+  #+RESULTS:
+  : Address of local_var (stack):  0x7fffffffe50c
+  : Address of heap_var (heap):    0x5555555592a0
+  : Address of global_var (.data): 0x555555558010
+  : Address of main (.text):       0x5555555551a9
+
+- How large are these memory segments each? How would you find out?
+  #+begin_src bash :results output :exports both
+    echo "ibase=16; 555555558010-5555555551A9;" |bc # .text
+    echo "ibase=16; 5555555592A0-555555558010;" |bc # .data   
+    cat /proc/$$/maps | grep heap # heap (grows upward)
+    ulimit -s                     # stack [8 MB per thread] grows downward
+  #+end_src
+
+  #+RESULTS:
+  : 11879
+  : 4752
+  : 65349fced000-65349fd0e000 rw-p 00000000 00:00 0                          [heap]
+  : 9788
+
+* OS Files
+
+- What is a *file*?
+  #+begin_quote
+  A file is a sequence of bytes. Every I/O device (disks, keyboards,
+  displays, networks) is modeled as a "file". All input and output in
+  the system is performed by reading and writing files using a small
+  set of system calls.
+  #+end_quote
+
+- Why's the abstraction of a file so powerful?
+  #+begin_quote
+  The file provides every application with a uniform view of all I/O
+  devices that might be part of the system. When manipulating a disk
+  file, the specific disk technology is irrelevant. The same program
+  will run on different systems with different disk technologies.
+  #+end_quote
+
+- How is this achieved?
+  #+begin_quote
+  The OS exposes all I/O through a common file descriptor API with the
+  same functions: ~open~, ~read~, ~write~, ~close~ etc. The Virtual File
+  System (VFS) layer maps these system calls to the correct backend.
+  #+end_quote  
+
+- Examples:
+  1) You open a file with =open("file.txt")=: The OS looks up the file
+     metadata (path, ~file~, permissions) and returns a file descriptor
+     (a non-negative number that indexes into a per-process table of
+     open files maintained by the kernel).
+
+  2) You ~read~ from a terminal, disk, or a socket: The OS routes a call
+     to the correct device driver via VFS.
+
+  3) You use ~fread~ (binary read) to read from a hard disk, a USB
+     stick, a file over a network, or a virtual file like
+     ~/proc/cpuinfo~ without changing a single line of code!
+
+- Each running process has a directory for its file descriptors (FDs)
+  in ~/proc~. Standard input, standard output, and standard error files
+  are visible when you display the open FDs of your shell (alongside
+  other processes - cut off after the first three records):
+  #+begin_src bash :results output :exports both
+    ls -l /proc/$$/fd | head -n 4
+  #+end_src
+
+- Output on a regular shell either inside Emacs (as an emulation) or
+  using a terminal program:
+  #+begin_example
+  lrwx------ 1 aletheia aletheia 64 Jul  9 18:49 0 -> /dev/pts/0
+  lrwx------ 1 aletheia aletheia 64 Jul  9 18:49 1 -> /dev/pts/0
+  lrwx------ 1 aletheia aletheia 64 Jul  9 18:49 2 -> /dev/pts/0
+  #+end_example  
+
+- Output on an Emacs shell run inside an Org-mode file:
+  #+begin_example
+  : total 0
+  : lr-x------ 1 aletheia 64 Jul  9 18:39 0 -> /tmp/babel-QlOtOu/ob-input-hGX7VV
+  : l-wx------ 1 aletheia 64 Jul  9 18:39 1 -> pipe:[420266]
+  : l-wx------ 1 aletheia 64 Jul  9 18:39 2 -> /tmp/emacsZW3pfg
+  #+end_example
+
+- Explanation:
+  #+begin_quote
+  All FDs are symbolic links. On a regular shell, you only see
+  redirection to ~/dev~, on an Emacs-shell
+  
+  1) ~stdin~: Standard input (=FD=0=). Read and write permission. Input is
+     redirected to a temporary file created by Org-Babel because Emacs
+     executes the code inside Org-mode files.
+  2) ~stdout~: Standard output (=FD=1=). Write and execute
+     permission. Output is redirected to a pipe, a kernel-managed
+     in-memory buffer. This is how Emacs captures program output.
+  3) ~stdin~: Standard error (=FD=2=). Write and execute permission. Error
+     is redirected to a temporary file for display in a buffer or
+     minibuffer.
+  #+end_quote
+
+- You can demonstrate this with a simple C program that opens a file
+  =demo.txt= with read/write permissions and prints the process ID
+  (PID), then keeps the process alive so that (in another terminal) we
+  can see that file descriptor 3 is open and points to the file.
+  #+begin_src C++ :tangle ../src/fd_demo.c :noeval
+    #include <fcntl.h>
+    #include <unistd.h>
+    #include <stdio.h>
+
+    int main() {
+      int fd = open("demo.txt", O_CREAT | O_WRONLY, 0644);
+      if (fd < 0) {
+        perror("open");
+        return 1;
+      }
+      printf("PID: %d\n", getpid());
+      pause(); // keep the process alive
+      return 0;
+    }
+  #+end_src
+
+  Now, in the shell below, compile and run the demo:
+  #+begin_example bash
+    gcc fd_demo.c -o fd_demo
+    ./fd_demo 
+  #+end_example
+
+  In another terminal, find the PID of the program and look for the
+  process:
+  #+begin_example bash
+    pidinfo fd_demo  # get the PID
+    ls -l /proc/<PID>/fd/
+  #+end_example
+
+   Example output: Shows that =FD=3= is open and points to =demo.txt=
+   #+begin_example sh
+   $ ls -l /proc/81860/fd/ | grep demo
+   l-wx------ 1 [...] 3 -> /home/aletheia/src/demo.txt
+   #+end_example
+
+* OS abstractions - summary
+
+1. The operating system abstracts and protects hardware resources,
+   providing a clean interface—via processes, memory, and files—for
+   applications to use them safely and efficiently.
+
+2. The OS gives each running program (process) the illusion of
+   exclusive control over the CPU and memory through scheduling,
+   isolation, and context switching between kernel and user modes.
+
+3. Threads are lightweight execution paths within a process that share
+   memory space and allow concurrent execution for improved performance
+   on multicore systems.
+
+4. Virtual memory allows each process to use a consistent address space
+   by mapping virtual addresses to physical memory, enabling memory
+   protection and efficient resource sharing.
+
+5. The compiled program’s code (.text) and initialized global data
+   (.data) are stored in fixed, read-only memory regions near the
+   bottom of the virtual address space.
+
+6. The heap is a dynamically managed memory region that grows as the
+   program allocates and frees memory during execution.
+
+7. Shared libraries (.so files) are linked at runtime by the dynamic
+   linker to extend executable functionality without recompilation,
+   reducing memory and disk usage.
+
+8. The stack is a dynamic memory region at the top of user space used
+   for function calls and local variables, growing and shrinking with
+   program execution.
+
+9. The kernel occupies the top protected region of memory and handles
+   privileged operations on behalf of user programs through system
+   calls and modules.
+
+10. The file abstraction is powerful because it offers a simple,
+    uniform interface to vastly different hardware and data sources,
+    letting programs ignore device-specific complexity.
+
+
+* Networks as I/O devices
+
+- In reality, most systems are connected to other systems by
+  networks. From the point of view of our architecture, networks are
+  just I/O devices connected to the I/O bus.
+  #+attr_html: :width 600px :float nil:
+  [[../img/networks.png]]
+
+- How could we make use of a network for our =hello= world program?
+  #+begin_quote
+  A network is accessed using the file abstraction like any other
+  file. We could *copy* =hello= to another computer using the FTP
+  protocol, we could *run* it remotely using the TELNET (or SSH)
+  protocol, you could use sockets to *send* the "hello" message across
+  the network, *store* it on a shared file server to be accessed from
+  other machines as if it were local, or *upload* it in a container or
+  virtual machine on the cloud.
+
+  All of these use cases depend on the *protocol* used as a way of
+  exchanging data over the network in a standardized fashion
+  (e.g. over a default port, like 80 for HTTP, 23 for TELNET).
+  #+end_quote
+
+- Let's look at the (insecure, compared to ~ssh~) remote shell
+  application ~telnet~ ("teletype network"). The connection is run by
+  two programs: a local client (your PC), and a remote server
+  program. How the actual connection is established (via Ethernet,
+  TCP/IP or UDP, etc.) is irrelevant for this.
+
+- The ~telnet~ service allows us to run the =hello= program on the remote
+  machine.
+  #+attr_html: :width 600px :float nil:
+  [[../img/telnet.png]]
+
+- Here is the exact sequence of steps:
+  1) Set up the TELNET server so that it offers a login shell[fn:3]
+     #+begin_example bash
+     pi> sudo apt install telnetd
+     pi> sudo systemctl enable inetd
+     pi> sudo systemctl start inetd
+     #+end_example
+  2) Create a basic =hello= program on the Pi and export it so that it
+     can be executed by any user on the Pi:
+     #+begin_example bash
+     pi> echo - '#include <stdio.h>\nint main() { puts("Hello from Pi!"); }' > hello.c
+     pi> gcc hello.c -o hello
+     pi> chmod +x
+     pi> sudo mv hello /usr/local/bin
+     #+end_example
+  3) On the Pi, get the network address =<PI_ID>=. This will be the
+     local network address (not the Internet address):
+     #+begin_example bash
+     pi> hostname -I
+     192.168.1.203
+     #+end_example
+  4) From the client (PC), connect to the network address you got
+     using the TELNET client:
+     #+begin_example bash
+     pc> telnet 192.168.1.203
+     #+end_example
+  5) At the login prompt, provide the Pi's username and password. Now
+     the process shown in the diagram begins:
+     1. Type =hello= at the keyboard (in the TELNET client).
+     2. TELNET sends "hello" to the Pi's remote TELNET server.
+     3. The TELNET server sends "hello" to the Pi's shell, and the
+        shell runs the =hello= program and passes the output to the
+        TELNET server.
+     4. The TELNET server sends the output "Hello from Pi!" to the
+        TELNET client on the PC.
+     5. The TELNET client prints the string "Hello from Pi!" to the
+        PC's screen.
+     6. The TELNET client waits for further instructions.
+  6) Close the ~inetd~ program on the Pi
+     #+begin_example bash
+     pi> sudo systemctl stop inetd
+     #+end_example
+  7) Close the ~telnet~ program on the PC
+     #+begin_example bash
+     telnet> exit
+     #+end_example
+     Since no ~inetd~ is running on the Pi (server side), no new
+     connection can be established:
+     #+begin_example
+     pc> telnet 192.168.1.203
+         Trying 192.168.1.203...
+         telnet: Unable to connect to remote host: Connection refused
+     #+end_example
+
+- You learn a lot more about this in CSC 410 (Data Communications and
+  Networks)!
+
+* Amdahl's Law
+
+- Gene Amdahl, one of the pioneers of computing, observed that when
+  speeding up one part of a system, the effect on the overall system
+  performance depends on both the significance of this part, and how
+  much it sped up.
+
+- Consider a system in which executing some application requires time
+  T_{old}. One part of the system requires a fraction \alpha of this time, and
+  we improve its performance by a factor of k.
+
+  So originally the component took t_{old} = \alpha T_{old}, and with the
+  improvement, it takes the time t_{new} = (\alpha T_{old}) / k.
+
+  The overall execution time is now:
+
+  T_{new} = (1 - \alpha) T_{old} + (\alpha T_{old}) / k = T_{old}[(1-\alpha) + \alpha/k].
+
+  The speedup S = T_{old}/T_{new} is therefore [(1-\alpha) + \alpha/k]^{-1}.
+
+- Example: A system part consumes 60% of the total system time (\alpha =
+  0.6). We manage to speed it up by a factor of 3 (k=3). What is the
+  overall speedup of the system?
+
+  Answer:
+  #+begin_quote
+  S = [(1-0.6) + 0.6/3]^{-1} = [0.4 + 0.2]^{-1} = 10/6 \approx 1.67
+  #+end_quote
+  
+- Even though we substantially improved a major part of the system,
+  the net effect was significantly less. To do better, we must improve
+  the speed of a very large fraction of the total system.
+
+- What happens when you manage to speed a part of a system up to the
+  point that it takes a negligible amount of time (k = \infty)? Then \alpha/k=0
+  and the speedup becomes S_{\infty} = 1/(1-\alpha). Even in this case, if we
+  manage to speed up 60% of the system "infinitely", the net speedup
+  will still be only 1/0.4 = 2.5.
+
+- *Challenge*: Visualize Amdahl's Law for different values of \alpha and k.
+
+* Concurrency and parallelism
+
+- The two demands that drive improvements in computing are:
+  1) Computers should do more.
+  2) Computers should run faster.
+
+- When the processor does more things at once, both of these improve.
+
+- *Concurrency* means running multiple tasks at the same time.
+
+- *Parallelism* can mean three things: Thread-level concurrency,
+  instruction-level parallelism, or single-instruction multiple-data
+  (SIMD) parallelism.
+
+* Thread-level concurrency
+
+- When you have thread-level concurrency, multiple control flows are
+  excecuted within a single process. On a single processor, OS
+  time-sharing is only simulated for the user (through rapid task
+  switching).
+  
+- Modern computers have *multi-core processors* and employ
+  "hyperthreading": Several CPUs are integrated on a single chip.
+
+- In modern multi-core systems, some
+  cache storage is solo, other is shared among the processors.
+  #+attr_html: :width 600px :float nil:
+  #+caption: Multi-core SRAM (Source: Bryant/O'Halloran 2016)
+  [[../img/fig1.17_corei7caches.png]]
+
+- *Hyperthreading* (aka simultaneous multi-threading) means that each
+  processor manages its threads independently: For example, if one
+  thread must wait for some data to be loaded into a cache, the CPU
+  can proceed with the execution of a different thread. If each core
+  can execute two threads in parallel, a 16 core system can execute 32
+  threads in parallel.
+
+- Parallelism is not free: Amdahl's law limits speedup (as long as
+  there are still serial parts) no matter the number of cores.
+
+- Many programs are not designed to be truly parallel.
+
+- Cache sharing is accompanied by misses (false sharing) which need to
+  be minimized by algorithmic changes.
+
+* Instruction-level parallelism
+
+- Modern processors can execute multiple instructions at one time - up
+  to 100. Different techniques such as pipelining are exploited to
+  achieve this, with both software and hardware operating in stages
+  that can be completed in parallel.
+
+- Processors that sustain execution rates > 1 instruction per cycle
+  are called *superscalar* processors. Most modern processors are
+  superscalar.
+
+- A *clock cycle* is the smallest unit of time in which a processor
+  performs a basic operation - like a metronome tick that synchronizes
+  actions inside the CPU. The CPU runs at a fixed frequency
+  (e.g. 3 GHz, or 3 billion clock cycles per second).
+
+- To check the processor speed on Linux:
+  #+begin_src bash :results output :exports both
+    lscpu | grep "MHz"
+  #+end_src
+
+  Output for my desktop computer at home:
+  #+begin_example
+  : CPU max MHz:                          5600.0000
+  : CPU min MHz:                          800.0000
+  #+end_example
+
+  So that means between 0.8 and 5.6 billion instructions 
+
+- To check the instructions per cycle (IPC), install ~perf~:
+  #+begin_example sh
+  sudo apt install linux-tools-common linux-tools-$(uname -r)
+  #+end_example
+
+- Run ~perf~ for example on =hello= with =perf stat ./hello=. The output
+  looks like this:
+  #+begin_example
+  perf stat ./hello
+  hello, world
+  
+   Performance counter stats for './hello':
+  
+                0.47 msec task-clock:u                     #    0.435 CPUs utilized             
+                   0      context-switches:u               #    0.000 /sec                      
+                   0      cpu-migrations:u                 #    0.000 /sec                      
+                  52      page-faults:u                    #  111.534 K/sec                     
+             252,267      cpu_core/cycles/u                #    0.541 GHz                       
+             133,801      cpu_core/instructions/u                                               
+              27,998      cpu_core/branches/u              #   60.053 M/sec                     
+               1,932      cpu_core/branch-misses/u                                              
+               TopdownL1 (cpu_core)               #     22.2 %  tma_backend_bound                                                       
+                                                  #     14.2 %  tma_bad_speculation                                                     
+                                                  #     51.5 %  tma_frontend_bound                                                      
+                                                  #     12.1 %  tma_retiring           
+         0.001072632 seconds time elapsed
+         0.001129000 seconds user
+         0.000000000 seconds sys
+  #+end_example
+
+- The IPC is instructions / cycles = 133,801 / 252,267 or \approx 0.53
+  instructions per cycle. Why is this not at least 1?
+  #+begin_quote
+  1. The =hello= program is tiny - that's barely enough to warm up the
+     CPU pipeline: most cycles are spent on setup, teardown, waiting
+     on I/O.
+  2. ~printf~ writes to ~stdout~: It is hundreds of times slower than the
+     CPU. While waiting for the terminal to flush, the CPU may stall
+     and waste cycles.
+  3. In numbers: 51.5% of cycles were spent waiting for instructions
+     to enter the pipeline.
+  4. The total time of 0.47 ms is very fast: The CPU spends most of
+     that time transitioning into and out of user space, but not
+     executing instructions.
+
+  | Reason                   | Effect on IPC                               |
+  |--------------------------+---------------------------------------------|
+  | Very small program       | Too few instructions to saturate pipeline   |
+  | I/O via printf()         | CPU stalls waiting on slow output           |
+  | Frontend/bad speculation | Pipeline bubbles; no instruction retirement |
+  | Short run time           | Overhead dominates computation              |
+       
+  #+end_quote
+
+- *Challenge:* Try ~perf stat~ on a "worthier" program, for example a
+  matrix or vector multiplication.
+    
+* SIMD Parallelism
+
+- At the lowest level, modern processors have special hardware that
+  allows them to perform multiple operations in parallel. This is also
+  called "single-instruction, multiple-data" (SIMD) parallelism.
+
+- Example: Vector addition. Scalar execution performs one operation
+  per element, requiring multiple instructions for a vector
+  addition. SIMD (Single Instruction, Multiple Data) executes the same
+  operation across multiple data elements in parallel, reducing
+  instruction count and improving performance through data-level
+  parallelism.
+  #+attr_html: :width 600px :float nil:
+  #+caption: Comparison of Scalar and SIMD Execution Models. 
+  [[../img/simd.jpg]]
+  
+- The purpose of SIMD is to speed up applications that process image,
+  sound, and video data. When multiple processors perform SIMD
+  operations independently in parallel, SIMD becomes MIMD
+  (Multiple-Instructions, Multiple-Data).
+
+* The importance of abstractions in computer systems
+
+- Understanding and learning how to use abstractions is important in
+  Computer Science.
+
+- Example: Formulating a database application programming interface
+  (API) for a set of functions that allow programmser to use the
+  database without having to worry about its internal architecture.
+
+- Different languages support abstractions in a different way: Java
+  classes, C function prototypes, ~def~ for Python functions, ~lambda~ in
+  Lisp (anonymous functions), etc.
+
+- Lisp offers abstraction at every level: Data, behavior, control, and
+  syntax, which makes the language very expressive and flexible for
+  application programming (Emacs is written in Lisp).
+
+- Architecture abstractions we discussed include files, virtual
+  memory, and ISA. When the entire computer is "abstracted", you get a
+  Virtual Machine - which includes OS, processor, memory, devices.
+  #+attr_html: :width 600px :float nil:
+  [[../img/abstraction.png]]
+  
+- VMs and containers are common infrastructure abstractions in
+  software engineering.  
+
+* Networks, Amdahl's Law, concurrency, abstractions - summary
+
+1. Networks can be treated as I/O devices in the system architecture,
+   accessed through the file abstraction using standard protocols like
+   FTP, SSH, or TELNET.
+
+2. Using TELNET, we can remotely run a program like =hello= by setting
+   up a server, connecting via a client, and exchanging data through a
+   standardized protocol sequence.
+
+3. Amdahl's Law shows that the speedup of a system is limited by the
+   portion of the system that cannot be improved, no matter how much
+   the rest is accelerated.
+
+4. Concurrency and parallelism both aim to improve computing
+   performance by running multiple tasks or instructions at the same
+   time.
+
+5. Modern processors use multicore designs and hyperthreading to
+   execute multiple threads simultaneously, but parallel performance
+   is limited by shared resources and serial program components.
+
+6. Superscalar processors can issue multiple instructions per clock
+   cycle, but real IPC (instructions per cycle) can be low due to I/O
+   delays, pipeline stalls, and short execution times.
+
+7. SIMD parallelism allows a single instruction to operate on multiple
+   data elements at once, greatly improving performance for
+   data-intensive tasks like graphics and audio processing.
+
+8. Abstractions hide complexity in both software and hardware, from
+   language-level constructs like classes and lambdas to architectural
+   concepts like files, ISAs, and virtual machines.
+
+* Footnotes
+
+[fn:3] ~telnetd~ is the TELNET server daemon which supervises a TELNET
+connection. ~inetd~ is the (on-demand) "internet super-server". It
+listen for incoming network connections on behalf of different
+services.
+[fn:2]So if the virtual address space always starts at the same
+address, why does the address in the sample program change? This is
+because of Address Space Layout Randomization (ASLR), a security
+feature that randomizes the locations of key areas of a process to
+make the memory layout unpredictable: The code in ~.text~, the data in
+~.data~, the heap, the stack and shared libraries. To disable ASLR, run
+=setarch $(uname -m) -R ./a.out=a
+
+[fn:1]This is a book that you should own and read, perhaps more than
+once. It is the prototype for every computer book every written, and
+far more elegant and readable than most of them.
