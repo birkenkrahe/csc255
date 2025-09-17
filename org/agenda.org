@@ -500,14 +500,14 @@ building blocks for digital logic.
    gdb segfault  # import segfault and run it in gdb
    #+end_example
 
-* Week 3: Memory, Compilation, Hardware Organization  (Sep 8, 10, 12)
+* Week 3: Memory, Compiler chain (Sep 8, 10, 12)
 
 - [X] Guest speaker on Wednesday 10 Sept 1 pm in Derby 255
 - [X] Memory layout errors
 - [X] Code optimization
 - [X] Network dependency
 
-- [ ] The compiler chain
+- [X] The compiler chain
 - [ ] Hardware organization
 - [ ] Running the =hello world= executable
 
@@ -551,16 +551,257 @@ building blocks for digital logic.
      memory address.
    - *Big-endian:* the most significant byte goes in the lowest memory
      address.
+
    The "problem" arises when data is shared between systems with
    different endianness (e.g., over a network or in files). The same
    bytes can be interpreted differently unless both sides agree on the
    byte order.
+
+   In practice, this means that a 32-bit instruction like =0x00c58533=
+   on a little endian machine will appear in memory as: =33 85 c5 00=.
    #+end_quote
 
 ** Review: Compiler chain (Wednesday)
 
-** Review: Hardware organization (Friday)
+1. What does ~make~ do? Example use?
+   #+begin_quote
+   ~make~ works with a configuration ~Makefile~ to compile code. An
+   example is =make hello= on the command-line which uses the default
+   ~Makefile~ to run =gcc hello.c -o hello= and generate an executable
+   =hello= from the source file =hello.c=.
+   #+end_quote
 
-* Week 4: Expo (Sep 15, 17, 19)
+2. What is shipped alongside software source code to enable portable
+   object code?
+   #+begin_quote
+   A build system or ~Makefile~. The compiler uses the ~Makefile~ to build
+   the software for the given computer architecture.
+
+   Portable object code = source code + Makefile/configuration.
+   #+end_quote
+
+3. Why does each character in =hello.c= have an associated number like
+   104 for =h=? What does this have to do with bytes?
+   #+begin_quote
+   Because text is stored as bytes using ASCII encoding: each
+   character is mapped to a unique integer between 0 and 255
+   (2^8-1). For example, the letter =A= is ASCII =65= which in binary is
+   =01000001= (2^6+1). One ASCII character = 1 byte (8 bits) in memory.
+   #+end_quote
+
+4. What does the preprocessor do in the compilation chain?
+   #+begin_quote
+   The preprocessor expands macros (like =#define PI 3.14=) and includes
+   header files (like =#include <stdio.h>=) to create an intermediate
+   (=.i=) source file.
+   #+end_quote
+
+5. In the compilation chain, what is the role of the assembler?
+   #+begin_quote
+   The assembler translates assembly code (=.s=) into object code
+   (=.o=). With ~gdb~, you can disassemble the object machine code to see
+   the assembly (as text =.s=).
+   #+end_quote  
+
+  #+attr_html: :width 00px :float nil:
+  #+caption: Compilation chain. Source: Bryant/O'Halloran 2016 (Fig 1.3)
+  [[../img/fig1.3_compilation.png]]
+
+* Week 4: Expo, Hardware Organization, Operating System (Sep 15, 17, 19)
 #+attr_html: :width 200px :float nil:
 [[../img/expo.png]]
+
+*Housekeeping:*
+
+- [X] I made the first assignment (memory out-of-bounds demonstration)
+  a little more verbose and a little simpler. If you didn't submit on
+  time or you don't understand it: Ask another student, submit late
+  for 50%.
+
+- [X] Test 3 is live (25 questions).
+
+- [ ] Two assignments are live - compiler chain and
+  makefile. Unfortunately, Canvas allows only upload of one file or
+  text. If you cannot fit the output on a screenshot, you need to
+  submit a ZIP file.
+  
+- [X] For the ~Makefile~ assignment, just submit the results as text -
+  copy of the Makefile and copy of the command-line dialogue. Like this:
+  #+attr_html: :width 400px:
+  [[../img/makefile.png]]
+
+- [X] You should go to the Career Fair tomorrow. Will you?
+
+- [ ] *What did you think of the Career Fair?*
+
+*Content:*
+
+- [X] Hardware organization
+- [ ] Operating system and hardware
+- [ ] Networks and hardware
+- [ ] Amdahl's Law (a law about systems)
+- [ ] Concurrency and parallelism
+
+** DONE Review: Compiler chain / Makefile
+
+1. What kind of file does the compiler (~cc1~) produce?  
+   #+begin_quote
+   Assembly source code (.s) for the target machine architecture.  
+   #+end_quote
+
+2. What is the role of the assembler (~as~)?  
+   #+begin_quote
+   It translates assembly code (.s) into an object file (.o) containing
+   machine code instructions.  
+   #+end_quote
+
+3. What does the linker (~ld~) do?  
+   #+begin_quote
+   It combines object files (.o) and library code into a final
+   executable file.  
+   #+end_quote
+
+4. What is the purpose of a Makefile?  
+   #+begin_quote
+   It automates the build process by defining rules, dependencies, and
+   commands to compile programs efficiently.  
+   #+end_quote
+
+5. What happens if you run =make hello= and =hello.o= is already up to
+   date (i.e. the timestamp of =hello.o= is more recent than =hello.c=)?
+   #+begin_quote
+   Nothing is rebuilt, because ~make~ sees that the target is newer than
+   its dependencies.  
+   #+end_quote
+
+6. Does ~make~ only work on C programs, or also on C++ programs? And
+   what about Python or R? What about Java?
+   #+begin_src bash :results output
+     echo -e "#include <iostream>\nint main(){std::cout<<\"hello\";return 0;}" > hello.cpp
+     cat hello.cpp
+     make hello  # uses the default Makefile
+   #+end_src
+
+   #+RESULTS:
+   : #include <iostream>
+   : int main(){std::cout<<"hello";return 0;}
+   : g++     hello.cpp   -o hello
+
+   #+begin_src bash :results output
+     echo -e "str(mtcars)" > mtcars.R
+     cat mtcars.R
+     make mtcars
+     Rscript ./mtcars.R
+   #+end_src
+
+   #+RESULTS:
+   #+begin_example
+   str(mtcars)
+   'data.frame':	32 obs. of  11 variables:
+    $ mpg : num  21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...
+    $ cyl : num  6 6 4 6 8 6 8 4 4 6 ...
+    $ disp: num  160 160 108 258 360 ...
+    $ hp  : num  110 110 93 110 175 105 245 62 95 123 ...
+    $ drat: num  3.9 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.92 ...
+    $ wt  : num  2.62 2.88 2.32 3.21 3.44 ...
+    $ qsec: num  16.5 17 18.6 19.4 17 ...
+    $ vs  : num  0 0 1 1 0 1 0 1 1 1 ...
+    $ am  : num  1 1 1 0 0 0 0 0 0 0 ...
+    $ gear: num  4 4 4 3 3 3 3 4 4 4 ...
+    $ carb: num  4 4 1 1 2 1 4 2 2 4 ...
+   #+end_example
+
+   #+begin_src bash :results output
+     echo -e "print(\"hello\")" > hellopy.py
+     cat hellopy.py
+     make hellopy
+     #python3 hellopy.py
+   #+end_src
+
+   #+RESULTS:
+   : print("hello")
+
+   #+begin_src bash :results output
+     echo -e "System.out.println(\"hello\");" > helloJava.java
+     cat helloJava.java
+     make helloJava
+   #+end_src
+
+   #+RESULTS:
+   : System.out.println("hello");
+
+7. How must commands in a Makefile begin?
+   #+begin_quote
+   The =make= utility expects commands in each rule to be indented with
+   a TAB character, not spaces — otherwise it throws an error.
+   #+end_quote
+
+8. How does =make clean= typically work?
+   #+begin_quote
+   It removes intermediate files (like .i, .s, .o, executables) so you
+   can rebuild from scratch.  
+   #+end_quote
+   
+9. Which devices are involved in running a simple program like =hello=?
+   #+begin_quote
+   Execution requires cooperation between CPU, memory, input/output
+   system, graphics/display system, and keyboard for interaction.
+   #+end_quote
+
+10. What is a =checksum=?
+    #+begin_quote
+    A *checksum* is a fixed-size value that is sent/store alongside with
+    data, for example precompiled software. At the receiving end, the
+    checksum is recomputed and compared with the sent/stored one. If
+    the values don't match, the data was likely corrupted or tampered
+    with.
+    #+end_quote
+
+11. What do the commands =echo $PS1= and =echo $SHELL= mean and return
+    (only on Linux)?
+    #+begin_example sh
+      ## shell prompt definition string variable
+      echo $PS1     # on my laptop: \u@marcus@dell:\w $
+      ## shell environment variable
+      echo $SHELL   # /bin/bash
+    #+end_example
+
+** Review: Hardware Organization
+
+1. What is the main role of a bus in computer hardware organization?
+   #+begin_quote
+   A bus acts as a bridge that carries data back and forth between
+   system components, typically designed for byte transfers (8-bit
+   chunks on a 64-bit system).
+   #+end_quote
+
+2. How are controllers and adapters different in connecting devices to
+   the I/O bus?
+   #+begin_quote
+   A controller is a *chip* located directly *on the device* (e.g., USB
+   controller on keyboard), while an adapter is a separate *card* that
+   *plugs* into the motherboard (e.g., graphics adapter, WiFi adapter).
+   #+end_quote
+
+3. What are the four basic CPU transactions, and what do they accomplish?
+   #+begin_quote
+   1. Load: copy a byte from main memory into a register.  
+   2. Store: copy a byte from a register into main memory.  
+   3. Operate: perform arithmetic/logic using ALU and registers.  
+   4. Jump: copy a value into the program counter to change execution
+      flow.
+   #+end_quote
+
+4. What role does CMOS play in a computer system?
+   #+begin_quote
+   CMOS stores system configuration data (such as BIOS settings, date,
+   and time) using a small battery so that the information persists
+   even when the computer is powered off.
+   #+end_quote
+
+5. Why is main memory (RAM) considered temporary storage, and what
+   does it physically consist of?
+   #+begin_quote
+   RAM is temporary storage because its contents (code and data) are
+   lost when power is off. Physically, it consists of DRAM chips.
+   #+end_quote
