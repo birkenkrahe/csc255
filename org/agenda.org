@@ -632,7 +632,14 @@ building blocks for digital logic.
 
 - [X] You should go to the Career Fair tomorrow. Will you?
 
-- [ ] *What did you think of the Career Fair?*
+- [X] What did you think of the Career Fair?
+
+- [ ] Popquiz 2 (self-graded): Computer hardware organization
+
+- [ ] Take the solution home with you. You can hand in your solution
+  for bonus points if you like.
+
+- [ ] Test 4 coming on the weekend.
 
 *Content:*
 
@@ -766,16 +773,16 @@ building blocks for digital logic.
       echo $SHELL   # /bin/bash
     #+end_example
 
-** Review: Hardware Organization
+** DONE Review: Hardware Organization
 
-1. What is the main role of a bus in computer hardware organization?
+1. What is the main role of a *bus* in computer hardware organization?
    #+begin_quote
    A bus acts as a bridge that carries data back and forth between
    system components, typically designed for byte transfers (8-bit
    chunks on a 64-bit system).
    #+end_quote
 
-2. How are controllers and adapters different in connecting devices to
+2. How are *controllers* and *adapters* different in connecting devices to
    the I/O bus?
    #+begin_quote
    A controller is a *chip* located directly *on the device* (e.g., USB
