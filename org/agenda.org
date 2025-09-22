@@ -7,12 +7,12 @@
 #+PROPERTY: header-args:python :session *Python* :results output :exports both :noweb yes
 #+PROPERTY: header-args:C :main yes :includes <stdio.h> :results output :exports both :noweb yes
 #+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
-* Week 0: Overview
+* DONE Week 0: Overview
 
 - Tools used and plans made
 - Motivation to enrol in the course
 
-* Week 1: Overview: Why computer architecture, LogiSim installation
+* DONE Week 1: Overview: Why computer architecture, LogiSim installation
 
 - [X] Reviews
 - [X] Installation: LogiSim
@@ -319,7 +319,7 @@
   2) Build a NOT gate as seen in class.
   3) Take a screenshot and upload it to Canvas.
 
-* Week 2: Microchips, logic gates, (Sep 5)
+* DONE Week 2: Microchips, logic gates, (Sep 5)
 
 - [X] Popquiz! What do you remember from the videos? Take the
   solutions home, grade yourself, and return the test next week.
@@ -500,7 +500,7 @@ building blocks for digital logic.
    gdb segfault  # import segfault and run it in gdb
    #+end_example
 
-* Week 3: Memory, Compiler chain (Sep 8, 10, 12)
+* DONE Week 3: Memory, Compiler chain (Sep 8, 10, 12)
 
 - [X] Guest speaker on Wednesday 10 Sept 1 pm in Derby 255
 - [X] Memory layout errors
@@ -607,7 +607,7 @@ building blocks for digital logic.
   #+caption: Compilation chain. Source: Bryant/O'Halloran 2016 (Fig 1.3)
   [[../img/fig1.3_compilation.png]]
 
-* Week 4: Expo, Hardware Organization, Operating System (Sep 15, 17, 19)
+* DONE Week 4: Expo, Hardware Organization, Operating System (Sep 15, 17, 19)
 #+attr_html: :width 200px :float nil:
 [[../img/expo.png]]
 
@@ -649,7 +649,7 @@ building blocks for digital logic.
 - [ ] Amdahl's Law (a law about systems)
 - [ ] Concurrency and parallelism
 
-** DONE Review: Compiler chain / Makefile
+** Review: Compiler chain / Makefile
 
 1. What kind of file does the compiler (~cc1~) produce?  
    #+begin_quote
@@ -773,7 +773,7 @@ building blocks for digital logic.
       echo $SHELL   # /bin/bash
     #+end_example
 
-** DONE Review: Hardware Organization
+** Review: Hardware Organization
 
 1. What is the main role of a *bus* in computer hardware organization?
    #+begin_quote
@@ -812,3 +812,9 @@ building blocks for digital logic.
    RAM is temporary storage because its contents (code and data) are
    lost when power is off. Physically, it consists of DRAM chips.
    #+end_quote
+
+* Week 5: OS Organization, Amdahl's Law, Networks (Sep 22, 24, 26)
+
+- [ ] Test 4 is live (Sep 28).
+- [ ] Assignment: Pushing a module to the kernel (Sep 28).
+- [ ] Video (Google Chat): OS kernel and computer architecture.
