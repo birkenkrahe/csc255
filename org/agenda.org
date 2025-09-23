@@ -601,11 +601,11 @@ building blocks for digital logic.
    The assembler translates assembly code (=.s=) into object code
    (=.o=). With ~gdb~, you can disassemble the object machine code to see
    the assembly (as text =.s=).
-   #+end_quote  
+   #+end_quote
 
-  #+attr_html: :width 00px :float nil:
-  #+caption: Compilation chain. Source: Bryant/O'Halloran 2016 (Fig 1.3)
-  [[../img/fig1.3_compilation.png]]
+   #+attr_html: :width 00px :float nil:
+   #+caption: Compilation chain. Source: Bryant/O'Halloran 2016 (Fig 1.3)
+   [[../img/fig1.3_compilation.png]]
 
 * DONE Week 4: Expo, Hardware Organization, Operating System (Sep 15, 17, 19)
 #+attr_html: :width 200px :float nil:
@@ -624,7 +624,7 @@ building blocks for digital logic.
   makefile. Unfortunately, Canvas allows only upload of one file or
   text. If you cannot fit the output on a screenshot, you need to
   submit a ZIP file.
-  
+
 - [X] For the ~Makefile~ assignment, just submit the results as text -
   copy of the Makefile and copy of the command-line dialogue. Like this:
   #+attr_html: :width 400px:
@@ -651,34 +651,34 @@ building blocks for digital logic.
 
 ** Review: Compiler chain / Makefile
 
-1. What kind of file does the compiler (~cc1~) produce?  
+1. What kind of file does the compiler (~cc1~) produce?
    #+begin_quote
-   Assembly source code (.s) for the target machine architecture.  
+   Assembly source code (.s) for the target machine architecture.
    #+end_quote
 
-2. What is the role of the assembler (~as~)?  
+2. What is the role of the assembler (~as~)?
    #+begin_quote
    It translates assembly code (.s) into an object file (.o) containing
-   machine code instructions.  
+   machine code instructions.
    #+end_quote
 
-3. What does the linker (~ld~) do?  
+3. What does the linker (~ld~) do?
    #+begin_quote
    It combines object files (.o) and library code into a final
-   executable file.  
+   executable file.
    #+end_quote
 
-4. What is the purpose of a Makefile?  
+4. What is the purpose of a Makefile?
    #+begin_quote
    It automates the build process by defining rules, dependencies, and
-   commands to compile programs efficiently.  
+   commands to compile programs efficiently.
    #+end_quote
 
 5. What happens if you run =make hello= and =hello.o= is already up to
    date (i.e. the timestamp of =hello.o= is more recent than =hello.c=)?
    #+begin_quote
    Nothing is rebuilt, because ~make~ sees that the target is newer than
-   its dependencies.  
+   its dependencies.
    #+end_quote
 
 6. Does ~make~ only work on C programs, or also on C++ programs? And
@@ -704,7 +704,7 @@ building blocks for digital logic.
    #+RESULTS:
    #+begin_example
    str(mtcars)
-   'data.frame':	32 obs. of  11 variables:
+   'data.frame':        32 obs. of  11 variables:
     $ mpg : num  21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 ...
     $ cyl : num  6 6 4 6 8 6 8 4 4 6 ...
     $ disp: num  160 160 108 258 360 ...
@@ -746,9 +746,9 @@ building blocks for digital logic.
 8. How does =make clean= typically work?
    #+begin_quote
    It removes intermediate files (like .i, .s, .o, executables) so you
-   can rebuild from scratch.  
+   can rebuild from scratch.
    #+end_quote
-   
+
 9. Which devices are involved in running a simple program like =hello=?
    #+begin_quote
    Execution requires cooperation between CPU, memory, input/output
@@ -792,9 +792,9 @@ building blocks for digital logic.
 
 3. What are the four basic CPU transactions, and what do they accomplish?
    #+begin_quote
-   1. Load: copy a byte from main memory into a register.  
-   2. Store: copy a byte from a register into main memory.  
-   3. Operate: perform arithmetic/logic using ALU and registers.  
+   1. Load: copy a byte from main memory into a register.
+   2. Store: copy a byte from a register into main memory.
+   3. Operate: perform arithmetic/logic using ALU and registers.
    4. Jump: copy a value into the program counter to change execution
       flow.
    #+end_quote
@@ -813,7 +813,276 @@ building blocks for digital logic.
    lost when power is off. Physically, it consists of DRAM chips.
    #+end_quote
 
-* Week 5: OS Organization, Amdahl's Law, Networks (Sep 22, 24, 26)
+* Week 5: Virtual memory, Amdahl's Law, Networks (Sep 22, 24, 26)
+#+attr_html: :width 600px:
+[[../img/virtual_memory.png]]
+
+** Review (Friday)
+
+1. What is the main principle of the memory hierarchy?
+   #+begin_quote
+   Place small, fast storage near the CPU, and larger, slower storage
+   far away. The smallest, fastest are called "cache memory".
+   #+end_quote
+
+2. Why do SSDs wear out over time? How many writes does a cell have?
+   #+begin_quote
+   Electron tunneling damages the thin oxide layer in memory cells. A
+   cell allows about 100,000 writes (more with error correction).
+   #+end_quote
+
+3. Number of NAND memory cells in a 4GB RAM module, approximately?
+   #+begin_quote
+   Approximately 34 billion densely packed cells: 4 x 2^30 x 8
+   #+end_quote
+
+4. What is the OS kernel?
+   #+begin_quote
+   The OS part that is always in memory, loaded first, controls the
+   system resources with interrupt calls (=signal(7)=)
+   #+end_quote
+
+5. Which abstractions does the OS provide to applications?
+   #+begin_quote
+   Processes, virtual memory, file system controlled by the kernel.
+   #+end_quote
+
+** Review (Monday)
+
+1. What is the key difference between a thread and a process in terms
+   of memory usage?
+   #+begin_quote
+   Threads share the same code and global data, but each has its own
+   stack and registers. Processes have separate memory spaces.
+   #+end_quote
+
+2. When are shared libraries (~.so~) linked to the executable?
+   #+begin_quote
+   Shared libraries (~.so~) are not copied into the executable at
+   compile time.  They are dynamically linked at run-time by the
+   dynamic linker/loader ~ldd~ when the program starts. This allows
+   smaller executables and library updates without recompilation.
+   #+end_quote
+
+3. Why is output from multiple C++ threads using ~std::cout~ potentially
+   unsafe without a =mutex= ("mutual exclusion")?
+   #+begin_quote
+   Because the ~ostream~ buffer is not protected, outputs from different
+   threads can become interleaved.
+   #+end_quote
+
+4. What is virtual memory?
+   #+begin_quote
+   Virtual memory is the abstraction layer that every process
+   sees. Inside that address space, the OS arranges different regions
+   for program use:
+   - =.text= segment – executable code (fixed, read-only).
+   - =.data= segment – global and static variables (read/write).
+   - Heap – dynamically allocated memory (malloc, new), grows upward.
+   - Stack – function call frames and local variables, grows downward.
+   #+end_quote
+
+5. What is the big memory illusion of the OS?
+   #+begin_quote
+   Virtual memory maps each process’s addresses to physical memory, so
+   every process sees the same private address space even though
+   memory is shared.
+   #+end_quote
+
+6. In the C++ memory example, where are the following stored:
+   1) =global_var=
+   2) =local_var=, =local_var2=
+   3) =heap_var=, =heap_var2=
+   #+begin_src C++ :main no :includes :results output :exports both
+     #include <iostream>
+     using namespace std;
+
+     int global_var = 42;
+
+     int main(void)
+     {
+       int local_var = 1;
+       int local_var2 = 2;
+       int* heap_var = new int(99);
+       int* heap_var2 = new int(98);
+
+       cout << "local variables:\n" << &local_var   << endl
+            << &local_var2  << endl
+            << "heap variables:\n"    << heap_var     << endl
+            << heap_var     << endl
+            << "global variable:\n" << &global_var   << endl;
+
+       delete heap_var;
+       delete heap_var2;
+       return 0;
+     }
+   #+end_src
+
+   #+RESULTS:
+   : local variables:
+   : 0x7ffd3bbaaa70
+   : 0x7ffd3bbaaa74
+   : heap variables:
+   : 0x56246d17aeb0
+   : 0x56246d17aeb0
+   : global variable:
+   : 0x5624552f3010
+
+   #+begin_quote
+   1) ~.data~ segment (global storage)
+   2) Stack (local variables disappear when their scope vanishes)
+   3) Heap (multiple small =new= calls may come from the same memory)
+   #+end_quote
+
+7. If the stack grows downward and the heap grows upward, why don't
+   you see this in the previous example?
+   #+begin_quote
+   OS randomize memory region start addresses for security - this is
+   called "Address Space Layout Randomization" (ASLR). Small ~new~
+   allocations on the heap may reuse the same memory.
+   #+end_quote
+
+   #+begin_src C++ :main no :includes :results output :exports both
+     #include <iostream>
+     using namespace std;
+
+     int global_var = 42; // in .data segment
+
+     // Recursive function to show stack growth
+     void stack_demo(int depth) {
+       int local_var = depth;
+       cout << "stack depth " << depth
+            << " local_var address: " << &local_var << endl;
+
+       if (depth < 5) stack_demo(depth + 1);
+     }
+
+     int main() {
+       cout << "global variable address: " << &global_var << endl;
+
+       // Observe stack growth
+       cout << "\n--- Stack growth ---" << endl;
+       stack_demo(1);
+
+       // Observe heap growth
+       cout << "\n--- Heap growth ---" << endl;
+       int* heap_vars[5];
+       for (int i = 0; i < 5; i++) {
+         heap_vars[i] = new int(i);
+         cout << "heap allocation " << i
+         << " address: " << heap_vars[i] << endl;
+       }
+
+       // Clean up heap memory
+       for (int i = 0; i < 5; i++) {
+         delete heap_vars[i];
+       }
+
+       return 0;
+     }
+   #+end_src
+
+   #+RESULTS:
+   #+begin_example
+   global variable address: 0x55914f99c010
+
+   --- Stack growth ---
+   stack depth 1 local_var address: 0x7ffd7f8c7414
+   stack depth 2 local_var address: 0x7ffd7f8c73e4
+   stack depth 3 local_var address: 0x7ffd7f8c73b4
+   stack depth 4 local_var address: 0x7ffd7f8c7384
+   stack depth 5 local_var address: 0x7ffd7f8c7354
+
+   --- Heap growth ---
+   heap allocation 0 address: 0x5591631c8ec0
+   heap allocation 1 address: 0x5591631c8ee0
+   heap allocation 2 address: 0x5591631c8f00
+   heap allocation 3 address: 0x5591631c8f20
+   heap allocation 4 address: 0x5591631c8f40
+   #+end_example
+
+   #+begin_quote
+   - Stack stride: Each step subtracts 0x30 = 48 (3 * 16^1) from the
+     previous address (compiler dependent).
+   - Heap stride: Each step adds 32 (2 * 16) (allocator alignment).
+   #+end_quote
+
+   #+begin_src C++ :main yes :includes <iostream> <iomanip> :results output :exports both :comments both :tangle yes :noweb yes
+     std::cout << 0x7ffd7f8c7384 - 0x7ffd7f8c7354; // stack grows down
+     std::cout << std::endl;
+     std::cout << 0x5591631c8f40 - 0x5591631c8f20; // heap grows up
+   #+end_src
+
+   #+RESULTS:
+   : 48
+   : 32
+
+8. Where are shared libraries (~.so~) held in memory?
+   #+begin_quote
+   Shared libraries are mapped into a process’s virtual address space
+   in a special region, separate from the program’s own code, data,
+   stack, and heap.
+
+   They are loaded into memory once by the dynamic linker and can be
+   shared across processes (read-only parts like code), while each
+   process gets its own writable copy of data sections.
+   #+end_quote
+
+9. Are there also static libraries? What's the difference?
+   #+begin_quote
+   - A static library (~.a~) is linked at compile-time. Its code is
+     copied directly into the executable, so no external file is
+     needed at run time. Example: =libm.a= (math functions like =sqrt=).
+
+   - A shared library (~.so~) is linked at run-time, and its code is
+     loaded into memory by the dynamic linker. Multiple processes can
+     share the same library code in RAM. Example: =libc.so=
+     (e.g. =printf=, =pthread=, =malloc=).
+   #+end_quote
+
+10. What is ~systemd~?
+    #+begin_quote
+    ~systemd~ is the central manager that initializes and controls
+    services and resources on a Linux system after the kernel has
+    booted (process PID = 1).
+    #+end_quote
+
+11. What's the difference between these declarations with regard to
+    memory?
+    #+begin_example C++
+      vec[] {1,2,3};
+      vector<int> vec2;
+    #+end_example
+
+    #+begin_quote
+    - =vec[] {1,2,3};= is a statically allocated object at compile-time.
+    - =vector<int> vec2;= is a dynamically allocated object at run-time.
+    #+end_quote
+
+12. What do "concurrency" and "parallelism" refer to?
+    #+begin_quote
+    - *Concurrency* means structuring a program so that multiple tasks
+      can make progress during the same period of time usually via
+      threads that share code and memory.
+    - *Parallelism* means tasks are executed at the same physical time
+      on multiple CPU cores or processors with separate code and
+      memory.
+    #+end_quote
+
+** Amdahl's Law
+
+#+attr_html: :width 300px:
+[[../img/amdahl.png]]
+#+begin_quote
+Figure: Amdahl's Law demonstrates the theoretical maximum speedup of
+an overall system and the concept of diminishing returns. Plotted here
+is logarithmic parallelization vs linear speedup. If exactly 50% of
+the work can be parallelized, the best possible speedup is 2 times. If
+95% of the work can be parallelized, the best possible speedup is 20
+times. According to the law, even with an infinite number of
+processors, the speedup is constrained by the unparallelizable
+portion.
+#+end_quote
 
 - [ ] Test 4 is live (Sep 28).
 - [ ] Assignment: Pushing a module to the kernel (Sep 28).
