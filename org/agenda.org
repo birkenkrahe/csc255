@@ -817,7 +817,7 @@ building blocks for digital logic.
 #+attr_html: :width 600px:
 [[../img/virtual_memory.png]]
 
-** Review (Friday)
+** DONE Review (Friday)
 
 1. What is the main principle of the memory hierarchy?
    #+begin_quote
@@ -847,7 +847,7 @@ building blocks for digital logic.
    Processes, virtual memory, file system controlled by the kernel.
    #+end_quote
 
-** Review (Monday)
+** DONE Review (Monday)
 
 1. What is the key difference between a thread and a process in terms
    of memory usage?
@@ -865,10 +865,10 @@ building blocks for digital logic.
    #+end_quote
 
 3. Why is output from multiple C++ threads using ~std::cout~ potentially
-   unsafe without a =mutex= ("mutual exclusion")?
+   unsafe without a =mutex= ("mutual exclusion", as shown in class)?
    #+begin_quote
    Because the ~ostream~ buffer is not protected, outputs from different
-   threads can become interleaved.
+   process threads can become interleaved, confusing the computer.
    #+end_quote
 
 4. What is virtual memory?
@@ -901,16 +901,16 @@ building blocks for digital logic.
 
      int main(void)
      {
-       int local_var = 1;
-       int local_var2 = 2;
-       int* heap_var = new int(99);
-       int* heap_var2 = new int(98);
+       int local_var = 1;   // Stack
+       int local_var2 = 2;  // Stack
+       int* heap_var = new int(99);  // heap
+       int* heap_var2 = new int(98); // heap
 
        cout << "local variables:\n" << &local_var   << endl
             << &local_var2  << endl
-            << "heap variables:\n"    << heap_var     << endl
+            << "heap variables:\n"    << heap_var   << endl
             << heap_var     << endl
-            << "global variable:\n" << &global_var   << endl;
+            << "global variable:\n" << &global_var  << endl;
 
        delete heap_var;
        delete heap_var2;
@@ -920,13 +920,13 @@ building blocks for digital logic.
 
    #+RESULTS:
    : local variables:
-   : 0x7ffd3bbaaa70
-   : 0x7ffd3bbaaa74
+   : 0x7ffee9dc3e50
+   : 0x7ffee9dc3e54
    : heap variables:
-   : 0x56246d17aeb0
-   : 0x56246d17aeb0
+   : 0x559bfad0aeb0
+   : 0x559bfad0aeb0
    : global variable:
-   : 0x5624552f3010
+   : 0x559bceb14010
 
    #+begin_quote
    1) ~.data~ segment (global storage)
@@ -984,21 +984,21 @@ building blocks for digital logic.
 
    #+RESULTS:
    #+begin_example
-   global variable address: 0x55914f99c010
+   global variable address: 0x562bb9adb010
 
    --- Stack growth ---
-   stack depth 1 local_var address: 0x7ffd7f8c7414
-   stack depth 2 local_var address: 0x7ffd7f8c73e4
-   stack depth 3 local_var address: 0x7ffd7f8c73b4
-   stack depth 4 local_var address: 0x7ffd7f8c7384
-   stack depth 5 local_var address: 0x7ffd7f8c7354
+   stack depth 1 local_var address: 0x7ffe6c404a64
+   stack depth 2 local_var address: 0x7ffe6c404a34
+   stack depth 3 local_var address: 0x7ffe6c404a04
+   stack depth 4 local_var address: 0x7ffe6c4049d4
+   stack depth 5 local_var address: 0x7ffe6c4049a4
 
    --- Heap growth ---
-   heap allocation 0 address: 0x5591631c8ec0
-   heap allocation 1 address: 0x5591631c8ee0
-   heap allocation 2 address: 0x5591631c8f00
-   heap allocation 3 address: 0x5591631c8f20
-   heap allocation 4 address: 0x5591631c8f40
+   heap allocation 0 address: 0x562bbcdb8ec0
+   heap allocation 1 address: 0x562bbcdb8ee0
+   heap allocation 2 address: 0x562bbcdb8f00
+   heap allocation 3 address: 0x562bbcdb8f20
+   heap allocation 4 address: 0x562bbcdb8f40
    #+end_example
 
    #+begin_quote
@@ -1037,7 +1037,7 @@ building blocks for digital logic.
    - A shared library (~.so~) is linked at run-time, and its code is
      loaded into memory by the dynamic linker. Multiple processes can
      share the same library code in RAM. Example: =libc.so=
-     (e.g. =printf=, =pthread=, =malloc=).
+     (e.g. =printf=, =pthread=, =malloc=, =free=).
    #+end_quote
 
 10. What is ~systemd~?
@@ -1050,8 +1050,8 @@ building blocks for digital logic.
 11. What's the difference between these declarations with regard to
     memory?
     #+begin_example C++
-      vec[] {1,2,3};
-      vector<int> vec2;
+      vec[] {1,2,3};   // array definition (stack)
+      vector<int> vec2; // vector definition (heap)
     #+end_example
 
     #+begin_quote
@@ -1067,6 +1067,117 @@ building blocks for digital logic.
     - *Parallelism* means tasks are executed at the same physical time
       on multiple CPU cores or processors with separate code and
       memory.
+    #+end_quote
+
+** NEXT Review (Wednesday) - Program Memory Layout
+
+1. What memory segments hold program code and global initialized data?
+   #+begin_quote
+   =.text= (code) and =.data= (global initialized variables).
+   #+end_quote
+
+2. How does the heap expand and contract during program execution?
+   #+begin_quote
+   Via dynamic allocation calls (~malloc/free~ in C, ~new/delete~ in C++).
+   #+end_quote
+
+3. What is the role of the dynamic linker (~ld.so~) with shared
+   libraries?
+   #+begin_quote
+   It maps *.so* files into the program’s memory at runtime.
+   #+end_quote
+
+4. Where is the user stack located in the virtual address space, and
+   how does it behave?
+   #+begin_quote
+   At the *top* of the address space; it grows and shrinks with function
+   calls.
+   #+end_quote
+
+5. In C++, where do ~std::vector<int>~ objects and their contents
+   reside?
+   #+begin_quote
+   The object lives on the *stack*, but its dynamic array is stored on
+   the *heap*.
+   #+end_quote
+
+6. Why do program code and global data always start at the same memory
+   address (=0x0=)?
+   #+begin_quote
+   To ensure predictable linking and loading of executables.
+   #+end_quote
+
+7. What happens when you call =new T= in C++?
+   #+begin_quote
+   It constructs an object of type *T* and allocates memory for it on
+   the heap.
+   #+end_quote
+
+8. Give an example of two common shared libraries on Linux.
+   #+begin_quote
+   ~libm.so~ (math functions) and ~libc.so~ (standard C library).
+   #+end_quote
+
+9. What tool can show which shared libraries an executable will load
+   at runtime?
+   #+begin_quote
+   The `ldd` command.
+   #+end_quote
+   #+begin_src C :tangle ../src/helloldd.c :main yes :includes <stdio.h> <stdlib.h> <string.h> :results output :exports both :noweb yes
+     printf("Hello");
+   #+end_src
+
+   #+RESULTS:
+   : Hello
+
+   #+begin_src bash :results output :exports both
+     cd ../src
+     make helloldd
+     ldd helloldd
+   #+end_src
+
+   #+RESULTS:
+   : make: 'helloldd' is up to date.
+   :    linux-vdso.so.1 (0x0000736e15556000)
+   :    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000736e15200000)
+   :    /lib64/ld-linux-x86-64.so.2 (0x0000736e15558000)
+
+10. How does =vector.push_back= affect memory allocation?
+    #+begin_quote
+    It may reallocate the internal array on the heap, but stack
+    metadata is unchanged.
+    #+end_quote
+
+11. Why is the =.text= segment immutable at runtime?
+    #+begin_quote
+    To prevent accidental or malicious modification of program code,
+    ensuring safety and stability.
+    #+end_quote
+
+12. Compare how memory is released on the stack vs. the heap.
+    #+begin_quote
+    Stack memory is released automatically when functions return; heap
+    memory must be freed manually (~free~ / ~delete~).
+    #+end_quote
+
+13. Why is dynamic linking with shared libraries more efficient than
+    static linking?
+    #+begin_quote
+    It avoids code duplication across programs and reduces executable
+    size by loading one shared copy at runtime.
+    #+end_quote
+
+14. How does the growth direction of the stack differ from the heap?
+    #+begin_quote
+    The stack typically grows *downward* (toward lower addresses), while
+    the heap grows *upward* (toward higher addresses).
+    #+end_quote
+
+15. Why does ~std::vector~ use the heap for its contents instead of the
+    stack?
+    #+begin_quote
+    Because its size is determined at runtime, requiring flexible
+    memory that the stack cannot provide.
     #+end_quote
 
 ** Amdahl's Law

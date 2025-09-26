@@ -1,0 +1,308 @@
+#+TITLE:Exploring memory layout in Linux
+#+AUTHOR:Marcus Birkenkrahe
+#+SUBTITLE:Computer Architecture (CSC 255) - Fall 2025
+#+STARTUP: overview hideblocks indent
+#+OPTIONS: toc:1 num:1 ^:nil
+#+PROPERTY: header-args:C :main yes :includes <stdio.h> :results output :exports both :noweb yes
+* Exploring Memory Layout in Linux
+
+In this exercise, we will explore how a running C program is organized in memory.
+
+Every process in Linux is divided into *segments*:
+- *Text (Code):* where the compiled instructions live.
+- *Data:* where global and static variables are stored.
+- *Heap:* where dynamically allocated memory grows upward.
+- *Stack:* where function calls and local variables grow downward.
+
+By writing small C programs and inspecting their addresses, we can *see*
+how the CPU and operating system manage memory.  We will also use the
+=/proc/self/maps= file to view the process’s memory layout as reported
+by the kernel.
+
+To make this more realistic, we will build the programs with a
+*Makefile* rather than calling =gcc= directly, practicing how system
+programmers automate builds.
+
+** *Objective*
+
+Observe how a C program is laid out in memory (text/code, data, heap,
+stack) and confirm it using =/proc/self/maps=, building everything with
+=make=.
+
+** *Materials*
+
+- Any Linux VM (Cloud Shell is OK)
+- GNU make, GCC, coreutils
+
+** Reference diagram
+#+begin_example
+            Higher virtual addresses
++----------------------------------------------+
+|                 Stack         |              |
+|            (grows downward)   v              |
++----------------------------------------------+
+|                  Heap         ^              |
+|              (grows upward)   |              |
++----------------------------------------------+
+|                Global Data (.data)           |
++----------------------------------------------+
+|             Code / Text Segment (.text)      |
++----------------------------------------------+
+            Lower virtual addresses
+#+end_example
+
+* Files created (zip them up later for submission):
+
+- =mem.c=     (Print memory layout)
+- =stack.c=   (Print stack frames for several local variables)
+- =Makefile=  (builds, runs both programs)
+
+* Memory Layout via =/proc/self/maps=
+
+- A program is not one blob in memory — it is divided into sections,
+  each with different purposes and behaviors.
+
+- This program demonstrates the four virtual memory regions of a
+  running process:
+
+  1. ~main~ → *code/text* section
+  2. ~global~ variable → *data* section
+  3. ~local~ variable → *stack*
+  4. ~malloc~ variable → *heap*
+
+- Prints the addresses of each, so we can compare their positions in
+  memory.
+
+- Uses =/proc/self/maps= to show how the kernel reports this layout.
+
+- In the =maps= output, segments are marked with:
+  1. =.text= segments: =r-xp= (read, execute, private)
+  2. =.data= segments: =rw-p= (read, write, private)
+  3. =[heap]= for heap locations
+  4. =[stack]= for stack locations
+
+** *mem.c* (code along)
+
+#+begin_src C :tangle ../src/mem.c :noeval
+  #include <stdio.h>
+  #include <stdlib.h>
+
+  int global = 42;   // Global variable (data section)
+
+  int main(void) {
+    int local = 1;                     // Local variable (stack)
+    int *heap = malloc(sizeof *heap);  // Dynamic memory (heap)
+    (*heap) = 2;
+
+    printf("Address of code   (main):   %p\n", (void*)main);
+    printf("Address of global (data):   %p\n", (void*)&global);
+    printf("Address of local  (stack):  %p\n", (void*)&local);
+    printf("Address of heap   (malloc): %p\n", (void*)heap);
+
+    printf("\n/proc/self/maps (first lines):\n");
+    system("head -n 15 /proc/self/maps");
+
+    free(heap);
+    return 0;
+  }
+#+end_src
+
+Sample output:
+#+begin_example
+Address of code   (main):   0x55c24ef1c1e9
+Address of global (data):   0x55c24ef1f010
+Address of local  (stack):  0x7fffc07603e4
+Address of heap   (malloc): 0x55c28791c2a0
+Address of heap   (malloc): 0x55c28791c2c0
+
+/proc/self/maps (first lines):
+5cbf06a5f000-5cbf06a61000 r--p 00000000 08:01 5745424                    /usr/bin/head
+5cbf06a61000-5cbf06a67000 r-xp 00002000 08:01 5745424                    /usr/bin/head
+5cbf06a67000-5cbf06a69000 r--p 00008000 08:01 5745424                    /usr/bin/head
+5cbf06a69000-5cbf06a6a000 r--p 00009000 08:01 5745424                    /usr/bin/head
+5cbf06a6a000-5cbf06a6b000 rw-p 0000a000 08:01 5745424                    /usr/bin/head
+5cbf2ba42000-5cbf2ba63000 rw-p 00000000 00:00 0                          [heap]
+7ff8530d2000-7ff8533bd000 r--p 00000000 08:01 1048535                    /usr/lib/locale/locale-archive
+7ff8533bd000-7ff8533c0000 rw-p 00000000 00:00 0 
+7ff8533c0000-7ff8533e8000 r--p 00000000 08:01 5614872                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7ff8533e8000-7ff853570000 r-xp 00028000 08:01 5614872                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7ff853570000-7ff8535bf000 r--p 001b0000 08:01 5614872                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7ff8535bf000-7ff8535c3000 r--p 001fe000 08:01 5614872                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7ff8535c3000-7ff8535c5000 rw-p 00202000 08:01 5614872                    /usr/lib/x86_64-linux-gnu/libc.so.6
+7ff8535c5000-7ff8535d2000 rw-p 00000000 00:00 0 
+7ff8535db000-7ff8535dd000 rw-p 00000000 00:00 0
+#+end_example
+
+* Stack Frame Explorer
+
+- The stack is a dynamic region that grows and shrinks with execution,
+  which has consequences for recursion, memory limits, and program
+  safety.
+
+- This program focuses only on the *stack*.
+
+- Each recursive call creates a new stack frame with its own local
+  variable.
+
+- By printing addresses at each depth, we can see how the stack
+  changes as functions call themselves.
+
+- Typically, addresses decrease on Linux/x86-64 → the stack grows
+  downward.
+
+** *stack.c*
+
+#+begin_src C :tangle ../src/stack.c
+  #include <stdio.h>
+
+  void dive(int depth) {
+    int local;
+    printf("Depth %d, &local = %p\n", depth, (void*)&local);
+    if (depth < 5) dive(depth + 1);
+  }
+
+  int main(void) {
+    dive(1);
+    return 0;
+  }
+#+end_src
+
+Sample output:
+#+begin_example
+: Depth 1, &local = 0x7ffebd777104
+: Depth 2, &local = 0x7ffebd7770d4
+: Depth 3, &local = 0x7ffebd7770a4
+: Depth 4, &local = 0x7ffebd777074
+: Depth 5, &local = 0x7ffebd777044
+#+end_example
+
+* Makefile
+
+- This is a minimal =Makefile= for the two small C programs.
+
+- Special targets explained:
+
+  + =.PHONY= declares a target that does not correspond to a real file,
+    like =clean=
+
+  + =$@= expands to the target name of the current rule, e.g. =mem=. So
+    that =$@ = mem= leads to =-o mem= to be built as output file.
+
+  + =$^= expands to the list of all prerequisites (dependendies) for the
+    rule. For example for =mem=, that is =mem.o=. When executing on the
+    target, ~make~ looks if =mem.o= exists and is more recent than =mem=.
+
+#+begin_src make :tangle ../src/Makefile
+# Minimal, readable Makefile for two small C programs.
+
+# Compiler + flags (turn on warnings, keep optimizations off for clarity)
+CC      := gcc
+CFLAGS  := -Wall -Wextra -O0 -g
+LDFLAGS :=
+
+# Executable names
+PROGS := mem stack
+
+# Default target: build both programs
+all: $(PROGS)
+
+# Build memory layout executable
+mem: mem.o
+        $(CC) $(LDFLAGS) -o $@ $^
+
+# Build stack explorer executable
+stack: stack.o
+        $(CC) $(LDFLAGS) -o $@ $^
+
+# Generic compilation rule: .c -> .o
+%.o: %.c
+        $(CC) $(CFLAGS) -c -o $@ $<
+
+# Convenience targets to run the programs
+run-mem: mem
+        ./mem
+
+run-stack: stack
+        ./stack
+
+# Clean up build artifacts
+.PHONY: clean
+clean:
+        rm -f *.o $(PROGS)
+#+end_src
+
+* Build & run with make
+
+- For this to work, you should have =mem.c=, =stack.c= and =Makefile= all in
+  the same directory.
+
+- Build, run and clean up:
+  #+begin_example
+  make           # builds 'mem' and (if present) 'stack'
+  make run-mem   # runs ./mem
+  make run-stack # runs ./stack
+  make clean     # removes binaries and .o files
+  #+end_example
+
+* Discussion prompts
+
+- Which address is lowest/highest among text, data, heap, stack?
+  #+begin_quote
+  - *Lowest:* *Code* (0x5782386e51e9) → program instructions live in the
+    text segment, mapped near the base of the process image.
+
+  - *Next up:* *Global data* (0x5782386e8010) → just above the code in the
+    process layout.
+
+  - *Then:* *Heap* (0x57824f2d12a0) → allocated dynamically; typically
+    starts above data and grows upward.
+
+  - *Highest:* *Stack* (0x7fffebead74c) → lives at the high end of
+    virtual memory; grows downward.
+  #+end_quote
+
+- Does the heap pointer increase after another =malloc=? Why?
+  #+begin_quote
+  - Edit =mem.c=: You need to add another =heap= variable and print it.
+  - The sample output should show that the second address is higher.
+  - The reason is that the =heap= memory addresses grow upwards.
+  #+end_quote
+
+- Why is the stack address far from the heap?
+  #+begin_quote
+  Linux leaves a large space between heap and stack. On a 64-bit
+  system these spaces never touch.
+  #+end_quote
+
+- In =/proc/self/maps=, which lines correspond to text (=r-xp=), data
+  (=rw-p=), heap, stack, and shared libraries?
+  #+begin_quote
+  - =r-xp= (text) is executable code.
+  - =rw-p= (data) is writable data.
+  - =[heap]= is marked clearly
+  - =[stack]= is not visible because the addresses are much higher.
+  - Shared libraries (like =libc=) show their own =r-xp= and =rw-p= regions,
+    just like the ~main~ program. They appear in the middle area of the
+    address space though they are not literally between heap and
+    stack.
+  #+end_quote
+
+* Extensions
+
+- Add another heap pointer in =mem.c= and print it:
+  #+begin_src C :tangle no
+    // In mem.c, before free(heap):
+    int *heap2 = malloc(4096);
+    printf("Second malloc address:       %p\n", (void*)heap2);
+    free(heap2);
+  #+end_src
+
+- Add a ~static~ variable outside of ~main~ and check that it ends up in
+  the data section of the virtual memory.
+  #+begin_src C :tangle no
+  // In mem.c, at file scope (top of file):
+  static int static_var = 7;
+  // In main():
+  printf("Address of static (data):    %p\n", (void*)&static_var);
+  #+end_src
+
