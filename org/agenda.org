@@ -1069,7 +1069,7 @@ building blocks for digital logic.
       memory.
     #+end_quote
 
-** NEXT Review (Wednesday) - Program Memory Layout
+** DONE Review (Wednesday) - Program Memory Layout
 
 1. What memory segments hold program code and global initialized data?
    #+begin_quote
@@ -1121,14 +1121,11 @@ building blocks for digital logic.
 9. What tool can show which shared libraries an executable will load
    at runtime?
    #+begin_quote
-   The `ldd` command.
+   The ~ldd~ command.
    #+end_quote
    #+begin_src C :tangle ../src/helloldd.c :main yes :includes <stdio.h> <stdlib.h> <string.h> :results output :exports both :noweb yes
      printf("Hello");
    #+end_src
-
-   #+RESULTS:
-   : Hello
 
    #+begin_src bash :results output :exports both
      cd ../src
@@ -1138,9 +1135,9 @@ building blocks for digital logic.
 
    #+RESULTS:
    : make: 'helloldd' is up to date.
-   :    linux-vdso.so.1 (0x0000736e15556000)
-   :    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000736e15200000)
-   :    /lib64/ld-linux-x86-64.so.2 (0x0000736e15558000)
+   : 	linux-vdso.so.1 (0x00007ffcba3f3000)
+   : 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f6e427bd000)
+   : 	/lib64/ld-linux-x86-64.so.2 (0x00007f6e42a07000)
 
 10. How does =vector.push_back= affect memory allocation?
     #+begin_quote
@@ -1182,13 +1179,19 @@ building blocks for digital logic.
 
 ** PRACTICE Memory layout exploration (ca. 30-40 min)
 
-- [ ] Open ide.cloud.google.com and go to the terminal.
-- [ ] Code along with me. Answer the questions.
+- [X] Open ide.cloud.google.com and go to the terminal.
+- [X] Code along with me. Answer the questions.
 - [ ] Upload files (=mem.c=, =stack.c= and =Makefile=) as .zip to Canvas.
 
-* Week 6: Amdahl's Law, Networks, Parallelism (Sep 29, Oct 1, Oct 3)
+* Week 6: OS files, Amdahl's Law, Networks, Parallelism (Sep 29, Oct 1, Oct 3)
+#+attr_html: :width 400px :float nil:
+[[../img/week6.png]]
 
-** Amdahl's Law
+** OS files as I/O abstraction
+
+** Network adapters as I/O devices
+
+** Amdahl's Law as an upper bound of system improvements
 
 #+attr_html: :width 300px:
 [[../img/amdahl.png]]
@@ -1206,3 +1209,39 @@ portion.
 - [ ] Test 4 is live (Sep 28).
 - [ ] Assignment: Pushing a module to the kernel (Sep 28).
 - [ ] Video (Google Chat): OS kernel and computer architecture.
+
+
+** PRACTICE Amdahl's Law (Also: home assignment)
+
+** Concurrency and parallelism  
+
+** Summary: The Importance Of Being Earnest (when dealing with Abstractions)
+#+attr_html: :width 400px :float nil:
+[[../img/tiobe.png]]
+
+- *Trivial things taken seriously* ("Ernest"): In CS, we obsess about
+  naming abstractions (variables, functions, design layers) though
+  machines don't care. *Names only matter to humans.*
+
+- *Serious things treated trivially* (identity, marriage): Programmers
+  often treat critical abstractions (memory models, thread safety,
+  performance assumptions) too lightly, leading to bugs.
+
+- *Masks and identity* (false personas): Abstractions in CS hide
+  identity - A file descriptor is "just a number" not the disk head
+  moving. A socket is "just a stream", not packets flying across
+  networks. The machine reality is messy and requires managing.
+
+- *Critique of hypocrisy* (Victorian hypocrisy): In CS, abstractions can
+  be leaky - we pretend that it "just works" (e.g. latency in
+  distributed systems), but reality leaks through. Our systems value
+  the appearance of simplicity over the complex truth beneath.
+
+Just as Wilde shows that society’s insistence on being “earnest” is
+more about appearances than substance, abstractions in CS remind us
+that what looks simple and serious on the surface often hides messy,
+complex realities underneath.
+
+* Week 7: Review of digital (Boolean) logic, Hardware Description Language (Oct 6, Oct 8)
+
+- No Friday classes this week ("Hurkle-Durkle Day")!
