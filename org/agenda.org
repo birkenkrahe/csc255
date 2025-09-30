@@ -1187,6 +1187,11 @@ building blocks for digital logic.
 #+attr_html: :width 400px :float nil:
 [[../img/week6.png]]
 
+- [ ] *Correction*: ASLR does *not* protect hardware deterioration (it's a
+  virtual memory operation). Unnecessary writes (logging, journalling,
+  swapping memory) cause these problems. The SSD spreads writes over
+  many blocks but not using ASLR.
+
 ** OS files as I/O abstraction
 
 ** Network adapters as I/O devices
@@ -1209,7 +1214,6 @@ portion.
 - [ ] Test 4 is live (Sep 28).
 - [ ] Assignment: Pushing a module to the kernel (Sep 28).
 - [ ] Video (Google Chat): OS kernel and computer architecture.
-
 
 ** PRACTICE Amdahl's Law (Also: home assignment)
 
