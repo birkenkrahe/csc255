@@ -31,7 +31,12 @@ CLOCK: [2025-05-30 Fri 12:59]
   program[fn:1]:
   #+begin_src C :tangle ../src/hello.c
     #include <stdio.h>
-    int main(){printf("hello, world\n");return 0;}
+
+    int main()
+    {
+      printf("hello, world\n");
+      return 0;
+    }
   #+end_src
 
 - The program =hello= begins life as a *source* program or source file
@@ -68,40 +73,28 @@ CLOCK: [2025-05-30 Fri 12:59]
 
 - How could you check that this is the encoding for the characters?
   #+begin_quote
-  To check the ASCII encoding you could print the characters as
-  integer values.
+  To check the ASCII encoding for example for the first line of
+  =hello.c=, you could print the characters as integer values.
   #+end_quote
-  #+begin_src C :main no :includes :results output :exports both :tangle ascii.c
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    int main()
-    {
-      char line[]="#include <stdio.h>";
-      int len = strlen(line);
-      for (int i = 0; i < len; i++)
-        {
-        printf("%c ", line[i]);    // %c: ASCII, %d: integer
-        printf("%d ", line[i]);    // %c: ASCII, %d: integer
-      }
-      return 0;
-    }
+  #+begin_src C :main yes :includes <stdio.h> <stdlib.h> <string.h> :results output :exports both :noweb yes
+    char line[]="#include <stdio.h>";
+    int len = strlen(line);
+    for (int i=0; i<len; i++)
+      printf("%d ",line[i]); // ASCII: %c, integer: %d
   #+end_src
 
   #+RESULTS:
-  : # 35 i 105 n 110 c 99 l 108 u 117 d 100 e 101   32 < 60 s 115 t 116 d 100 i 105 o 111 . 46 h 104 > 62 
+  : 35 105 110 99 108 117 100 101 32 60 115 116 100 105 111 46 104 62
 
 - Our story begins with compilation and the creation of an *executable*, =hello=:
   #+begin_src bash :results output :exports both
-    ls ascii.c
-    gcc ascii.c -o ascii
-    #make ascii
-    ./ascii
+    cd ../src
+    gcc hello.c -o hello
+    ls -l ../src/hello
   #+end_src
 
   #+RESULTS:
-  : ascii.c
-  : # 35 i 105 n 110 c 99 l 108 u 117 d 100 e 101   32 < 60 s 115 t 116 d 100 i 105 o 111 . 46 h 104 > 62 
+  : -rwxrwxr-x 1 aletheia aletheia 15960 Jul  1 08:04 ../src/hello
 
 - How exactly does the computer create and run this executable?
 
@@ -126,17 +119,22 @@ CLOCK: [2025-05-30 Fri 12:59]
 
 - We're using the GNU compiler GCC (~gcc~). What is it exactly?
   #+begin_quote
-  Look at gcc.gnu.org - front-end for multiple languages including
-  FORTRAN, Ada, Go, Modula-2, C, C++...originally the compiler for
-  UNIX, the original multi-user, time-sharing Operating System.
+  See [[https://gcc.gnu.org][gcc.gnu.org]]: "The GNU Compiler Collection (GCC) includes
+  front-ends for C, C++, Objective-C, FORTRAN, Ada, Go, D, Modula-2
+  and COBOL, as well as libraries for these languages. Originally
+  written as the compiler for the GNU OS (later GNU/Linux).
   #+end_quote
 
 - How can you find out more about this program?
   #+begin_quote
-  Open the man page for gcc (500 pages).
+
+By opening the ~man~ page for ~gcc~ (long: approximately 500 pages). The
+most useful options are listed right at the top - all of these can
+be passed to an Emacs Org-mode code block using the ~:flags~ argument.
+
   #+end_quote
   #+begin_example
-         gcc [-c|-S|-E] [-std=standard]
+       gcc [-c|-S|-E] [-std=standard]
            [-g] [-pg] [-Olevel]
            [-Wwarn...] [-Wpedantic]
            [-Idir...] [-Ldir...]
@@ -145,99 +143,90 @@ CLOCK: [2025-05-30 Fri 12:59]
            [-o outfile] [@file] infile...
   #+end_example
 
-- Let's look at the steps and results of the compiler chain. Do this
-  in a terminal (e.g. ide.cloud.google.com).
-
------  
+-----
 
 1. *Preprocessing*: =hello.c= -> =hello.i=
    #+begin_src bash :results output :exports both
      cd ../src
      gcc -E hello.c -o hello.i
-     ls -lt hello.c hello.i
-     file hello.c
-     file hello.i
+     ls -lt hello*
+     file hello.c # 5 lines
+     file hello.i # 745 lines
    #+end_src
 
    #+RESULTS:
-   : -rw-rw-r-- 1 marcus marcus 60149 Sep 12 15:21 hello.i
-   : -rw-rw-r-- 1 marcus marcus   159 Aug 27 12:55 hello.c
+   : -rw-rw-r-- 1 aletheia aletheia 17975 Jul  1 08:00 hello.i
+   : -rw-rw-r-- 1 aletheia aletheia   100 Jul  1 07:59 hello.c
    : hello.c: C source, ASCII text
    : hello.i: C source, ASCII text
-   
+
 2. *Compilation*: =hello.i= -> =hello.s=
    #+begin_src bash :results output :exports both
      cd ../src
      gcc -S hello.i -o hello.s
-     ls -lt hello.s
+     ls -lt hello*
      file hello.s
    #+end_src
 
    #+RESULTS:
-   : -rw-rw-r-- 1 marcus marcus 684 Sep 12 15:21 hello.s
+   : -rw-rw-r-- 1 aletheia aletheia   665 Jul  1 08:02 hello.s
+   : -rw-rw-r-- 1 aletheia aletheia    93 Jul  1 08:01 hello.c
+   : -rw-rw-r-- 1 aletheia aletheia 17975 Jul  1 08:00 hello.i
    : hello.s: assembler source, ASCII text
 
 3. *Assembly*: =hello.s= -> =hello.o=
    #+begin_src bash :results output :exports both
      cd ../src
      gcc -c hello.s -o hello.o
-     ls -lt hello.*
+     ls -lt hello*
      file hello.o
    #+end_src
 
    #+RESULTS:
-   : -rw-rw-r-- 1 marcus marcus  1504 Sep 12 15:23 hello.o
-   : -rw-rw-r-- 1 marcus marcus   684 Sep 12 15:21 hello.s
-   : -rw-rw-r-- 1 marcus marcus 60149 Sep 12 15:21 hello.i
-   : -rw-rw-r-- 1 marcus marcus    69 Aug 27 15:23 hello.cpp
-   : -rw-rw-r-- 1 marcus marcus   159 Aug 27 12:55 hello.c
-   : hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not strippedG
+   : -rw-rw-r-- 1 aletheia aletheia  1496 Jul  1 08:41 hello.o
+   : -rwxrwxr-x 1 aletheia aletheia 15960 Jul  1 08:04 hello
+   : -rw-rw-r-- 1 aletheia aletheia   665 Jul  1 08:02 hello.s
+   : -rw-rw-r-- 1 aletheia aletheia    93 Jul  1 08:01 hello.c
+   : -rw-rw-r-- 1 aletheia aletheia 17975 Jul  1 08:00 hello.i
+   : hello.o: ELF 64-bit LSB relocatable, x86-64, version 1 (SYSV), not stripped
 
-   If you "touch" a file (change its timestamp), ~make~ will see it and
-   initiate a recompilation.
-   #+begin_src bash :results output
-     cd ../src
-     touch hello.c
-     make hello
-   #+end_src
-
-   #+RESULTS:
-   : cc    -c -o hello.o hello.c
-   : cc   hello.o   -o hello
-
-   Explanations:
-   #+begin_quote
-   - ELF: Executable and linkable format (64-bit)
-   - LSB: Least Significant Byte first -> Little Endian byte order
-   - "relocatable": you can use shared object libraries
-   - x86-64: 64-bit Intel/AMD CPU (x8600)
-   - version 1 (SYSV): System V application binary interface (Linux)
-   - "not stripped": contains symbol and debugging information
-   #+end_quote
+   Explanation:
+   - ~ELF~: Executable and Linkable Format, 64-bit (binary) see ~readelf~
+   - ~LSB~: Least Significant Byte first ("little endian" byte order)
+   - ~relocatable~: Instead of ~executable~, ~shared object~ (~.so~ library)
+   - ~x86-64~: 64-bit/Intel/AMD CPU architecture
+   - ~version 1 (SYSV)~: System V Appl Binary Interface (Linux standard)
+   - ~not stripped~: Contains symbul and debugging information
 
 4. *Linking*: =hello.o= + =printf.o= -> =hello=
    #+begin_src bash :results output :exports both
      cd ../src
      gcc hello.o -o hello
-     ls -lt hello.*
+     ls -lt hello*
      file hello
    #+end_src
 
    #+RESULTS:
-   : -rw-rw-r-- 1 marcus marcus  1504 Sep 12 15:24 hello.o
-   : -rw-rw-r-- 1 marcus marcus   159 Sep 12 15:24 hello.c
-   : -rw-rw-r-- 1 marcus marcus   684 Sep 12 15:21 hello.s
-   : -rw-rw-r-- 1 marcus marcus 60149 Sep 12 15:21 hello.i
-   : -rw-rw-r-- 1 marcus marcus    69 Aug 27 15:23 hello.cpp
-   : hello: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=bada948b7806816ed4ed6a628ba7d7702771dee0, for GNU/Linux 3.2.0, not stripped
+   : -rwxrwxr-x 1 aletheia aletheia 15960 Jul  1 08:49 hello
+   : -rw-rw-r-- 1 aletheia aletheia  1496 Jul  1 08:41 hello.o
+   : -rw-rw-r-- 1 aletheia aletheia   665 Jul  1 08:02 hello.s
+   : -rw-rw-r-- 1 aletheia aletheia    93 Jul  1 08:01 hello.c
+   : -rw-rw-r-- 1 aletheia aletheia 17975 Jul  1 08:00 hello.i
+   : hello: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=eee2a64fcb44ae0e481d4d177437ea2246382667, for GNU/Linux 3.2.0, not stripped
 
-   Explanations:
-   #+begin_quote
-   - "pie executable": position independent excecutable = it can be loaded
-     anywhere into the memory.
-   - "dynamically linked": uses shared libraries and it will load the
-     libraries (e.g. the one to print) at run-time.
-   #+end_quote
+   Explanation:
+   - ~pie executable~: Position-Independent Executable (can be loaded at
+     any address in memory), compiled with ~-fPIE~ and linked with ~-pie~.
+   - ~dynamically linked~: Uses shared libraries and will load them at
+     runtime. ~Statically linked~: all code included in the executable.
+   - ~interpreter /lib64/ld-linux-x86-64.so.2~: dynamic linker/loader
+     that loads and links shared libraries when executable runs.
+   - ~BuildID[sha1]=...~: Unique identifier for the binary, hashed (aka
+     encrypted) with SHA-1 hash function for content-based
+     uniqueness. The hash is a 160-bit (20-byte) number shown as a
+     40-digit hexadecimal number.
+   - ~for GNU/Linux 3.2.0~: Minimum Linux kernel version the binary is
+     compatible with.
 
 5. *Running*: =hello= -> ~stdout~
    #+begin_src bash :results output :exports both
@@ -246,26 +235,28 @@ CLOCK: [2025-05-30 Fri 12:59]
    #+end_src
 
    #+RESULTS:
-   : Hello, World
+   : hello, world
 
 * What happens when we run =hello= on a computer
 
-1) The shell e.g. ~bash(1)~ loads and runs the program and then waits for it
-   to terminate. 
+- The shell program ~bash(1)~ loads and runs the =hello= program and then
+  waits for it to terminate.
 
-2) The ~hello~ program prints the message to the screen (stdout) and
-   then terminates (end of run-time).
+- The =hello= program prints its message to the screen and then
+  terminates.
 
-3) The shell program prints a prompt ~$~ and waits for the next input
+- The shell program prints a prompt (~$PS1~) and waits for the next
+  input (to see ~$PS1~ you need to run =echo $PS1= in a terminal).
 
-4) There are obviously a number of devices involved. Which are they?
-   #+begin_quote
-   1. The CPU to execute the program proper
-   2. The input/output system (e.g. move data to the screen)
-   3. The graphics system (to present the output on the screen)
-   4. The keyboard to type and enter commands
-   5. The memory to hold data during running
-   #+end_quote
+- There are obviously a number of devices involved. Which are they?
+  #+begin_quote
+  1. The *file system* (which is where ~bash(1)~ and =hello= are stored).
+  2. The *input/output* system (to move data to the screen).
+  3. The *graphics display* (to present the output).
+  4. The *keyboard* (to type and enter commands).
+  5. The *memory* (to hold data during running).
+  6. The *CPU* (to execute the program).
+  #+end_quote
 
 * Hardware organization
 #+attr_html: :width 600px :float nil:
@@ -274,42 +265,51 @@ CLOCK: [2025-05-30 Fri 12:59]
 
 - The figure shows the hardware organization of a typical system.
 
-- *Buses*:
-  #+begin_quote
-
-  #+end_quote
+- *Buses*: Bridges that carry information back and forth. They are
+  designed to transfer fixed-size chunks or *words*. The size of a word
+  on a 64-bit system is 8 bytes, with each byte holding 8 bits.
 
 - *I/O Devices*: System's connections to the real world. Which I/O
   devices are there?
   #+begin_quote
-  1. 
-  2. 
-  3. 
-  4. 
-  5. 
+  1. A keyboard (user input)
+  2. A mouse (user input)
+  3. A disk drive (long-term storage of data and programs)
+  4. A display (user output)
+  5. A network connection
   #+end_quote
 
-- *Controllers* and *Adapters*: 
+- *Controllers* and *Adapters*: Connect I/O devices to the I/O bus. A
+  controller is a chip set on the device itself, an adapter is a chip
+  set on a card that plugs into a slot on the *motherboard*.
   #+begin_quote
-  1. 
-  2. 
-  3. 
+  1. Disk, mouse and keyboard are connected to (USB) controllers.
+  2. The display is connected via a graphics adapter.
+  3. WiFi is connected via a network adapter.
   #+end_quote
 
-- *Main memory*:
-  #+begin_quote
+- *Main memory*: Temporary storage including a program and its data
+  while the CPU executes the program. Physically, a collection of
+  dynamic random access memory (DRAM) chips. Logically, a linear array
+  of bytes. Variable data sizes vary by architecture. On x86-64-Linux,
+  ~char~ requires 1 byte, ~short~ requires 2, ~int~ and ~float~ requires 4,
+  ~long~ and ~double~ require 8 bytes.
 
-  #+end_quote
+- *Processor*: interprets instructions stored in main memory based on
+  its instruction set architecture (ISA). A program counter (PC)
+  points at a machine-language instruction in a register. The
+  arithmetic/logic unit (ALU) computes new data and address values.
 
-- *Processor*:
-  #+begin_quote
+  CPU transactions:
+  1) *Load*: Copy a byte from main memory to register (overwrite).
+  2) *Store*: Copy a byte from register to main memory (overwrite).
+  3) *Operate*: Copy contents of two registers to ALU, perform an
+     arithmetic operation on the two words, store result in register.
+  4) *Jump:* Extract word from instruction and copy it into the PC.
 
-  #+end_quote
-
-- *CPU transactions:*
-  #+begin_quote
-
-  #+end_quote
+- To appreciate and control processor performance, you have to take
+  both the ISA abstraction and the processor's micro-architecture at
+  the implementation level (of circuits) into account.
 
 * Example: Hardware organization of a Raspberry Pi 5
 #+attr_html: :width 900px :float nil:
@@ -366,25 +366,68 @@ display device.
 
 * Running =hello=: Processor-memory gap
 
-- The system spends a lot of time moving information around.
+- The system spends a lot of time moving information around: Machine
+  instructions are stored on disk, are copied to main memory, from
+  there into the processor, string data are copied from disk to main
+  memory and then to the display.
 
-- Memory access varies massively across the architecture.
-  
-- Economies: fast memory or fast processors?
+- A disk drive may be 1,000 times larger than main memory, but the
+  processor needs 10,000,000 times longer to read a word from disk
+  than from memory, and it reads 100 times faster from the register.
 
-- Cache memory.
+- Economies: Large storage devices are slower than smaller storage
+  devices (distance!). Faster, smaller devices are more expensive to
+  build. It is easier and cheaper to make processors run faster than
+  to make main memory run faster.
+
+- The solution: So-called *cache* memories are small, fast storage
+  devices where information that the processor will need soon are
+  stored temporarily.
   #+attr_html: :width 600px :float nil:
   #+caption: Cache memories (Source: Bryant/O'Halloran 2016)
   [[../img/fig1.8_cachebus.png]]
 
+- Cache was already mentioned when we discussed code optimization
+  (matrix copy example) and the performance overhead incurred by
+  "cache misses", which slow down cache access. Application
+  programmers who are aware of cache memories can exploit them to
+  improve their program performance by orders of magnitude.
+
+* Memory wears down over time
+
+A top-of-the range SSD flash cell can be overwritten only about
+100,000 times (less for low quality SSD) until its worn out. One cell
+can store 1 bit. 100k is not very much but there are wear-level &
+error-correcting routines and, most importantly, there are many such
+cells - around 34 billion cells on a 4 GB RAM, and they're not busy
+most of the time. The reason is the electron tunneling effect - that
+boils down to physical chemistry involving the thin oxide layer of
+each transistor - since it's a physical compound, it gets worn down.
+
+By comparison, HDD (hard drives) wear out not because of electron
+tunneling damage but because of mechanical
+
 * Memory is organized hierarchically
 
-- The idea behind caches.
+- The idea behind caches is to insert a smaller, faster storage device
+  between the processor and a larger, slower device.
   #+attr_html: :width 600px :float nil:
   #+caption: Memory hierarchy (Source: Bryant/O'Halloran 2016)
   [[../img/fig1.9_memhier.png]]
 
-- The main idea of the memory hierarchy.
+- In the Raspberry Pi 5 schematic you could see the static access
+  memory (SRAM) as a separate chip. Unlike the register, caches can
+  hold 10,000 to millions of bytes and can be accessed nearly as fast
+  as a register over a special bus.
+
+- The main idea of the memory hierarchy is that storage at one level
+  serves as a cache for storage at the next lower level. This may
+  include remote storage connected via a network.
+
+- So, when the CPU needs data, it looks first in the closest (fastest)
+  level. If it’s not there, it fetches from the next level down, and
+  often stores a copy in the upper level so future accesses are
+  faster.
 
 * Running =hello= - summary
 
@@ -403,7 +446,7 @@ display device.
 4. *File Creation to Execution*: The executable =hello= is run by the
    shell (=bash=), which loads it into memory, starts a new process, and
    prints output to the terminal.
-   
+
 5. *Hardware Overview*: A computer system includes the CPU, memory,
    buses, and peripheral devices, all connected via controllers and
    adapters orchestrated by the motherboard.
@@ -429,7 +472,6 @@ display device.
 10. *Memory is Organized Hierarchically*: The memory hierarchy places
     fast, small storage (like caches) between the CPU and slower
     storage layers, enabling efficient access to frequently used data.
-
 
 * The OS manages the hardware
 
@@ -464,6 +506,7 @@ display device.
   seconds or so and looks something like this:
   #+attr_html: :width 600px :float nil:
   [[../img/top.png]]
+
 - In a *uniprocessor* system (one core only), a single CPU appears to
   execute multiple processes by *context switching* between user and
   kernel mode.
@@ -487,170 +530,169 @@ display device.
 
 - For this to work smoothly, low-level hardware and OS software have
   to cooperate closely. This is part of a much larger topic,
-  *exceptions* - commands and data structures used to signal events. See
-  more in the man page for =signal(7)=.
+  *exceptions* - commands and data structures used to signal events.
 
 * OS: Threads
 
-  - A process doesn'tt have to have single control flow. It can consist
-    of multiple execution units, called *threads*. Each thread runs in the
-    process context, shares the same code and global data.
+- A process doesn'tt have to have single control flow. It can consist
+  of multiple execution units, called *threads*. Each thread runs in the
+  process context, shares the same code and global data.
 
-  - Threads are more efficient than processes, and multi-threading is a
-    way of making programs run faster especially when multiple
-    processors are available.
+- Threads are more efficient than processes, and multi-threading is a
+  way of making programs run faster especially when multiple
+  processors are available.
 
-  - Each process has its own address space (primate memory), the
-    kernel keeps process control separate, and processes communicate
-    via explicit inter-process communications.
+- Each process has its own address space (primate memory), the
+  kernel keeps process control separate, and processes communicate
+  via explicit inter-process communications.
 
-  - All threads of a process share memory, code, data, open
-    files. Each thread has its own stack and CPU
-    registers. Communication is much easier and faster but bugs are
-    more likely, too.
-  
-  - Mastering concurrency means writing multi-threaded
-    programs. Example:
-    #+begin_src C
-      #include <stdio.h>
-      #include <pthread.h>
+- All threads of a process share memory, code, data, open
+  files. Each thread has its own stack and CPU
+  registers. Communication is much easier and faster but bugs are
+  more likely, too.
 
-      void* print_hello(void* arg) {
-        printf("Hello from thread %d!\n", *(int*)arg);
-        return NULL;
+- Mastering concurrency means writing multi-threaded
+  programs. Example:
+  #+begin_src C
+    #include <stdio.h>
+    #include <pthread.h>
+
+    void* print_hello(void* arg) {
+      printf("Hello from thread %d!\n", *(int*)arg);
+      return NULL;
+    }
+
+    int main() {
+      pthread_t threads[2];
+      int thread_ids[2] = {1, 2};
+
+      // Create threads
+      for (int i = 0; i < 2; i++) {
+        pthread_create(&threads[i], NULL, print_hello, &thread_ids[i]);
       }
 
-      int main() {
-        pthread_t threads[2];
-        int thread_ids[2] = {1, 2};
-
-        // Create threads
-        for (int i = 0; i < 2; i++) {
-          pthread_create(&threads[i], NULL, print_hello, &thread_ids[i]);
-        }
-
-        // Wait for threads to finish
-        for (int i = 0; i < 2; i++) {
-          pthread_join(threads[i], NULL);
-        }
-
-        printf("Main thread finished.\n");
-        return 0;
-      }
-    #+end_src
-
-    #+RESULTS:
-    : Hello from thread 1!
-    : Hello from thread 2!
-    : Main thread finished.
-
-  - What happens here?
-    #+begin_quote
-    1. Two threads are being created with ~pthread_create(3)~
-    2. Each thread runs the =print_hello= routine
-    3. The ~void*~ return type is a generic pointer (can return any
-       address), the argument can pass anything.
-    4. Inside =print_hello=, =arg= is passed as a ~void*~ but we know it's an
-       ~int*~ (to the thread ID) so =*(int*)arg= casts it back to an integer
-       pointer (address).
-    5. ~pthread_join~ waits for each thread to finish before exiting ~main~.
-    #+end_quote
-
-  - Just for fun: How would this look like in modern C++ (post-C++11)?
-    #+begin_src C++ :main no :includes :results output :exports both
-      #include <iostream>
-      #include <thread>
-
-      void print_hello(int id) {
-        std::cout << "Hello from thread " << id << "!\n";
+      // Wait for threads to finish
+      for (int i = 0; i < 2; i++) {
+        pthread_join(threads[i], NULL);
       }
 
-      int main() {
-        std::thread t1(print_hello, 1);
-        std::thread t2(print_hello, 2);
+      printf("Main thread finished.\n");
+      return 0;
+    }
+  #+end_src
 
-        // Wait for both threads to finish
-        t1.join();
-        t2.join();
+  #+RESULTS:
+  : Hello from thread 1!
+  : Hello from thread 2!
+  : Main thread finished.
 
-        std::cout << "Main thread finished.\n";
-        return 0;
-      }
-    #+end_src
+- What happens here?
+  #+begin_quote
+  1. Two threads are being created with ~pthread_create(3)~
+  2. Each thread runs the =print_hello= routine
+  3. The ~void*~ return type is a generic pointer (can return any
+     address), the argument can pass anything.
+  4. Inside =print_hello=, =arg= is passed as a ~void*~ but we know it's an
+     ~int*~ (to the thread ID) so =*(int*)arg= casts it back to an integer
+     pointer (address).
+  5. ~pthread_join~ waits for each thread to finish before exiting ~main~.
+  #+end_quote
 
-    #+RESULTS:
-    : Hello from thread Hello from thread 2!
-    : 1!
-    : Main thread finished.
+- Just for fun: How would this look like in modern C++ (post-C++11)?
+  #+begin_src C++ :main no :includes :results output :exports both
+    #include <iostream>
+    #include <thread>
 
-  - You can see how concurrent writing to ~std::cout~ from multiple
-    threads is not safe: The ~ostream~ buffer is not protected against
-    interleaved output when multiple threads write to it simultaneously!
+    void print_hello(int id) {
+      std::cout << "Hello from thread " << id << "!\n";
+    }
 
-  - The corrected version uses the ~<mutex>~ library to safeguard the
-    output stream. It is still simpler than the C version.
-    #+begin_src C++ :main no :includes :results output :exports both
-      #include <iostream>
-      #include <thread>
-      #include <mutex>
+    int main() {
+      std::thread t1(print_hello, 1);
+      std::thread t2(print_hello, 2);
 
-      std::mutex cout_mutex;
+      // Wait for both threads to finish
+      t1.join();
+      t2.join();
 
-      void print_hello(int id) {
-        std::lock_guard<std::mutex> lock(cout_mutex);  // RAII-style lock
-        std::cout << "Hello from thread " << id << "!\n";
-      }
+      std::cout << "Main thread finished.\n";
+      return 0;
+    }
+  #+end_src
 
-      int main() {
-        std::thread t1(print_hello, 1);
-        std::thread t2(print_hello, 2);
+  #+RESULTS:
+  : Hello from thread Hello from thread 2!
+  : 1!
+  : Main thread finished.
 
-        t1.join();
-        t2.join();
+- You can see how concurrent writing to ~std::cout~ from multiple
+  threads is not safe: The ~ostream~ buffer is not protected against
+  interleaved output when multiple threads write to it simultaneously!
 
-        std::cout << "Main thread finished.\n";
-        return 0;
-      }
-    #+end_src
+- The corrected version uses the ~<mutex>~ library to safeguard the
+  output stream. It is still simpler than the C version.
+  #+begin_src C++ :main no :includes :results output :exports both
+    #include <iostream>
+    #include <thread>
+    #include <mutex>
 
-    #+RESULTS:
-    : Hello from thread 1!
-    : Hello from thread 2!
-    : Main thread finished.
+    std::mutex cout_mutex;
 
-  - And how about Python? That's very simple using the ~threading~
-    library:
-    #+begin_src python :results output :exports both :session *Python* :python python3 
-      import threading
+    void print_hello(int id) {
+      std::lock_guard<std::mutex> lock(cout_mutex);  // RAII-style lock
+      std::cout << "Hello from thread " << id << "!\n";
+    }
 
-      def print_hello(id):
-          print(f"Hello from thread {id}!")
+    int main() {
+      std::thread t1(print_hello, 1);
+      std::thread t2(print_hello, 2);
 
-      # Create two threads
-      t1 = threading.Thread(target=print_hello, args=(1,))
-      t2 = threading.Thread(target=print_hello, args=(2,))
+      t1.join();
+      t2.join();
 
-      # Start threads
-      t1.start()
-      t2.start()
+      std::cout << "Main thread finished.\n";
+      return 0;
+    }
+  #+end_src
 
-      # Wait for both threads to finish
-      t1.join()
-      t2.join()
+  #+RESULTS:
+  : Hello from thread 1!
+  : Hello from thread 2!
+  : Main thread finished.
 
-      print("Main thread finished.")
-    #+end_src  
+- And how about Python? That's very simple using the ~threading~
+  library:
+  #+begin_src python :results output :exports both :session *Python* :python python3
+    import threading
 
-    #+RESULTS:
-    : Hello from thread 1!
-    : Hello from thread 2!
-    : Main thread finished.
+    def print_hello(id):
+        print(f"Hello from thread {id}!")
 
-  - Still: remember that it is C that's under the hood!
+    # Create two threads
+    t1 = threading.Thread(target=print_hello, args=(1,))
+    t2 = threading.Thread(target=print_hello, args=(2,))
 
-  - Attended CSC 410 (Data Communications and Networks) and remember
-    ~fork(2)~? The difference is that ~fork~ creates a duplicate (child)
-    process with its own memory space (and the same process ID).
+    # Start threads
+    t1.start()
+    t2.start()
+
+    # Wait for both threads to finish
+    t1.join()
+    t2.join()
+
+    print("Main thread finished.")
+  #+end_src
+
+  #+RESULTS:
+  : Hello from thread 1!
+  : Hello from thread 2!
+  : Main thread finished.
+
+- Still: remember that it is C that's under the hood!
+
+- Attended CSC 410 (Data Communications and Networks) and remember
+  ~fork(2)~? The difference is that ~fork~ creates a duplicate (child)
+  process with its own memory space (and the same process ID).
 
 * OS: Virtual Memory
 
@@ -672,7 +714,7 @@ display device.
   is used as a cache for the disk.
 
 * Program code and data (R/O)
-  
+
 - At the bottom are code and (global) data from the executable object
   file. The content is fixed and immutable at run-time. Always starts
   at the same memory address[fn:2]. Important for linking and loading.
@@ -688,10 +730,10 @@ display device.
     int main()
     {
       printf("Address of main: %p\n", (void*)main);
-      printf("Address of main: %p\n", (void*)&global_var);      
+      printf("Address of main: %p\n", (void*)&global_var);
 
       return 0;
-    } 
+    }
   #+end_src
 
   #+RESULTS:
@@ -720,8 +762,8 @@ display device.
 
       cout << "local variable:  " << &local_var  << endl
            << "heap variable:   " << heap_var    << endl
-           << "global variable: " << &global_var << endl;      
-     
+           << "global variable: " << &global_var << endl;
+
       return 0;
     }
   #+end_src
@@ -742,13 +784,13 @@ display device.
 
 - Examples: ~libm.so~ (math functions, ~libc.so~ (standard C library). On
   Linux, these are located system-wide in ~/lib~ directories.
-  
+
 - How does this work? At compile time, your program is linked against
   a shared library interface but not the actual code. At runtime, the
   dynamic linker (~ld.so~) maps the ~.so~ files into the program's memory
   space.
 
-- Example: ~sqrt~ from ~<math.h>~. 
+- Example: ~sqrt~ from ~<math.h>~.
   #+begin_src C :main no :includes :tangle ../src/sqrt.c
     #include <stdio.h>
     #include <math.h>
@@ -784,15 +826,15 @@ display device.
      #+end_src
 
      #+RESULTS:
-     : 	linux-vdso.so.1 (0x0000765e1fbb2000)
-     : 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000765e1f800000)
-     : 	/lib64/ld-linux-x86-64.so.2 (0x0000765e1fbb4000)
+     :  linux-vdso.so.1 (0x0000765e1fbb2000)
+     :  libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000765e1f800000)
+     :  /lib64/ld-linux-x86-64.so.2 (0x0000765e1fbb4000)
      : sqrt(2) = 1.414214
 
   4) Check with ~gdb~ in a terminal, and you'll see ~libthread_db.so~,
      which is a threaded debugger interface library so that ~gdb~ can
      access thread information.
-     
+
      #+attr_html: :width 600px :float nil:
      [[../img/gdb_sqrt.png]]
 
@@ -901,7 +943,7 @@ display device.
 - When growing the ~vector~ with ~.push_back~, the internal array is
   reallocated on the heap while the stack remains unaffected apart
   from metadata updates.
-  
+
 * Kernel
 
 - The top region of the address space is reserved for the kernel. No
@@ -943,14 +985,14 @@ display device.
     # Makefile
     obj-m += hellokernel.o
     all:
-    	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
     clean:
-    	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
   #+end_src
 
 - Build and load: Use a terminal for this. Might get an error message
   about "linux/init.h not found" in which case you have to install the
-  Linux headers. 
+  Linux headers.
   #+begin_example sh
      make
   #+end_example
@@ -963,7 +1005,7 @@ display device.
   that your kernel (~uname -r~) matches the kernel used here exactly.
   #+begin_src bash :results output :exports both
     cd ../src
-    modinfo hellokernel.ko    
+    modinfo hellokernel.ko
   #+end_src
 
   #+RESULTS:
@@ -972,10 +1014,10 @@ display device.
   : author:         Marcus Birkenkrahe
   : license:        GPL
   : srcversion:     DC9CDE2F65196BC99420A07
-  : depends:        
+  : depends:
   : name:           hellokernel
   : retpoline:      Y
-  : vermagic:       6.12.10-76061203-generic SMP preempt mod_unload modversions 
+  : vermagic:       6.12.10-76061203-generic SMP preempt mod_unload modversions
 
 - Load the executable into the kernel:
   #+begin_example sh
@@ -985,7 +1027,7 @@ display device.
 - Inspect runtime module info:
   #+begin_example bash
     lsmod | grep hellokernel     # Output: hellokernel [memory size] [used by]
-  #+end_example  
+  #+end_example
 
 - Display message from kernel buffer:
   #+begin_example bash
@@ -1018,7 +1060,11 @@ display device.
 - These and other adventures are what awaits you in next year's new
   edition of CSC 420 Operating Systems (check out [[https://pages.cs.wisc.edu/~remzi/OSTEP/][OSTEP]] online).
 
-* All memory segments without ASLR
+* All memory segments without ASLR [Home/in-class assignment]
+
+[See [[file:./2_systems_practice.org]] for an exercise]
+
+- You can switch ASLR (Address Space Layout Randomization) off.
 
 - Example to show all memory segments (C):
   #+begin_src C :tangle ../src/address2.c :main no :includes :results output :exports both
@@ -1026,7 +1072,7 @@ display device.
     #include <stdlib.h>
 
     void print_addresses();
-    
+
     int global_var = 42;  // .data section
 
     int main(void) {
@@ -1034,7 +1080,7 @@ display device.
       return 0;
     }
 
-     void print_addresses() {
+    void print_addresses() {
       int local_var = 1;               // stack
       int *heap_var = malloc(sizeof(int));  // heap
       (*heap_var) = 99;
@@ -1046,7 +1092,7 @@ display device.
 
       free(heap_var);
     }
-  #+end_src  
+  #+end_src
 
   #+RESULTS:
   : Address of local_var (stack):  0x7ffcf2e9c6dc
@@ -1070,7 +1116,7 @@ display device.
 - How large are these memory segments each? How would you find out?
   #+begin_src bash :results output :exports both
     echo "ibase=16; 555555558010-5555555551A9;" |bc # .text
-    echo "ibase=16; 5555555592A0-555555558010;" |bc # .data   
+    echo "ibase=16; 5555555592A0-555555558010;" |bc # .data
     cat /proc/$$/maps | grep heap # heap (grows upward)
     ulimit -s                     # stack [8 MB per thread] grows downward
   #+end_src
@@ -1078,7 +1124,7 @@ display device.
   #+RESULTS:
   : 11879
   : 4752
-  : 65349fced000-65349fd0e000 rw-p 00000000 00:00 0                          [heap]
+  : 5c9eaecc7000-5c9eaece8000 rw-p 00000000 00:00 0                          [heap]
   : 9788
 
 * OS Files
@@ -1104,100 +1150,158 @@ display device.
   The OS exposes all I/O through a common file descriptor API with the
   same functions: ~open~, ~read~, ~write~, ~close~ etc. The Virtual File
   System (VFS) layer maps these system calls to the correct backend.
-  #+end_quote  
+  #+end_quote
 
-- Examples:
-  1) You open a file with =open("file.txt")=: The OS looks up the file
-     metadata (path, ~file~, permissions) and returns a file descriptor
-     (a non-negative number that indexes into a per-process table of
-     open files maintained by the kernel).
+- Can you see the per-process file table that the kernel maintains?
+  #+begin_quote
+  Yes! They are available in =/proc/<PID>/fd/= and you get the =<PID>=
+  from the shell with the =ps= command. Each process has a directory
+  with symbolic links for every open file descriptor:
+  #+end_quote
 
-  2) You ~read~ from a terminal, disk, or a socket: The OS routes a call
-     to the correct device driver via VFS.
-
-  3) You use ~fread~ (binary read) to read from a hard disk, a USB
-     stick, a file over a network, or a virtual file like
-     ~/proc/cpuinfo~ without changing a single line of code!
-
-- Each running process has a directory for its file descriptors (FDs)
-  in ~/proc~. Standard input, standard output, and standard error files
-  are visible when you display the open FDs of your shell (alongside
-  other processes - cut off after the first three records):
-  #+begin_src bash :results output :exports both
-    ls -l /proc/$$/fd | head -n 4
-  #+end_src
-
-- Output on a regular shell either inside Emacs (as an emulation) or
-  using a terminal program:
+- Example:
   #+begin_example
-  lrwx------ 1 aletheia aletheia 64 Jul  9 18:49 0 -> /dev/pts/0
-  lrwx------ 1 aletheia aletheia 64 Jul  9 18:49 1 -> /dev/pts/0
-  lrwx------ 1 aletheia aletheia 64 Jul  9 18:49 2 -> /dev/pts/0
-  #+end_example  
+  $ ps
+        PID TTY          TIME CMD
+    1343114 pts/2    00:00:00 bash   <---- process to look at
+    1913528 pts/2    00:00:00 ps
 
-- Output on an Emacs shell run inside an Org-mode file:
+  $ ls -l /proc/1343114/fd           <---- file descriptors for this process
+  total 0
+  lrwx------ 1 aletheia aletheia 64 Sep 29 11:15 0 -> /dev/pts/2 <---- stdin
+  lrwx------ 1 aletheia aletheia 64 Sep 29 11:15 1 -> /dev/pts/2 <---- stdout
+  lrwx------ 1 aletheia aletheia 64 Sep 29 11:15 2 -> /dev/pts/2 <---- stderr
+  lrwx------ 1 aletheia aletheia 64 Sep 29 11:15 255 -> /dev/pts/2
+
+  $ cat /proc/1343114/fdinfo/0   <--- shows the values of a `struct file`
+    pos:        0                  <--- file offset (pointer)
+    flags:      02000002           <--- file status flags (encoded)
+    mnt_id:     30                 <--- file system this file belongs to
+    ino:        5                  <--- unique inode number for every file
+  #+end_example
+
+- Can you look at the kernel's "full bookkeeping" for a file?
   #+begin_example
-  : total 0
-  : lr-x------ 1 aletheia 64 Jul  9 18:39 0 -> /tmp/babel-QlOtOu/ob-input-hGX7VV
-  : l-wx------ 1 aletheia 64 Jul  9 18:39 1 -> pipe:[420266]
-  : l-wx------ 1 aletheia 64 Jul  9 18:39 2 -> /tmp/emacsZW3pfg
+  $ lsof -p 1343114   <--- merges fd table and mappings into one view
+    COMMAND     PID     USER   FD   TYPE DEVICE SIZE/OFF     NODE NAME
+    bash    1343114 aletheia  cwd    DIR  252,1     4096 16384002 /home/aletheia
+    bash    1343114 aletheia  rtd    DIR  252,1     4096        2 /
+    bash    1343114 aletheia  txt    REG  252,1  1396520 30802004 /usr/bin/bash
+    bash    1343114 aletheia  mem    REG  252,1 15751120 30807072 /usr/lib/locale/locale-archive
+    bash    1343114 aletheia  mem    REG  252,1  2220400 30802109 /usr/lib/x86_64-linux-gnu/libc.so.6
+    bash    1343114 aletheia  mem    REG  252,1   200136 30834451 /usr/lib/x86_64-linux-gnu/libtinfo.so.6.3
+    bash    1343114 aletheia  mem    REG  252,1    27002 30813768 /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache
+    bash    1343114 aletheia  mem    REG  252,1   240936 30802032 /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+    bash    1343114 aletheia    0u   CHR  136,2      0t0        5 /dev/pts/2
+    bash    1343114 aletheia    1u   CHR  136,2      0t0        5 /dev/pts/2
+    bash    1343114 aletheia    2u   CHR  136,2      0t0        5 /dev/pts/2
+    bash    1343114 aletheia  255u   CHR  136,2      0t0        5 /dev/pts/2
   #+end_example
 
 - Explanation:
   #+begin_quote
-  All FDs are symbolic links. On a regular shell, you only see
-  redirection to ~/dev~, on an Emacs-shell
-  
-  1) ~stdin~: Standard input (=FD=0=). Read and write permission. Input is
-     redirected to a temporary file created by Org-Babel because Emacs
-     executes the code inside Org-mode files.
-  2) ~stdout~: Standard output (=FD=1=). Write and execute
-     permission. Output is redirected to a pipe, a kernel-managed
-     in-memory buffer. This is how Emacs captures program output.
-  3) ~stdin~: Standard error (=FD=2=). Write and execute permission. Error
-     is redirected to a temporary file for display in a buffer or
-     minibuffer.
+  + =DIR=: current working directory of the process
+  + =REG=: regular file (disk file, executable, libraries)
+  + =CHR=: character device (e.g. the terminal under =/dev/pts/*=
   #+end_quote
 
-- You can demonstrate this with a simple C program that opens a file
-  =demo.txt= with read/write permissions and prints the process ID
-  (PID), then keeps the process alive so that (in another terminal) we
-  can see that file descriptor 3 is open and points to the file.
-  #+begin_src C++ :tangle ../src/fd_demo.c :noeval
-    #include <fcntl.h>
-    #include <unistd.h>
-    #include <stdio.h>
+* OS files: Example
 
-    int main() {
-      int fd = open("demo.txt", O_CREAT | O_WRONLY, 0644);
-      if (fd < 0) {
-        perror("open");
-        return 1;
-      }
-      printf("PID: %d\n", getpid());
-      pause(); // keep the process alive
-      return 0;
+We demonstrate the file management with a coded/guided example.
+
+1) You open a file with =open("file.txt")=:
+   #+begin_quote
+   The OS looks up the file metadata (path, ~file~, permissions) and
+   returns a file descriptor (a non-negative number that indexes into
+   a per-process table of open files maintained by the kernel).
+   #+end_quote
+
+2) You read from an I/O device:
+   #+begin_quote
+   You ~read~ from a terminal, disk, or a socket: The OS routes a system
+   call to the correct device driver via VFS - see ~man read(2)~.
+   #+end_quote
+
+3) The kernel reads the data as a stream of binary data:
+   #+begin_quote
+   You use ~fread~ (binary read) to read from a hard disk, a USB stick,
+   a file over a network, or a virtual file like ~/proc/cpuinfo~ without
+   changing a single line of code! - See ~man fread(3)~ library
+   function.
+   #+end_quote
+
+Code demonstration:
+#+begin_quote
+You can demonstrate this with a simple C program that opens a file
+=demo.txt= with read/write permissions and prints the process ID (PID),
+then keeps the process alive so that (in another terminal) we can see
+that file descriptor 3 is open and points to the file.
+#+end_quote
+
+Code:
+#+begin_src C++ :tangle ../src/fd_demo.c :noeval
+  #include <fcntl.h>
+  #include <unistd.h>
+  #include <stdio.h>
+
+  int main() {
+    int fd = open("demo.txt", O_CREAT | O_WRONLY, 0644);
+    if (fd < 0) {
+      perror("open");
+      return 1;
     }
-  #+end_src
+    printf("PID: %d\n", getpid());
+    pause(); // keep the process alive so we can look at it
+    return 0;
+  }
+#+end_src
 
-  Now, in the shell below, compile and run the demo:
-  #+begin_example bash
-    gcc fd_demo.c -o fd_demo
-    ./fd_demo 
-  #+end_example
+Compile and run the demo:
+#+begin_example bash
+  gcc fd_demo.c -o fd_demo
+  ./fd_demo                  # shows the PID
+#+end_example
 
-  In another terminal, find the PID of the program and look for the
-  process:
-  #+begin_example bash
-    pidinfo fd_demo  # get the PID
-    ls -l /proc/<PID>/fd/
-  #+end_example
+Use the PID that is shown and look it up in the FD table:
+#+begin_example bash
+  ls -l /proc/<PID>/fd/
+#+end_example
 
-   Example output: Shows that =FD=3= is open and points to =demo.txt=
-   #+begin_example sh
-   $ ls -l /proc/81860/fd/ | grep demo
-   l-wx------ 1 [...] 3 -> /home/aletheia/src/demo.txt
-   #+end_example
+Example output: Shows that =FD=3= is open and points to =demo.txt=
+#+begin_example sh
+$ ls -l /proc/81860/fd/ | grep demo
+l-wx------ 1 [...] 3 -> /home/aletheia/src/demo.txt
+#+end_example
+
+* OS file demo review questions:
+
+1. When you call =open("demo.txt")=, what does the kernel return to the
+   process?
+   #+begin_quote
+   A file descriptor (an index into the per-process open file table).
+   #+end_quote
+2. What is the difference between ~read~ and ~fread~?
+   #+begin_quote
+   ~read(2)~ is a system call on file descriptors, while ~fread(3)~ is a
+   library call on ~FILE*~ streams with buffering for binary input.
+   #+end_quote
+3. What does the entry =3 -> demo.txt= in =/proc/<PID>/fd/= mean?
+   #+begin_quote
+   It shows that file descriptor 3 in the process's open file table
+   points to the file =demo.txt=.
+   #+end_quote
+4. Why does the kernel use 3 here?
+   #+begin_quote
+   Because the kernel always reserves the first three file descriptors
+   for standard I/O: 0->stdin, 1->stdout, 2->stderr. When ~open~ is
+   called, the kernel looks for the lowest unused FD in the
+   per-process table.
+   #+end_quote
+5. Why does the example program call =pause()= after opening the file?
+   #+begin_quote
+   So that we can inspect the file descriptors while it is (still)
+   running. Otherwise the process would be finished without a PID.
+   #+end_quote
 
 * OS abstractions - summary
 
@@ -1240,7 +1344,6 @@ display device.
     uniform interface to vastly different hardware and data sources,
     letting programs ignore device-specific complexity.
 
-
 * Networks as I/O devices
 
 - In reality, most systems are connected to other systems by
@@ -1252,23 +1355,28 @@ display device.
 - How could we make use of a network for our =hello= world program?
   #+begin_quote
   A network is accessed using the file abstraction like any other
-  file. We could *copy* =hello= to another computer using the FTP
-  protocol, we could *run* it remotely using the TELNET (or SSH)
-  protocol, you could use sockets to *send* the "hello" message across
-  the network, *store* it on a shared file server to be accessed from
-  other machines as if it were local, or *upload* it in a container or
-  virtual machine on the cloud.
+  file.
+  1) We could *copy* =hello= to another computer using the FTP protocol
+  2) We could *run* it remotely using the TELNET (or SSH) protocol
+  3) We could use sockets to *send* the "hello" message across the network
+  4) We could *store* it on a shared file server to be accessed from
+     other machines as if it were local,
+  5) We could *upload* it in a container or virtual machine on the
+     cloud.
 
   All of these use cases depend on the *protocol* used as a way of
   exchanging data over the network in a standardized fashion
   (e.g. over a default port, like 80 for HTTP, 23 for TELNET).
   #+end_quote
 
-- Let's look at the (insecure, compared to ~ssh~) remote shell
-  application ~telnet~ ("teletype network"). The connection is run by
-  two programs: a local client (your PC), and a remote server
-  program. How the actual connection is established (via Ethernet,
-  TCP/IP or UDP, etc.) is irrelevant for this.
+- Example: Remote shell application ~telnet~ ("teletype network") from a
+  PC to a Rasperry Pi ("Pi").
+  #+begin_quote
+  You think there is a ~man~ page for ~telnet~? It is insecure compared to
+  ~ssh~ ("Secure SHell"). The connection is run by two programs:
+  1. A local client (your PC)
+  2. A remote server program.
+  #+end_quote
 
 - The ~telnet~ service allows us to run the =hello= program on the remote
   machine.
@@ -1278,23 +1386,23 @@ display device.
 - Here is the exact sequence of steps:
   1) Set up the TELNET server so that it offers a login shell[fn:3]
      #+begin_example bash
-     pi> sudo apt install telnetd
-     pi> sudo systemctl enable inetd
-     pi> sudo systemctl start inetd
+     pi> sudo apt install telnetd     <--- install daemon program
+     pi> sudo systemctl enable inetd  <--- enable Internet super-server
+     pi> sudo systemctl start inetd   <--- listen on multiple ports
      #+end_example
   2) Create a basic =hello= program on the Pi and export it so that it
      can be executed by any user on the Pi:
      #+begin_example bash
      pi> echo - '#include <stdio.h>\nint main() { puts("Hello from Pi!"); }' > hello.c
      pi> gcc hello.c -o hello
-     pi> chmod +x
-     pi> sudo mv hello /usr/local/bin
+     pi> chmod +x                       <--- make program executable
+     pi> sudo mv hello /usr/local/bin   <--- move it to a $PATH location
      #+end_example
   3) On the Pi, get the network address =<PI_ID>=. This will be the
      local network address (not the Internet address):
      #+begin_example bash
      pi> hostname -I
-     192.168.1.203
+     192.168.1.203  # this is IPv4 - the cmd will also return IPv6
      #+end_example
   4) From the client (PC), connect to the network address you got
      using the TELNET client:
@@ -1332,6 +1440,7 @@ display device.
 - You learn a lot more about this in CSC 410 (Data Communications and
   Networks)!
 
+
 * Amdahl's Law
 
 - Gene Amdahl, one of the pioneers of computing, observed that when
@@ -1360,7 +1469,7 @@ display device.
   #+begin_quote
   S = [(1-0.6) + 0.6/3]^{-1} = [0.4 + 0.2]^{-1} = 10/6 \approx 1.67
   #+end_quote
-  
+
 - Even though we substantially improved a major part of the system,
   the net effect was significantly less. To do better, we must improve
   the speed of a very large fraction of the total system.
@@ -1393,7 +1502,7 @@ display device.
   excecuted within a single process. On a single processor, OS
   time-sharing is only simulated for the user (through rapid task
   switching).
-  
+
 - Modern computers have *multi-core processors* and employ
   "hyperthreading": Several CPUs are integrated on a single chip.
 
@@ -1445,7 +1554,7 @@ display device.
   : CPU min MHz:                          800.0000
   #+end_example
 
-  So that means between 0.8 and 5.6 billion instructions 
+  So that means between 0.8 and 5.6 billion instructions
 
 - To check the instructions per cycle (IPC), install ~perf~:
   #+begin_example sh
@@ -1457,21 +1566,21 @@ display device.
   #+begin_example
   perf stat ./hello
   hello, world
-  
+
    Performance counter stats for './hello':
-  
-                0.47 msec task-clock:u                     #    0.435 CPUs utilized             
-                   0      context-switches:u               #    0.000 /sec                      
-                   0      cpu-migrations:u                 #    0.000 /sec                      
-                  52      page-faults:u                    #  111.534 K/sec                     
-             252,267      cpu_core/cycles/u                #    0.541 GHz                       
-             133,801      cpu_core/instructions/u                                               
-              27,998      cpu_core/branches/u              #   60.053 M/sec                     
-               1,932      cpu_core/branch-misses/u                                              
-               TopdownL1 (cpu_core)               #     22.2 %  tma_backend_bound                                                       
-                                                  #     14.2 %  tma_bad_speculation                                                     
-                                                  #     51.5 %  tma_frontend_bound                                                      
-                                                  #     12.1 %  tma_retiring           
+
+                0.47 msec task-clock:u                     #    0.435 CPUs utilized
+                   0      context-switches:u               #    0.000 /sec
+                   0      cpu-migrations:u                 #    0.000 /sec
+                  52      page-faults:u                    #  111.534 K/sec
+             252,267      cpu_core/cycles/u                #    0.541 GHz
+             133,801      cpu_core/instructions/u
+              27,998      cpu_core/branches/u              #   60.053 M/sec
+               1,932      cpu_core/branch-misses/u
+               TopdownL1 (cpu_core)               #     22.2 %  tma_backend_bound
+                                                  #     14.2 %  tma_bad_speculation
+                                                  #     51.5 %  tma_frontend_bound
+                                                  #     12.1 %  tma_retiring
          0.001072632 seconds time elapsed
          0.001129000 seconds user
          0.000000000 seconds sys
@@ -1498,12 +1607,12 @@ display device.
   | I/O via printf()         | CPU stalls waiting on slow output           |
   | Frontend/bad speculation | Pipeline bubbles; no instruction retirement |
   | Short run time           | Overhead dominates computation              |
-       
+
   #+end_quote
 
 - *Challenge:* Try ~perf stat~ on a "worthier" program, for example a
   matrix or vector multiplication.
-    
+
 * SIMD Parallelism
 
 - At the lowest level, modern processors have special hardware that
@@ -1517,9 +1626,9 @@ display device.
   instruction count and improving performance through data-level
   parallelism.
   #+attr_html: :width 600px :float nil:
-  #+caption: Comparison of Scalar and SIMD Execution Models. 
+  #+caption: Comparison of Scalar and SIMD Execution Models.
   [[../img/simd.jpg]]
-  
+
 - The purpose of SIMD is to speed up applications that process image,
   sound, and video data. When multiple processors perform SIMD
   operations independently in parallel, SIMD becomes MIMD
@@ -1547,9 +1656,9 @@ display device.
   Virtual Machine - which includes OS, processor, memory, devices.
   #+attr_html: :width 600px :float nil:
   [[../img/abstraction.png]]
-  
+
 - VMs and containers are common infrastructure abstractions in
-  software engineering.  
+  software engineering.
 
 * Networks, Amdahl's Law, concurrency, abstractions - summary
 
@@ -1587,10 +1696,10 @@ display device.
 
 * Footnotes
 
-[fn:3] ~telnetd~ is the TELNET server daemon which supervises a TELNET
-connection. ~inetd~ is the (on-demand) "internet super-server". It
-listen for incoming network connections on behalf of different
-services.
+[fn:1]This is a book that you should own and read, perhaps more than
+once. It is the prototype for every computer book every written, and
+far more elegant and readable than most of them.
+
 [fn:2]So if the virtual address space always starts at the same
 address, why does the address in the sample program change? This is
 because of Address Space Layout Randomization (ASLR), a security
@@ -1599,6 +1708,7 @@ make the memory layout unpredictable: The code in ~.text~, the data in
 ~.data~, the heap, the stack and shared libraries. To disable ASLR, run
 =setarch $(uname -m) -R ./a.out=a
 
-[fn:1]This is a book that you should own and read, perhaps more than
-once. It is the prototype for every computer book every written, and
-far more elegant and readable than most of them.
+[fn:3] ~telnetd~ is the TELNET server daemon which supervises a TELNET
+connection. ~inetd~ is the (on-demand) "internet super-server". It
+listen for incoming network connections on behalf of different
+services.
