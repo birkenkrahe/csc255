@@ -1192,7 +1192,17 @@ building blocks for digital logic.
   swapping memory) cause these problems. The SSD spreads writes over
   many blocks but not using ASLR.
 
-** OS files as I/O abstraction
+- [ ] *Current assignment*: Remember to upload the ZIP file for the
+  memory layout exploration exercise by October 3rd.
+
+- [ ] *New assignment*: Reusing OS kernel file descriptors. Submit
+  answers to a few questions after experimenting on the shell.
+
+** IN PROGRESS OS files as I/O abstraction
+
+- Files are sequences of bytes.
+- Files are used to model I/O devices connected to the computer.
+- In this way every application get a uniform I/O device view.
 
 ** Network adapters as I/O devices
 
@@ -1216,7 +1226,6 @@ portion.
 - [ ] Video (Google Chat): OS kernel and computer architecture.
 
 ** PRACTICE Amdahl's Law (Also: home assignment)
-
 ** Concurrency and parallelism  
 
 ** Summary: The Importance Of Being Earnest (when dealing with Abstractions)
@@ -1245,6 +1254,7 @@ Just as Wilde shows that society’s insistence on being “earnest” is
 more about appearances than substance, abstractions in CS remind us
 that what looks simple and serious on the surface often hides messy,
 complex realities underneath.
+
 
 * Week 7: Review of digital (Boolean) logic, Hardware Description Language (Oct 6, Oct 8)
 
