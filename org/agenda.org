@@ -813,11 +813,11 @@ building blocks for digital logic.
    lost when power is off. Physically, it consists of DRAM chips.
    #+end_quote
 
-* Week 5: Virtual memory, Kernel probe (Sep 22, 24, 26)
+* DONE Week 5: Virtual memory, Kernel probe (Sep 22, 24, 26)
 #+attr_html: :width 600px:
 [[../img/virtual_memory.png]]
 
-** DONE Review (Friday)
+** Review (Friday)
 
 1. What is the main principle of the memory hierarchy?
    #+begin_quote
@@ -847,7 +847,7 @@ building blocks for digital logic.
    Processes, virtual memory, file system controlled by the kernel.
    #+end_quote
 
-** DONE Review (Monday)
+** Review (Monday)
 
 1. What is the key difference between a thread and a process in terms
    of memory usage?
@@ -1069,7 +1069,7 @@ building blocks for digital logic.
       memory.
     #+end_quote
 
-** DONE Review (Wednesday) - Program Memory Layout
+** Review (Wednesday) - Program Memory Layout
 
 1. What memory segments hold program code and global initialized data?
    #+begin_quote
@@ -1183,28 +1183,69 @@ building blocks for digital logic.
 - [X] Code along with me. Answer the questions.
 - [ ] Upload files (=mem.c=, =stack.c= and =Makefile=) as .zip to Canvas.
 
-* Week 6: OS files, Amdahl's Law, Networks, Parallelism (Sep 29, Oct 1, Oct 3)
+* DONE Week 6: OS files, Amdahl's Law, Networks (Sep 29, Oct 1, Oct 3)
 #+attr_html: :width 400px :float nil:
 [[../img/week6.png]]
 
-- [ ] *Correction*: ASLR does *not* protect hardware deterioration (it's a
+- [X] *Correction*: ASLR does *not* protect hardware deterioration (it's a
   virtual memory operation). Unnecessary writes (logging, journalling,
   swapping memory) cause these problems. The SSD spreads writes over
   many blocks but not using ASLR.
 
-- [ ] *Current assignment*: Remember to upload the ZIP file for the
+- [X] *Current assignment*: Remember to upload the ZIP file for the
   memory layout exploration exercise by October 3rd.
 
-- [ ] *New assignment*: Reusing OS kernel file descriptors. Submit
+- [X] *New assignment*: Reusing OS kernel file descriptors. Submit
   answers to a few questions after experimenting on the shell.
 
-** IN PROGRESS OS files as I/O abstraction
+- [ ] Don't forget test 5 (Sunday). Test 6 will go live today.
+
+- [ ] Don't forget the FD demo assignment. Deadline next Wednesday.
+
+** DONE OS files as I/O abstraction
 
 - Files are sequences of bytes.
 - Files are used to model I/O devices connected to the computer.
 - In this way every application get a uniform I/O device view.
 
+** Whiteboard review: Looking at the per-process file descriptor table
+
+- Check out the code on the whiteboard (5 min)
+- Come to the whiteboard
+- Explain one line of this code and what it does (if anything)
+- Pick any line you like. Use ~//~ for C, and ~#~ for ~bash(1)~ comments.
+
+-----
+
+- Solution:  
+  #+begin_example C++
+    #include <fcntl.h> // file control options for open()
+    #include <unistd.h> // system cals like pause(), getpid()
+    #include <stdio.h> // I/O like printf(), perror()
+
+    int main() { // main program, no arguments, returns integer
+
+      // open or create demo.txt for writing only, return integer file descriptor
+      int fd = open("demo.txt", O_CREAT | O_WRONLY, 0644);
+      if (fd < 0) {     // check if file descriptor is zero or positive
+        perror("open() call failed.");  // print error message if open() failed
+        return 1; // exit with error code
+      }
+      printf("PID: %d\n", getpid());  // print process ID of this program (to stdout)
+      pause(); // keep the process alive
+      return 0; // exit without error code
+    } // end of main program, delete all program memory including PID
+#+end_example
+
+#+begin_example bash
+  gcc fd_demo.c -o fd_demo # compile C source file and create object file (executable)
+  ./fd_demo  # run executable
+  ls -l /proc/<PID>/fd/ # list per-process file descriptor table for PID
+#+end_example
+
 ** Network adapters as I/O devices
+
+
 
 ** Amdahl's Law as an upper bound of system improvements
 
@@ -1221,16 +1262,94 @@ processors, the speedup is constrained by the unparallelizable
 portion.
 #+end_quote
 
-- [ ] Test 4 is live (Sep 28).
-- [ ] Assignment: Pushing a module to the kernel (Sep 28).
-- [ ] Video (Google Chat): OS kernel and computer architecture.
 
-** PRACTICE Amdahl's Law (Also: home assignment)
-** Concurrency and parallelism  
+* Week 7: Parallelism, Review of Boolean logic, HDL (Oct 6, Oct 8)
+
+- [ ] No Friday classes this week ("Hurkle-Durkle Day")!
+- [ ] Test 6 is live (deadline Oct 12) - topics: OS files, networking.
+- [ ] Graded assignments: submit missing, pay attention (or ask me).
+- [ ] New assignment (deadline Oct 12) - Amdahl's law [review].
+- [ ] Topics: Parallelism, Boolean Logic, Hardware Description
+
+** TODO Review: Amdahl's law, network adapters
+
+1. What's Amdahl's law - formula & meaning
+   #+begin_quote
+   S = 1 / [(1-a) + a/k] where:
+   - S = speedup, old over new time spent on a task,
+   - a = system part performance (e.g. 60%, a = 0.6),
+   - k = part performance improvement (e.g. k = 3).
+
+   Amdahl's law gives an upper bound for the speedup (old over new
+   time spent on a task) that can be achieved for a whole system if
+   one part of the system is improved.
+   #+end_quote
+
+2. What is the maximum speedup that can be achieved according to
+   Amdahl's law if we speed a part up to infinity (no time spent)?
+   What if we do this for a part that the system spends 1/2 its time
+   in?
+   #+begin_quote
+   For k -> \infty, a = 0.5: S -> 1/(1-0.5) = 2
+   #+end_quote
+
+3. Amdahl's law example 1: You're designing a new CPU that is supposed
+   to be 10x as fast as the old one. But you can only improve 50% of
+   the CPU, not 100%. How much would this part have to be improved to
+   meet the overall performance? How does it follow from Amdahl's Law?
+   #+begin_quote
+   You have to solve the equation for S for k to obtain
+   k=a/(1/S-1+a). For a = 0.5 and S = 10, you get k < 0 - you cannot
+   achieve this speedup if you reengineer 50% of the CPU! The best
+   possible speedup is S = 2 for any 0 < a < 1.
+   #+end_quote
+
+4. Name two programs that can be used to run programs remotely - how
+   are they different from one another?
+   #+begin_quote
+   ~telnet~ and ~ssh~ - the former is less secure than the latter.
+   #+end_quote
+
+5. Which computer architecture abstraction allows us to treat networks
+   like input/ouput devices?
+   #+begin_quote
+   The file abstraction: Network connections are identified by file
+   descriptors (called sockets) and accessed using standard protocols
+   like FTP (file transfer protocol), or SSH (secure shell).
+   #+end_quote
+
+** Concurrency and parallelism
+
+1) *Concurrency and parallelism* both aim to improve computing
+   performance by running multiple tasks or instructions at the same
+   time.
+
+2) Modern processors use *multicore designs* and *hyperthreading* to
+   execute multiple threads simultaneously, but parallel performance
+   is limited by shared resources and serial program components.
+
+3) *Superscalar processors* can issue multiple instructions per clock
+   cycle, but real IPC (instructions per cycle) can be low due to I/O
+   delays, pipeline stalls, and short execution times.
+
+4) *SIMD parallelism* allows a single instruction to operate on multiple
+   data elements at once, greatly improving performance for
+   data-intensive tasks like graphics and audio processing.
 
 ** Summary: The Importance Of Being Earnest (when dealing with Abstractions)
 #+attr_html: :width 400px :float nil:
 [[../img/tiobe.png]]
+
+Plot summary of TIOBE by Oscar Wilde (ChatGPT):
+#+begin_quote
+Oscar Wilde’s The Importance of Being Earnest is a comedy about two
+men, Jack and Algernon, who invent false identities—both named
+“Ernest”—to escape social duties and win the women they love. Their
+deceptions collide in a web of mistaken identities and witty satire,
+ending with Jack discovering his real name is actually Ernest. The
+play mocks Victorian hypocrisy and the absurdity of taking appearances
+too seriously.
+#+end_quote
 
 - *Trivial things taken seriously* ("Ernest"): In CS, we obsess about
   naming abstractions (variables, functions, design layers) though
@@ -1255,7 +1374,3 @@ more about appearances than substance, abstractions in CS remind us
 that what looks simple and serious on the surface often hides messy,
 complex realities underneath.
 
-
-* Week 7: Review of digital (Boolean) logic, Hardware Description Language (Oct 6, Oct 8)
-
-- No Friday classes this week ("Hurkle-Durkle Day")!
