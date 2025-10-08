@@ -1262,16 +1262,15 @@ processors, the speedup is constrained by the unparallelizable
 portion.
 #+end_quote
 
+* Week 7: Parallelism & Concurrency & Project (Oct 6, Oct 8)
 
-* Week 7: Parallelism, Review of Boolean logic, HDL (Oct 6, Oct 8)
-
-- [ ] No Friday classes this week ("Hurkle-Durkle Day")!
-- [ ] Test 6 is live (deadline Oct 12) - topics: OS files, networking.
-- [ ] Graded assignments: submit missing, pay attention (or ask me).
-- [ ] New assignment (deadline Oct 12) - Amdahl's law [review].
+- [X] No Friday classes this week ("Hurkle-Durkle Day")!
+- [X] Test 6 is live (deadline Oct 12) - topics: OS files, networking.
+- [X] Graded assignments: submit missing, pay attention (or ask me).
+- [X] New assignment (deadline Oct 12) - Amdahl's law [review].
 - [ ] Topics: Parallelism, Boolean Logic, Hardware Description
 
-** TODO Review: Amdahl's law, network adapters
+** DONE Review: Amdahl's law, network adapters
 
 1. What's Amdahl's law - formula & meaning
    #+begin_quote
@@ -1293,7 +1292,7 @@ portion.
    For k -> \infty, a = 0.5: S -> 1/(1-0.5) = 2
    #+end_quote
 
-3. Amdahl's law example 1: You're designing a new CPU that is supposed
+3. Amdahl's law example: You're designing a new CPU that is supposed
    to be 10x as fast as the old one. But you can only improve 50% of
    the CPU, not 100%. How much would this part have to be improved to
    meet the overall performance? How does it follow from Amdahl's Law?
@@ -1304,8 +1303,8 @@ portion.
    possible speedup is S = 2 for any 0 < a < 1.
    #+end_quote
 
-4. Name two programs that can be used to run programs remotely - how
-   are they different from one another?
+4. Name two programs that can be used to run other programs remotely -
+   how are they different from one another?
    #+begin_quote
    ~telnet~ and ~ssh~ - the former is less secure than the latter.
    #+end_quote
@@ -1316,9 +1315,12 @@ portion.
    The file abstraction: Network connections are identified by file
    descriptors (called sockets) and accessed using standard protocols
    like FTP (file transfer protocol), or SSH (secure shell).
+
+   That's behind the saying "For the OS, everything looks like a
+   file." (Everything has a file descriptor.)
    #+end_quote
 
-** Concurrency and parallelism
+** DONE Concurrency and parallelism
 
 1) *Concurrency and parallelism* both aim to improve computing
    performance by running multiple tasks or instructions at the same
@@ -1336,7 +1338,7 @@ portion.
    data elements at once, greatly improving performance for
    data-intensive tasks like graphics and audio processing.
 
-** Summary: The Importance Of Being Earnest (when dealing with Abstractions)
+** DONE Summary: The Importance Of Being Earnest (when dealing with Abstractions)
 #+attr_html: :width 400px :float nil:
 [[../img/tiobe.png]]
 
@@ -1348,7 +1350,7 @@ men, Jack and Algernon, who invent false identities—both named
 deceptions collide in a web of mistaken identities and witty satire,
 ending with Jack discovering his real name is actually Ernest. The
 play mocks Victorian hypocrisy and the absurdity of taking appearances
-too seriously.
+too seriously (read it/watch the 1995? Colin Firth/Rupert Everett film).
 #+end_quote
 
 - *Trivial things taken seriously* ("Ernest"): In CS, we obsess about
@@ -1373,4 +1375,113 @@ Just as Wilde shows that society’s insistence on being “earnest” is
 more about appearances than substance, abstractions in CS remind us
 that what looks simple and serious on the surface often hides messy,
 complex realities underneath.
+
+
+** Term projects
+
+Here are 10 student pair project topics derived directly from the past
+six weeks of CSC 255. Each project involves doing further research on
+the topic and creating a final short demo or presentation (10-15 min).
+
+We will check progress in about a month (with a NotebookLM video).
+
+| NO | TOPIC                                   | TEAM | COMMENTS |
+|----+-----------------------------------------+------+----------|
+|  1 | Assembly across architectures           |      |          |
+|  2 | Dissect a segmentation fault            |      |          |
+|  3 | Measure memory access performance       |      |          |
+|  4 | Visualize virtual memory layout         |      |          |
+|  5 | Build and inspect a Linux kernel module |      |          |
+|  6 |                                         |      |          |
+|  7 |                                         |      |          |
+|  8 |                                         |      |          |
+|  9 |                                         |      |          |
+| 10 |                                         |      |          |
+
+1. Compare assembly outputs across architectures.
+
+   - Focus: Compare the assembly output (=gcc -S=) for =hello.c= or for
+     another perhaps even simpler program on two CPU architectures
+     (e.g. x86-64 vs. ARM).
+
+   - Deliverable: Annotated comparison showing instruction differences
+     and what they reveal about ISA design.
+
+2. Dissecting a segmentation fault.
+
+   - Focus: Use =gdb= to analyze a segmentation fault at the assembly
+     level (we did this with the =segfault.c= program).
+
+   - Deliverables: Step-by-step explanation (with screenshots or as
+     live demo) of what happens in registers and memory when e.g. a
+     ~NULL~ pointer is dereferenced.
+
+3. Measuring memory access performance.
+
+   - Focus: Experiment with different algorithms (we used a simple
+     matrix copy) and explain cache performance differences.
+
+   - Deliverable: Timing results, explanation of memory access
+     patterns, and visualization of cache-friendly
+     vs. cache-unfriendly operations.
+
+4. Visualizing virtual memory layout.
+
+   - Focus: run and extend examples to visualize and understand ~.text~,
+     ~.data~, ~heap~ and ~stack~, and shared library segments.
+
+   - Deliverable: Diagram of process memory layout aligned with the
+     example, and an explanation of how virtual addresses map to
+     physical memory.
+
+5. Building and inspecting a linux kernel module.
+
+   - Focus: Compile and load the =hellokernel.c= module on Linux, or
+     another simple module.
+
+   - Deliverable: Short presentation on how user-space programs differ
+     from kernel-space modules, plus annotated =dmesg= output.
+
+6. Exploring the ~/proc~ filesystem.
+
+   - Focus: Investigate ~/proc/<PID>/fd~ and ~/proc/<PID>/maps~ for a
+     running process.
+
+   - Deliverable: Explain how the file descriptors map to system
+     resources, and how this demonstrates the OS "everything is a
+     file" abstraction.
+
+7. Parallelism in practice: Amdahl's Law revisited.
+
+   - Focus: Implement an experiment (in C or Python) to measure
+     speedup with multiple threads, and compare with Amdahl's
+     prediction.
+
+   - Deliverable: Plot of theoretical vs. measured speedup; reflection
+     on where Amdahl's law breaks down in practice.
+
+8. Instruction-level parallelism and performance profiling.
+
+   - Focus: Get and explore the [[https://perfwiki.github.io/main/][Linux perf tool]]. Use ~perf stat~ to
+     measure instructions per cycle (IPC) for different programs (C or
+     Python).
+
+   - Deliverable: Comparative IPC results, identification of
+     bottlenecks, and short explanation of superscalar behavior.
+
+9. Cache as bridge: Simulating the memory hierarchy
+
+   - Focus: Implement or simulate a small cache between CPU and RAM;
+     measure hit/miss behavior.
+
+   - Deliverable: Table of cache hits vs. misses for sequential
+     vs. strided access, and explanation of locality effects.
+
+10. Buses and bandwidth: Measuring the process-memory gap
+
+    - Focus: Use simulation or timing experiments to estimate how bus
+      width and clock speed affect data throughput.
+
+    - Deliverable: Calculation or simulation showing the impact of
+      8-bit vs. 16-bit bus width on effective memory bandwidth.
 
