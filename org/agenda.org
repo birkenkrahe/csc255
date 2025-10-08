@@ -1377,13 +1377,39 @@ that what looks simple and serious on the surface often hides messy,
 complex realities underneath.
 
 
-** Term projects
+** What we did achieve so far
 
-Here are 10 student pair project topics derived directly from the past
-six weeks of CSC 255. Each project involves doing further research on
-the topic and creating a final short demo or presentation (10-15 min).
+| Sessions | Major Topic Area                              |
+|----------+-----------------------------------------------|
+| 2        | Introduction to Systems & Architecture        |
+| 1        | Computer Arithmetic & GDB demo                |
+| 2        | Assembly/Disassembly (Hello World + segfault) |
+| 1        | Memory Layout & Debugging (struct_t example)  |
+| 1        | Low-Level Optimization (copyij vs copyji)     |
+| 1        | Computer Networks as I/O                      |
+| 2        | Compilation System & Hardware Organization    |
+| 2        | OS Abstractions (processes, VM, files)        |
+| 1        | Threads & Concurrency                         |
+| 2        | Virtual Memory & Memory Segments              |
+| 1        | Kernel & Device Modules                       |
+| 2        | Networks + DMA, Amdahl’s Law, Concurrency     |
+|----------+-----------------------------------------------|
+| 18       | *Total*                                         |
 
-We will check progress in about a month (with a NotebookLM video).
+** NEXT Term projects
+
+- Here are 10 student pair project topics derived directly from the
+  past six weeks of CSC 255. Each project involves doing further
+  research on the topic and creating a final short demo or
+  presentation (10-15 min).
+  
+- Your first deliverable is a short informal proposal detailing how
+  you will go about researching the topic. We will begin writing the
+  proposal today!
+  
+- We will check progress in about a month (with a NotebookLM video).
+  
+*** Overview
 
 | NO | TOPIC                                   | TEAM | COMMENTS |
 |----+-----------------------------------------+------+----------|
@@ -1392,11 +1418,13 @@ We will check progress in about a month (with a NotebookLM video).
 |  3 | Measure memory access performance       |      |          |
 |  4 | Visualize virtual memory layout         |      |          |
 |  5 | Build and inspect a Linux kernel module |      |          |
-|  6 |                                         |      |          |
-|  7 |                                         |      |          |
-|  8 |                                         |      |          |
-|  9 |                                         |      |          |
-| 10 |                                         |      |          |
+|  6 | Explore the ~/proc~ file system           |      |          |
+|  7 | Parallelism in practice: Check Amdahl   |      |          |
+|  8 | Instruction-level parallelism profiling |      |          |
+|  9 | Cache as bridge between CPU and RAM     |      |          |
+| 10 | Measure the process-memory gap          |      |          |
+
+*** Guidance
 
 1. Compare assembly outputs across architectures.
 
@@ -1484,4 +1512,11 @@ We will check progress in about a month (with a NotebookLM video).
 
     - Deliverable: Calculation or simulation showing the impact of
       8-bit vs. 16-bit bus width on effective memory bandwidth.
+
+*** TODO Pick a team & a topic & start writing the proposal
+
+- Pick a team. (5 min)
+- Pick a topic. (5 min)
+- Begin writing the proposal. (20 min)
+- Briefly present your thoughts in class. (4 x 5 min)
 
