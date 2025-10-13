@@ -1135,9 +1135,9 @@ building blocks for digital logic.
 
    #+RESULTS:
    : make: 'helloldd' is up to date.
-   : 	linux-vdso.so.1 (0x00007ffcba3f3000)
-   : 	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f6e427bd000)
-   : 	/lib64/ld-linux-x86-64.so.2 (0x00007f6e42a07000)
+   :    linux-vdso.so.1 (0x00007ffcba3f3000)
+   :    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f6e427bd000)
+   :    /lib64/ld-linux-x86-64.so.2 (0x00007f6e42a07000)
 
 10. How does =vector.push_back= affect memory allocation?
     #+begin_quote
@@ -1217,7 +1217,7 @@ building blocks for digital logic.
 
 -----
 
-- Solution:  
+- Solution:
   #+begin_example C++
     #include <fcntl.h> // file control options for open()
     #include <unistd.h> // system cals like pause(), getpid()
@@ -1262,7 +1262,7 @@ processors, the speedup is constrained by the unparallelizable
 portion.
 #+end_quote
 
-* Week 7: Parallelism & Concurrency & Project (Oct 6, Oct 8)
+* DONE Week 7: Parallelism & Concurrency & Project (Oct 6, Oct 8)
 
 - [X] No Friday classes this week ("Hurkle-Durkle Day")!
 - [X] Test 6 is live (deadline Oct 12) - topics: OS files, networking.
@@ -1376,8 +1376,7 @@ more about appearances than substance, abstractions in CS remind us
 that what looks simple and serious on the surface often hides messy,
 complex realities underneath.
 
-
-** What we did achieve so far
+** DONE What we did achieve so far
 
 | Sessions | Major Topic Area                              |
 |----------+-----------------------------------------------|
@@ -1396,19 +1395,19 @@ complex realities underneath.
 |----------+-----------------------------------------------|
 | 18       | *Total*                                         |
 
-** NEXT Term projects
+** DONE Term projects
 
 - Here are 10 student pair project topics derived directly from the
   past six weeks of CSC 255. Each project involves doing further
   research on the topic and creating a final short demo or
   presentation (10-15 min).
-  
+
 - Your first deliverable is a short informal proposal detailing how
   you will go about researching the topic. We will begin writing the
   proposal today!
-  
+
 - We will check progress in about a month (with a NotebookLM video).
-  
+
 *** Overview
 
 | NO | TOPIC                                   | TEAM | COMMENTS |
@@ -1517,6 +1516,151 @@ complex realities underneath.
 
 - Pick a team. (5 min)
 - Pick a topic. (5 min)
-- Begin writing the proposal. (20 min)
+- Begin writing the proposal. (20 min):
+
+  1) What are your sources going to be?
+  2) What's your schedule?
+  3) Who can do what between you two?
+  4) Questions, concerns, issues?
+
 - Briefly present your thoughts in class. (4 x 5 min)
 
+- Next deliverable: a project update on November 12 in the form of an
+  AI-generated video created based on your prompt with
+  notebooklm.google.com (free application - time limit).
+
+* Week 8: Boolean Logic (Oct 13, 15, 17)
+#+attr_html: :width 600px :float nil:
+#+caption: Source: Nishan/Schocken, Nand To Tetris (2021)
+[[../img/big_picture2.png]]
+
+- [ ] Review: Digital logic
+- [ ]
+- [ ]
+- [ ]
+
+** Review: Digital logic
+#+OPTIONS: toc:nil num:nil ^:nil: title:nil author:nil date:nil
+1. What are Boolean values and what are the basic Boolean operations?
+   #+begin_quote
+   - Values: true/false, high/low, on/off.
+   - Operations: AND, OR, NOT.
+   #+end_quote
+
+2. What is a Boolean expression?
+   #+begin_quote
+   A Boolean expression is a combination of the basic operations that
+   evaluates to a Boolean value, e.g. NOT (0 OR (1 AND 1)) = 0
+   #+end_quote
+
+3. Which logical operators correspond directly ot the basic Boolean
+   operations in most programming languages?
+   #+begin_quote
+   ~&&~, ~||~, and ~!~ correspond to AND, OR, and NOT.
+   #+end_quote
+
+4. What does this evaluate to: 1 AND (0 OR (NOT(1)))? Write the code
+   in any programming language you know, and write the intermediate
+   steps, too.
+   #+begin_src R :session *R* :results output :exports both
+     1 & (0 | (!(1)))
+     ## 1 AND (0 OR (NOT(1))) = 1 AND (0 OR 0) = 1 AND 0 = 0
+   #+end_src
+
+   #+RESULTS:
+   : [1] FALSE
+
+5. Given the formula or function f(x,y,z) = (x AND y) OR (NOT(x) AND
+   z), write a program for this function in any language and confirm
+   this result:
+   #+name: boolean function table
+   | x | y | z | f(x,y,z) |
+   |---+---+---+----------|
+   | 0 | 0 | 0 |        0 |
+   | 0 | 0 | 1 |        1 |
+   | 0 | 1 | 0 |        0 |
+   | 0 | 1 | 1 |        1 |
+   | 1 | 0 | 0 |        0 |
+   | 1 | 0 | 1 |        0 |
+   | 1 | 1 | 0 |        1 |
+   | 1 | 1 | 1 |        1 |
+
+   #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <iomanip> <vector> :namespaces std :results output :exports both :noweb yes
+     bool f(bool x, bool y, bool z);
+     int main() {
+       vector<bool> v {0,1};
+       cout << "| x | y | z | f(x,y,z) |\n"
+            << "|---|---|---|----------|\n";
+       for (bool a : v) {
+         for (bool b : v)
+           for (bool c : v)
+             cout << "| " << a << " | " << b << " | " << c << " |"
+                  << right << setw(9) << f(a,b,c) << " |" << endl;
+       }
+       return 0;
+     }
+     bool f(bool x, bool y, bool z) {
+       return ((x && y) || (!(x) && z));
+     }
+   #+end_src
+
+6. Which description of Boolean logic is better - the truth table or
+   the close functional form, and why?
+   #+begin_quote
+   Truth table and functional (formula) are fully equivalent. They
+   both describe the entire state space (input-output behavior) of the
+   function. Which one you should choose depends on the size of the
+   state space: truth tables better for small functions, function
+   forms are more compact for larger ones.
+   #+end_quote
+
+7. How many states does a Boolean function of 5 arguments have?
+   #+begin_quote
+   Distributing two values {0,1} over 5 arguments gives 2^5 = 32
+   possible states, just like distributing 2 values over 3 states
+   x,y,z earlier had 2^3 = 8 states.
+   #+end_quote
+
+8. Ture or false? The expression =(x AND y) OR (NOT x AND z)= can be
+   represented by two different but equivalent Boolean formulas.
+   #+begin_quote
+   True - the two equivalent representations are: 1) the Boolean
+   algebra form =(x AND y) OR (NOT x AND z)=, and 2) the conditional
+   (ternary) or multiplexer form:
+   =if x then y else z= -> =x ? y : z= in C/C++.
+   #+end_quote
+
+9. Do you remember any Boolean algebra laws? List them alongside their
+   definition.
+   #+begin_quote
+  - Commutative laws for binary operators AND, OR:
+    (x AND y) = (y AND x)
+    (x OR y)  = (y OR x)
+  - Associative laws:
+    x AND (y AND z) = (x AND y) AND (x AND z)
+    x OR (y OR z) = (x OR y) OR (x OR z)
+  - Distributive laws both over AND and OR
+    x AND (y OR z) = (x AND y) OR (x AND z)
+    x OR (y AND z) = (x OR y) AND (x OR z)
+  - De Morgan laws:
+    NOT(x AND y) = NOT(x) OR NOT(y)
+    NOT(x OR y) = NOT(x) AND NOT(y)
+  - Idempotence (doing it twice is the same as doing it once):
+    a AND a = a
+    a OR a = a
+    NOT(NOT(a)) = a    ("double negation")
+  - Tautology (always true):
+    NOT(a) OR a = TRUE
+    NOT(a) AND a = FALSE
+     #+end_quote
+
+10. Use the Boolean algebra laws to simplify this expression:
+    NOT(NOT(x) AND NOT(x OR y))
+    #+begin_example
+    NOT(NOT(x) AND NOT(x OR y)) =            De Morgan
+    NOT(NOT(x) AND NOT(x) AND NOT(y)) =      Associativity
+    NOT((NOT(x) AND NOT(x)) AND NOT(y)) =    Idempotence
+    NOT(NOT(x) AND NOT(y)) =                 De Morgan
+    NOT(NOT(x)) OR NOT(NOT(y)) =             Double negation/Idempotence
+    x OR y
+    #+end_example
