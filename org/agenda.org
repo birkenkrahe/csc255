@@ -1534,12 +1534,13 @@ complex realities underneath.
 #+caption: Source: Nishan/Schocken, Nand To Tetris (2021)
 [[../img/big_picture2.png]]
 
-- [ ] Review: Digital logic
-- [ ]
-- [ ]
+- [X] Popquiz review: Digital logic
+- [ ] Boolean logic video available: [[https://tinyurl.com/boolean-logic-review][tinyurl.com/boolean-logic-review]]
+- [ ] Review: Digital logic (XOR and Boolean laws)
+- [ ] Nand2Tetris setup
 - [ ]
 
-** Review: Digital logic
+** DONE Review: Digital logic
 #+OPTIONS: toc:nil num:nil ^:nil: title:nil author:nil date:nil
 1. What are Boolean values and what are the basic Boolean operations?
    #+begin_quote
@@ -1664,3 +1665,50 @@ complex realities underneath.
     NOT(NOT(x)) OR NOT(NOT(y)) =             Double negation/Idempotence
     x OR y
     #+end_example
+
+** TODO Review: Apply Boolean algebra laws (10 min)
+
+- XOR = (NOT(x) AND y) OR (x AND NOT(y)) \equiv  (x OR y) AND NOT(x AND y)
+
+- Use Boolean identities (De Morgan, distributivity, commutativity,
+  tautology) to show this.
+
+- I got the idea for this exercise from brilliant.org ([[https://github.com/birkenkrahe/csc255/blob/main/org/3_boolean.org#brilliant-question][see here]]). The
+  skill of converting {circuits, tables, functions} is key to being
+  able to design CPU elements. Writing code is useful.
+    
+- Solution:
+  #+begin_example
+  f(x,y) = (x \lor y) \land \not (x \land y) \equiv (x \land \not y) \lor (\not x \land y) ?
+                     ---------
+         = (x \lor y) \land (\not x \lor \not y) <-- De Morgan
+                     ---------- 
+         = [x \land (\not x \lor \not y)] \lor [ y \land (\not x \lor \not y)] <-- Distributivity
+
+         = [(x \land \not x) \lor (x \land \not y)] \lor [(y \land \not x) \lor (y \land \not y)] <-- Tautology
+            --- 0 ---                          --- 0 ---
+         = [ 0 \lor (x \land \not y)] \lor [(y \land \not x) \lor 0 ]
+            
+         = (x \land \not y) \lor (y \land \not x) <-- Commutativity
+
+         = (x \land \not y) \lor (\not x \land y)   Q.E.D.
+  #+end_example
+  
+** NEXT Boolean normal forms, computability, NAND gates
+#+attr_html: :width 400px :float nil:
+x[[../img/video2.png]]
+
+
+- [ ] Lecture & practice: Boolean function synthesis.
+- [ ] Lecture video available: [[https://tinyurl.com/boolean-synthesis][tinyurl.com/boolean-synthesis]].
+- [ ] Watch this lecture video before the next session.
+
+** Boolean function synthesis exercise
+
+1) Simplify the final expression:
+   #+begin_example
+   (!x && !y && !z) || (!x && y && !z) || (x && !y && !z) 
+   #+end_example
+2) Build a digital circuit for this function with LogiSim Evolution.
+3) Verify the truth table using code (also available in LogiSim).
+  
