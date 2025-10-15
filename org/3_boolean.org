@@ -1,0 +1,1296 @@
+#+TITLE:Boolean Logic Gates and Hardware Description Language
+#+AUTHOR:Marcus Birkenkrahe
+#+SUBTITLE:CSC 255 Computer Architecture Lyon College
+#+OPTIONS: toc:1 num:1 ^:nil
+#+PROPERTY: header-args:R :session *R* :results output :exports both :noweb yes
+#+PROPERTY: header-args:python :session *Python* :results output :exports both :noweb yes
+#+PROPERTY: header-args:C :main yes :includes <stdio.h> :results output :exports both :noweb yes
+#+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
+#+STARTUP: overview hideblocks indent entitiespretty:
+* Boolean Logic (Popquiz)
+** Boolean values and basic operations
+
+- Boolean values: 0/1, on/off, true/false, high/low etc.
+
+- Basic operations:
+
+  1) (x AND y) or: =x \land y=
+
+  2) (x OR y) or: =x \lor y=
+
+  3) NOT(x) or: =\notx=
+
+** Boolean expressions
+
+- Boolean expressions are combinations of the basic operations that
+  evaluate to a Boolean value.
+
+- Example: NOT(0 OR (1 AND 1)) = NOT(0 OR 1) = NOT(1) = 0
+
+- Question: What is the result of 1 AND (0 OR (NOT(1)))?
+  #+begin_quote
+  Answer: 1 AND (0 OR (NOT(1))) = 1 AND (0 OR 0) = 1 AND 0 = 0
+  #+end_quote
+
+** Boolean functions:
+
+- Formula:
+  #+begin_example
+  f(x,y,z) = (x AND y) OR (NOT(x) AND z)
+  #+end_example
+
+- Challenge: Program this function and confirm this result:
+  #+name: boolean function table
+  | x | y | z | f(x,y,z) |
+  |---+---+---+----------|
+  | 0 | 0 | 0 |        0 |
+  | 0 | 0 | 1 |        1 |
+  | 0 | 1 | 0 |        0 |
+  | 0 | 1 | 1 |        1 |
+  | 1 | 0 | 0 |        0 |
+  | 1 | 0 | 1 |        0 |
+  | 1 | 1 | 0 |        1 |
+  | 1 | 1 | 1 |        1 |
+
+- The *truth table* and the *formula* or *function* are two completely
+  equivalent ways to describe the situation.
+
+- Solution:
+  #+begin_src C++ :main no :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    bool f(bool x, bool y, bool z);
+
+    int main()
+    {
+      vector<bool> v {0,1};
+      for (bool x : v)
+        for (bool y : v)
+          for (bool z : v)
+            cout << f(x,y,z);
+      return 0;
+    }
+
+    bool f(bool x, bool y, bool z)
+    {
+      return ((x && y) || (!(x) && z));
+    }
+  #+end_src
+
+  #+RESULTS:
+  : 01010011
+
+- Bonus: Modify your solution to print the [[boolean function table]].
+
+- Bonus solution:
+  #+begin_src C++ :main no :includes <iomanip> <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    bool f(bool x, bool y, bool z);
+
+    int main()
+    {
+      vector<bool> v {0,1};
+
+      cout << "| x | y | z | f(x,y,z) |\n"
+           << "|---|---|---|----------|\n";
+      for (bool a : v) {
+        for (bool b : v)
+          for (bool c : v)
+            cout << "| " << a << " | " << b << " | " << c << " |"
+                 << right << setw(9) << f(a,b,c) << " |" << endl;
+      }
+      return 0;
+    }
+
+    bool f(bool x, bool y, bool z)
+    {
+      return ((x && y) || (!(x) && z));
+    }
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  | x | y | z | f(x,y,z) |
+  |---|---|---|----------|
+  | 0 | 0 | 0 |        0 |
+  | 0 | 0 | 1 |        1 |
+  | 0 | 1 | 0 |        0 |
+  | 0 | 1 | 1 |        1 |
+  | 1 | 0 | 0 |        0 |
+  | 1 | 0 | 1 |        0 |
+  | 1 | 1 | 0 |        1 |
+  | 1 | 1 | 1 |        1 |
+  #+end_example
+
+- How many states does a function of 5 arguments have?
+  #+begin_quote
+  There are 2^{3} = 8 possible ways to distribute 2 (binary) values over
+  three places with replacement (that is being able to use the same
+  values again). Therefore, distributing 2 values over 5 arguments
+  gives 2^{5} = 32 states.
+  #+end_quote
+
+** Boolean identities
+
+- Commutative laws for binary operators AND, OR:
+  #+begin_example
+  (x AND y) = (y AND x)
+  (x OR y)  = (y OR x)
+  #+end_example
+
+- Associative laws:
+  #+begin_example
+  x AND (y AND z) = (x AND y) AND (x AND z)
+  x OR (y OR z) = (x OR y) OR (x OR z)
+  #+end_example
+
+- Distributive laws both over AND and OR
+  #+begin_example
+  x AND (y OR z) = (x AND y) OR (x AND z)
+  x OR (y AND z) = (x OR y) AND (x OR z)
+  #+end_example
+
+- De Morgan laws:
+  #+begin_example
+  NOT(x AND y) = NOT(x) OR NOT(y)
+  NOT(x OR y) = NOT(x) AND NOT(y)
+  #+end_example
+
+- Idempotence:
+  #+begin_example
+  a AND a = a
+  a OR a = a
+  NOT(NOT(a)) = a    ("double negation")
+  #+end_example
+
+- Tautology:
+  #+begin_example
+  NOT(a) OR a = TRUE
+  NOT(a) AND a = FALSE
+  #+end_example
+
+- The tautology is useful when simplifying expressions:
+  | Expression  | Result | Explanation                      |
+  |-------------+--------+----------------------------------|
+  | A AND TRUE  | A      | TRUE doesn’t affect the outcome  |
+  | A OR TRUE   | TRUE   | TRUE dominates in OR             |
+  | A AND FALSE | FALSE  | FALSE dominates in AND           |
+  | A OR FALSE  | A      | FALSE doesn’t affect the outcome |
+
+- *Exercise* Prove the distributive laws using code by building the
+  truth table for the left and the right hand side of each expression.
+
+** Example: Using the Boolean algebra laws
+
+- Instead of proof by coding, you can also prove algebraically using
+  the applicable laws.
+
+- Example: Use the laws to simplify (write down which law you used)
+  #+begin_example
+  NOT(NOT(x) AND NOT(x OR y))
+  #+end_example
+
+- Solution:
+  #+begin_example
+  NOT(NOT(x) AND NOT(x OR y)) =            De Morgan
+  NOT(NOT(x) AND NOT(x) AND NOT(y)) =      Associativity
+  NOT((NOT(x) AND NOT(x)) AND NOT(y)) =    Idempotence
+  NOT(NOT(x) AND NOT(y)) =                 De Morgan
+  NOT(NOT(x)) OR NOT(NOT(y)) =             Double negation/Idempotence
+  x OR y
+  #+end_example
+
+- Confirm this with code!
+  #+begin_quote
+  Use the code above for f1(x,y) and return =(x || y)=, and for f2(x,y),
+  use: =!(!x && !(x || y))=.
+  #+end_quote
+
+- Solution:
+  #+begin_src C++ :main no :includes <iomanip> <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    bool f1(bool x, bool y);
+    bool f2(bool x, bool y);
+
+    int main()
+    {
+      vector<bool> v {0,1};
+
+      cout << "| x | y | f1 | f2 |\n"
+           << "|---|---|---------|\n";
+      for (bool a : v) {
+        for (bool b : v)
+          cout << "| " << a << " | " << b << " | "
+           << right << setw(2) << f1(a,b) << " | "
+           << right << setw(2) << f2(a,b) << " |" << endl;
+      }
+      return 0;
+    }
+
+    bool f1(bool x, bool y)
+    {
+      return (x||y);
+    }
+    bool f2(bool x, bool y)
+    {
+      return (!(!x && !(x || y)));
+    }
+  #+end_src
+
+  #+RESULTS:
+  : | x | y | f1 | f2 |
+  : |---|---|---------|
+  : | 0 | 0 |  0 |  0 |
+  : | 0 | 1 |  1 |  1 |
+  : | 1 | 0 |  1 |  1 |
+  : | 1 | 1 |  1 |  1 |
+
+- Challenge: Put the printing into a function =print= that takes a
+  vector as an argument.
+  #+begin_src C++ :main no :includes <iomanip> <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    bool f1(bool, bool);
+    bool f2(bool, bool);
+    void print(vector<bool>);
+
+    int main()
+    {
+      vector<bool> v {0,1};
+      print(v);
+      return 0;
+    }
+
+    bool f1(bool x, bool y)
+    {
+      return (x||y);
+    }
+    bool f2(bool x, bool y)
+    {
+      return (!(!x && !(x || y)));
+    }
+    void print(vector<bool> v)
+    {
+      cout << "| x | y | f1 | f2 |\n"
+           << "|---|---|---------|\n";
+      for (bool x : v) {
+        for (bool y : v)
+          cout << "| " << x << " | " << y << " | "
+               << right << setw(2) << f1(x,y) << " | "
+               << right << setw(2) << f2(x,y) << " |" << endl;
+      }
+    }
+  #+end_src
+
+  #+RESULTS:
+  : | x | y | f1 | f2 |
+  : |---|---|---------|
+  : | 0 | 0 |  0 |  0 |
+  : | 0 | 1 |  1 |  1 |
+  : | 1 | 0 |  1 |  1 |
+  : | 1 | 1 |  1 |  1 |
+
+** Mathematical excursion: Algebras, rings, and groups
+
+- "Boolean algebra" is not an algebra in the strict mathematical
+  sense.
+
+- You can reinterpret it as a *Boolean commutative ring with
+  characteristic 2*, if you define XOR as addition and AND as
+  multiplication:
+  #+begin_example
+  a + b = (a \lor b) \land \not (a \land b)
+  a * b = a \land b
+  #+end_example
+
+- Here, addition is commutative and associative (because AND and OR
+  are), and has an identity (0):
+  #+begin_example
+  a + b = b + a
+  a + (b + c) = (a + b) + c
+  0 + 0 = 0 \land 1 = 0
+  #+end_example
+
+- Every element is its own inverse: a + a = 0 (by definition since XOR
+  is 0 when the operands are identical) - that's "characteristic 2".
+  #+begin_example
+  a + a = (a \lor a) \land \not (a \land a) = a XOR a = 0
+  #+end_example
+
+- Multiplication is associative and distributes over addition:
+  #+begin_example
+  a * (b * c) = a AND (b AND c) = (a AND b) AND c = (a + b) + c
+  a * (b + c) = a AND (b XOR c) = (a AND b) XOR (a AND c)
+  #+end_example
+
+- The distributive law should be shown, it's perhaps not directly
+  obvious:
+  #+begin_example
+  a AND (b XOR c) = (a AND b) XOR (a and c)
+  #+end_example
+
+- Truth table from program for all values a,b,c in {0,1} where
+  1) f1(x,y,z) = x AND (y XOR z)
+     = x AND ((y OR z) AND NOT(y AND z))
+  2) f2(x,y,z) = (x AND y) XOR (x AND z)
+     = ((x AND y) OR (x AND z)) AND NOT((x AND y) AND (x AND z))
+
+- Code:
+  #+begin_src C++ :main no :includes <iomanip> <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    bool f1(bool x, bool y, bool z);
+    bool f2(bool x, bool y, bool z);
+
+    int main()
+    {
+      vector<bool> v {0,1};
+
+      cout << "| x | y | z | f1 | f2 |\n"
+           << "|---|---|---|---------|\n";
+      for (bool a : v) {
+        for (bool b : v)
+          for (bool c : v)
+            cout << "| " << a << " | " << b << " | " << c << " |"
+                 << right << setw(3) << f1(a,b,c) << " |"
+                 << right << setw(3) << f2(a,b,c) << " |" << endl;
+      }
+      return 0;
+    }
+
+    bool f1(bool x, bool y, bool z)
+    {
+      return (x && ((y || z) && !(y && z)));
+    }
+    bool f2(bool x, bool y, bool z)
+    {
+      return (((x && y) || (x && z)) && !((x && y) && (x && z))    );
+    }
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  | x | y | z | f1 | f2 |
+  |---|---|---|---------|
+  | 0 | 0 | 0 |  0 |  0 |
+  | 0 | 0 | 1 |  0 |  0 |
+  | 0 | 1 | 0 |  0 |  0 |
+  | 0 | 1 | 1 |  0 |  0 |
+  | 1 | 0 | 0 |  0 |  0 |
+  | 1 | 0 | 1 |  1 |  1 |
+  | 1 | 1 | 0 |  1 |  1 |
+  | 1 | 1 | 1 |  0 |  0 |
+  #+end_example
+
+- *Challenge:* Overload the ~&&~ and ~||~ operators so that you can use =AND=
+  and =OR= instead.
+
+- Finally, Under XOR, the set {0,1} forms an *Abelian group* with the
+  identity 0:
+  #+begin_example
+  0 XOR 0 = 0
+  a XOR a = 0
+  #+end_example
+
+** Brilliant question
+#+attr_html: :width 400px :float nil:
+[[../img/brilliant.png]]
+
+This image was taken from the brilliant.org course on "Digital Logic".
+
+Test this with code:
+#+begin_src C++ :main no :includes <iomanip> <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+  bool f1(bool, bool);
+  bool f2(bool, bool);
+  void print(vector<bool>);
+
+  int main()
+  {
+    vector<bool> v {0,1};
+    print(v);
+    return 0;
+  }
+
+  bool f1(bool x, bool y)
+  {
+    return ((!x && y) || (x && !y)); // XOR
+  }
+  bool f2(bool x, bool y)
+  {
+    return ((x || y) && !(x && y));
+  }
+  void print(vector<bool> v)
+  {
+    cout << "| x | y | f1 | f2 |\n"
+         << "|---|---|---------|\n";
+    for (bool x : v) {
+      for (bool y : v)
+        cout << "| " << x << " | " << y << " | "
+             << right << setw(2) << f1(x,y) << " | "
+             << right << setw(2) << f2(x,y) << " |" << endl;
+    }
+  }
+#+end_src
+
+#+RESULTS:
+: | x | y | f1 | f2 |
+: |---|---|---------|
+: | 0 | 0 |  0 |  0 |
+: | 0 | 1 |  1 |  1 |
+: | 1 | 0 |  1 |  1 |
+: | 1 | 1 |  0 |  0 |
+
+* NEXT Boolean Function Synthesis (normal forms)
+
+- There are three agents: The truth table (state space), the Boolean
+  expression (function), and finally the digital circuit (physics).
+
+- We've looked at getting from the function to the table, now we're
+  going to look at the opposite: Generating a Boolean expression from
+  a truth table.
+
+- Example:
+  1) Only focus on rows with f = true.
+  2) Devise a function that fulfils the equation for that row:
+     Translate every 0 into a NOT(), and every 1 into a variable.
+  3) These functions get the value of 1 only for that row, and the
+     value of 0 for every other combination (by design).
+
+  | x | y | z | f |                              |
+  |---+---+---+---+------------------------------|
+  | 0 | 0 | 0 | 1 | NOT(x) AND NOT(y) AND NOT(z) |
+  | 0 | 0 | 1 | 0 |                              |
+  | 0 | 1 | 0 | 1 | NOT(x) AND y AND NOT(z)      |
+  | 0 | 1 | 1 | 0 |                              |
+  | 1 | 0 | 0 | 1 | x AND NOT(y) AND NOT(z)      |
+  | 1 | 0 | 1 | 0 |                              |
+  | 1 | 1 | 0 | 0 |                              |
+  | 1 | 1 | 1 | 0 |                              |
+
+- So now concatenate all of these combined with OR.
+
+- Verify this with the code we've written, for the function:
+  #+begin_example
+  (NOT(x) AND NOT(y) AND NOT(z)) ||
+  (NOT(x) AND y AND NOT(z)) ||
+  (x AND NOT(y) AND NOT(z))
+    #+end_example
+  Or in C++:
+  #+begin_example C++
+  (!x  && !y && !z) || (!x && y && !z || (x && !y &&  !z)
+  #+end_example
+  The code:
+  #+begin_src C++ :main no :includes <iomanip> <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    bool f(bool x, bool y, bool z);
+
+    int main()
+    {
+      vector<bool> v {0,1};
+
+      cout << "| x | y | z | f(x,y,z) |\n"
+           << "|---|---|---|----------|\n";
+      for (bool a : v) {
+        for (bool b : v)
+          for (bool c : v)
+            cout << "| " << a << " | " << b << " | " << c << " |"
+                 << right << setw(9) << f(a,b,c) << " |" << endl;
+      }
+      return 0;
+    }
+
+    bool f(bool x, bool y, bool z)
+    {
+      return ((!x  && !y && !z) || (!x && y && !z) || (x && !y &&  !z));
+    }
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  | x | y | z | f(x,y,z) |
+  |---|---|---|----------|
+  | 0 | 0 | 0 |        1 |
+  | 0 | 0 | 1 |        0 |
+  | 0 | 1 | 0 |        1 |
+  | 0 | 1 | 1 |        0 |
+  | 1 | 0 | 0 |        1 |
+  | 1 | 0 | 1 |        0 |
+  | 1 | 1 | 0 |        0 |
+  | 1 | 1 | 1 |        0 |
+  #+end_example
+
+- The expression can be simplified:
+  #+begin_example
+  (!x && !y && !z) || (!x && y && !z) || (x && !y && !z) =
+  [(!x && !y) || (!x && y) || (x && !y)] && !z =
+  [ !x && (!y || y)        || (x && !y)] && !z =
+  [ !x || (x && !y)] && !z =
+  [(!x || x) && (!x || !y)] && !z =
+  (!x || !y) && !z
+  #+end_example
+
+- Check that with the program (enlarged for three Boolean variables):
+  #+begin_src C++ :main no :includes <iomanip> <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    bool f1(bool, bool, bool);
+    bool f2(bool, bool, bool);
+    void print(vector<bool>);
+
+    int main()
+    {
+      vector<bool> v {0,1};
+      print(v);
+      return 0;
+    }
+
+    bool f1(bool x, bool y, bool z)
+    {
+      return ((!x || !y) && !z);
+    }
+    bool f2(bool x, bool y, bool z)
+    {
+      return ((!x  && !y && !z) || (!x && y && !z) || (x && !y &&  !z));
+    }
+    void print(vector<bool> v)
+    {
+      cout << "| x | y | z | f1 | f2 |\n"
+           << "|---|---|---|---------|\n";
+      for (bool x : v) {
+        for (bool y : v)
+          for (bool z : v)
+        cout << "| " << x << " | " << y << " | " << z << " | "
+             << right << setw(2) << f1(x,y,z) << " | "
+             << right << setw(2) << f2(x,y,z) << " |" << endl;
+      }
+    }
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  | x | y | z | f1 | f2 |
+  |---|---|---|---------|
+  | 0 | 0 | 0 |  1 |  1 |
+  | 0 | 0 | 1 |  0 |  0 |
+  | 0 | 1 | 0 |  1 |  1 |
+  | 0 | 1 | 1 |  0 |  0 |
+  | 1 | 0 | 0 |  1 |  1 |
+  | 1 | 0 | 1 |  0 |  0 |
+  | 1 | 1 | 0 |  0 |  0 |
+  | 1 | 1 | 1 |  0 |  0 |
+  #+end_example
+
+- *Challenge*: It would be cool to have the function be parsed into the
+  code as input from the commandline so as to use the same executable!
+
+* Computability
+
+*Verifiability* of a Boolean formula for a given assignment to its
+variables is a formula evaluation and it can be done in polynomial
+time (plug in and compute). This is in P (solvable efficiency).
+
+*Satisfiability* of a Boolean formula is an NP-complete problem: Is
+there any assignment of values to the variables that makes the formula
+true?
+
+This is an NP-complete problem:
+1. It is in NP because you can verify a given assignment in polynomial time
+2. It is NP-complete because every problem in NP can be reduced to it
+   in polynomial time.
+
+| Problem                   | In class    | Why                              |
+|---------------------------+-------------+----------------------------------|
+| Evaluate formula on input | P           | Direct computation is fast       |
+| Verify a solution         | P           | Just evaluate with given input   |
+| Find a satisfying input   | NP-Complete | Requires search over assignments |
+
+* Only NOT and AND are needed
+
+Theorem:
+#+begin_quote
+Any Boolean function can be represented using an expression containing
+Boolean AND, OR, and NOT operations.
+#+end_quote
+
+In fact, to construct digital circuits, we only need two of these -
+NOT and AND, or NOT and OR because we can compute an OR with NOT and AND.
+
+| x | y | x OR y | f            |
+|---+---+--------+--------------|
+| 0 | 0 |      0 |              |
+| 0 | 1 |      1 | NOT(x) AND y |
+| 1 | 0 |      1 | x AND NOT(y) |
+| 1 | 1 |      1 | x AND y      |
+
+Simplify the expression:
+#+begin_example
+(NOT(x) AND y) OR (x AND NOT(y)) OR (x AND y) =
+(NOT(x) AND y) OR (x AND (NOT(y) AND y)) =
+(NOT(x) AND y) OR x =
+(NOT(x) OR x) AND (x OR y) =
+x OR y
+#+end_example
+
+That didn't get us very far. We don't just need to simplify (we know
+the answer to that) but eliminate OR if we can! The answer is simply
+given in the form of the De Morgen identity:
+#+begin_example
+(x OR y) = NOT(NOT(x) AND NOT(y))
+#+end_example
+
+* The NAND function
+
+- Truth table for NOT(x AND y) = x NAND y
+  | x | y | NAND |
+  |---+---+------|
+  | 0 | 0 |    1 |
+  | 0 | 1 |    1 |
+  | 1 | 0 |    1 |
+  | 1 | 1 |    0 |
+
+- What would be the logical equivalent of NAND(x,x)?
+  #+begin_example
+  NAND(x,x) = NOT ( x AND x) = NOT(x)
+  #+end_example
+
+- Theorem:
+  #+begin_quote
+  Any Boolean function can be represented using an expression
+  containing only NAND operations.
+  #+end_quote
+
+- Proof:
+  1) Express NOT with NAND
+     #+begin_example
+     NOT(x) = NOT(x AND x) = (x NAND x)
+     #+end_example
+
+  2) Express AND with NAND
+     #+begin_example
+     (x AND y) = NOT(NOT(x AND y)) = NOT(x NAND y)
+     #+end_example
+
+* Logic Gates
+
+- Gate logic is a technique for implementing Boolean functions using
+  basic building blocks of digital circuits (electronic devices that
+  take binary input and produce binary output).
+
+- Elementary logic gates: NAND
+
+  1) Gate diagram:
+     #+attr_html: :width 400px :float nil:
+     #+caption: NAND gate (LogiSim)
+     [[../img/NAND.png]]
+
+  2) Functional specification:
+     #+begin_example
+     if (a==1 and b==1)
+     then out=0 else out=1
+     #+end_example
+
+  3) Truth table:
+
+     | a | b | out |
+     |---+---+-----|
+     | 0 | 0 |   0 |
+     | 0 | 1 |   1 |
+     | 1 | 0 |   1 |
+     | 1 | 1 |   1 |
+
+- All of these descriptions are fully equivalent: They are
+  abstractions. We said nothing about how the gate is built or
+  implemented as an electronic part or a chip.
+
+- Elementary logic gates: AND, OR, NOT
+
+  1. AND gate:
+     #+attr_html: :width 400px :float nil:
+     #+caption: AND gate (LogiSim)
+     [[../img/AND_gate.png]]
+     #+begin_example
+     if (a==1 and b ==1)
+     then out=1 else out=0
+     #+end_example
+
+  2. OR gate:
+     #+attr_html: :width 400px :float nil:
+     #+caption: OR gate (LogiSim)
+     [[../img/OR_gate.png]]
+     #+begin_example
+     if (a==1 or b ==1)
+     then out=1 else out=0
+     #+end_example
+
+  3. NOT gate:
+     #+attr_html: :width 400px :float nil:
+     #+caption: NOT gate (LogiSim)
+     [[../img/NOT_gate.png]]
+     #+begin_example
+     if (in==0)
+     then out=1 else out=0
+     #+end_example
+
+- Composite gates: An example
+  #+attr_html: :width 400px :float nil:
+  #+Caption: Composite AND gate (interface)
+  [[../img/composite.png]]
+
+  #+begin_example
+  if (a==1 and b==1 and c==1)
+     then out=1 else out=0
+  #+end_example
+
+- Does the order of the input matter for this composite gate? Do you
+  get a different result when swapping b and c for example?
+  #+begin_export ascii
+  No, as you can see from the functional description.
+  #+end_export
+
+- To realize this gate, you need to connect two AND gates as shown
+  here: The dashed box in the figure shows the *interface* of this chip,
+  which is what the user sees: Three inputs, one output.
+  #+attr_html: :width 400px :float nil:
+  #+caption: Composite AND operator (implementation)
+  [[../img/composite2.png]]
+
+- The interface (aka specification) is the gate's abstraction and
+  answers the question "What does it do?" The inside is the gate's
+  implementation and answers the question "How does it work?"
+
+- There should be only one way to describe the gate while there may be
+  many ways to implement it: One abstraction, many implementations.
+
+- To describe the electric circuit behind this, a different
+  diagrammatic language is used: When relays or switches A and B are
+  closed, electric current flows through the circuit and the lamp is
+  ON (out = 1).
+  #+attr_html: :width 400px :float nil:
+  #+caption: AND gate electric circuit implementation
+  [[../img/AND_circuit.png]]
+
+- To describe the electric circuit behind the OR gate, this diagram
+  can be used: When either of the switches A or B is latched, current
+  flows and the lamp turns ON.
+  #+attr_html: :width 400px :float nil:
+  #+caption: AND gate electric circuit [implementation]
+  [[../img/OR_circuit.png]]
+
+- And here is the diagram for the composite gate shown earlier:
+  #+attr_html: :width 400px :float nil:
+  #+caption: AND (a,b,c) circuit [implementation]
+  [[../img/COMPOSITE_circuit.png]]
+
+  #+begin_example
+  if (a==1 and b==1 and c==1)
+     then out=1 else out=0
+  #+end_example
+
+- We will not deal with physical implementations (electrical
+  engineering) but only with the abstractions.
+
+- Summary:
+
+  1. The chip interface describes what the chip is doing; the chip
+     implementation specifies how the chip is doing it.
+
+  2. There are many possible implementations for every interface.
+
+  3. The user of the chip is interested in the chip interface, the
+     builder of the chip is interested in the chip implementation.
+
+* Hardware Description Language (HDL)
+#+attr_html: :width 600px :float nil:
+#+caption: XOR gate interface (left) and possible implementation (right).
+[[../img/XOR_gate.png]]
+
+- A chip architect needs a complete and exact description of its
+  function (through an interface diagram + truth table or +
+  description, or an implementation diagram with inside view).
+
+- Which of these statements is true?
+  - [X] The XOR gate outputs 1 if and only if its two input bits are
+    not equal.
+
+  - [ ] The XOR gate's output differs from the AND gate's output on
+    all possible inputs.
+
+  - [X] The XOR gate outputs 0 if and only if the sum of the input
+    bits is an even number.
+
+  - [X] The XOR gate's output differs from the OR gate's output only
+    on the input a=1, b=1.
+
+- Using the description or the truth table, you can begin to describe
+  the hardware implementation (called a "stub file" or "contract"):
+  #+name: stub file
+  #+begin_example C
+    /** XOR gate: out = (a AND NOT(b)) OR (NOT(A) AND B)) **/
+    CHIP XOR {   // chip name
+                 // Logic elements:
+      IN a,b;    // input
+      OUT out;   // output
+
+      PARTS:     // Design elements:
+      // Implementation missing
+    }
+  #+end_example
+
+* Design: From requirements to gate diagram
+
+- We're not building the chip from scratch: Let's assume that we
+  already built an AND, a NOT, and an OR gate to use.
+
+- XOR is defined by: out=1 when a AND NOT(b) OR b AND NOT(a).
+
+- Next step: Gate logic diagram. Notice how the diagram translates the
+  definition faithfully.
+  #+attr_html: :width 600px :float nil:
+  #+caption: XOR gate diagram
+  [[../img/XOR_gate_diagram.png]]
+
+- From gate diagram to HDL:
+
+  1) Draw the gate interface: Outside of the boundary is the user's
+     view - inputs a,b deliver XOR output out.
+
+  2) When you use off-the-shelf gates, you have no freedom with regard
+     to the inputs or outputs. The interface is given to us.
+
+  3) Every connection that you use has to be named. In the diagram,
+     the connections between AND and OR can be named according to the
+     input lines:
+     #+begin_example
+     w1 = aAndNotb
+     w2 = notaAndb
+     #+end_example
+
+
+4) We describe the diagram one chip part at a time:
+   #+name: stub file
+   #+begin_example C
+   /** XOR gate: out = (a AND NOT(b)) OR (NOT(A) AND B)) **/
+   CHIP XOR {   // chip name
+                // Logic elements:
+     IN a,b;    // input
+     OUT out;   // output
+
+     PARTS:     // Design elements:
+     Not (in=a, out=nota); // lower NOT
+     Not (in=b, out=notb); // upper NOT
+     And (a=a, b=notb, out=aAndNotb); // upper AND
+     And (a=nota, b=b, out=notaAndb); // lower AND
+     Or  (a=aAndNotb, b=notaAndb, out=out);
+   }
+   #+end_example
+
+* HDL characteristics
+
+HDL is a functional/declarative language:
+- HDL programs need to be well documented and readable.
+- HDL chip and connections need to be appropriately named.
+- Indentation is used.
+- There is no procedure or execution going on.
+- It's a static description of a gate diagram.
+- A hardware simulator will validate the diagram.
+- Diagrams are read left to right, HDL top to bottom.
+- Order of HDL statements is significant.
+- Syntax:
+  #+begin_example
+  Not (in= ,out= );
+  And (a=, b=, out= );
+  Or (a=, b=, out= );
+  #+end_example
+- Connections: =partName (a=a, ...);= and =partName(...,out=out);=
+
+Most common HDLs:
+- VHDL
+- Verilog
+
+Our HDL:
+- Similar in spirit to other HDLs
+- Minimal and simple
+- Provides all you need for learning
+- Syntax can be mastered in an hour
+- Is accompanied by an online hardware simulator
+
+*See also:* Textbook Appendix A, HDL Survival Guide (nand2tetris.org)
+
+* Hardware simulation
+
+- The simulator is written in Java.
+
+- Simulation options:
+
+  1) interactive
+
+  2) script-based
+
+  3) with or without output and compare file
+
+- Simulation process:
+
+  1) Load the HDL file into the hardware simulator
+
+  2) Enter values (0,1) into the chip's input pins
+
+  3) Evaluate the chip's logic
+
+  4) Inspect the resulting values of input/output pins
+
+* Demo of the IDE - NOT and XOR chips
+
+1) Open the IDE at nand2tetris.github.io/web-ide/
+
+2) You want to simulate the following gate:
+   [[../img/XOR_gate.png]]
+
+3) Select ~HDL Builtin~ at the top: Here you can try the simulation
+   without specifying the implementation (it's already done).
+
+4) Middle pane: Change input from 0 to 1 & run the values with ~Eval~.
+
+5) Go to the last pane, ~reset~ the script at the top then ~step~
+   through it. After the first step, open the ~Output File~ to see the
+   output. The ~Compare File~ contains the sample output that must be
+   met.
+
+6) Now disable ~HDL - Builtin~. The HDL file changes: The code below
+   the ~PARTS~ keyword is missing. This is the *stub file*.
+
+7) Use the following diagram to derive the ~PARTS~ description:
+   #+attr_html: :width 600px :float nil:
+   #+caption: XOR gate diagram
+   [[../img/XOR_gate_diagram.png]]
+
+8) Each line follows the template:
+   #+begin_example
+   [Gate] (in=[input], out=[output]);
+   #+end_example
+
+9) Since there are five gates, you need five instructions. They need
+   to be unique. Add this code to the
+   #+begin_example C
+   Not (in=a, out=nota); // lower NOT
+   Not (in=b, out=notb); // upper NOT
+   And (a=a, b=notb, out=w1); // upper AND
+   And (a=nota, b=b, out=w2); // lower AND
+   Or  (a=w1, b=w2, out=out);
+   #+end_example
+
+10) Change the pins in the middle pane to get the desired
+    results. Run the ~Test Script~ already prepared and compare the
+    ~Output File~ with the ~Compare File~.
+
+11) Your browser will save the IDE configuration but you should
+    download the HDL files as ZIP files. You can also load .hdl
+    files or copy/paste them from an editor.
+
+* Testing
+
+- Here is the =Xor.tst= file:
+  #+begin_example C
+  // File name: projects/1/Xor.tst
+
+  load Xor.hdl,        // load HDL script
+  compare-to Xor.cmp,  // Xor.cmp is the expected truth table
+  output-list a b out; // this generates a truth table
+
+  set a 0,             // a = 0
+  set b 0,             // b = 0
+  eval,                // run the script for these a,b values
+  output;              // write the output-file
+
+  set a 0,  set b 1,  eval,  output;
+  set a 1,  set b 0,  eval,  output;
+  set a 1,  set b 1,  eval,  output;
+  #+end_example
+
+- Real composite chips like an ALU are too complex to just look at a
+  chip interactively, and you need complete test & compare files.
+
+- How are compare files .cmp generated?
+  #+begin_quote
+  By *behavioral simulation* using any implementation that is correct -
+  using for example C++ code to create a truth table. In this way you
+  can test your hardware before implementing the gate.
+  #+end_quote
+
+* Hardware construction projects
+
+- The workflow:
+  1) The system architect decides which chips are needed for a
+     specific behavior,
+  2) and how to break it down into individual chips.
+  3) For each chip, the architect creates a chip API (name of the
+     chip, names of input and output pins), a test script, a compare
+     file.
+  4) Developers can now build the chip using HDL.
+
+- The Hack computer e.g. was split into 30+ chipsets by the
+  Nand2Tetris designers, and you have to develop the chips.
+
+- Every chip in the IDE comes with:
+  1) A .hdl stub file (the chip interface)
+  2) A compare file (what the chip is supposed to do)
+  3) A test file (how to test the chip)
+
+- Missing: Chip implementation.
+
+* Multi-Bit Buses
+
+- To carry out operations, we usually manipulate collections of bits
+  in the form of arrays.
+
+- Conceptually, it is convenient to think about such a collection as a
+  single entity called a "bus".
+
+- Hardware description languages provide convenient notation for
+  handling bus data.
+
+- Example: Addition of two 16-bit integers
+  #+attr_html: :width 400px :float nil:
+  [[../img/16_bit_adder.png]]
+
+- Both ~a~ and ~b~ input carry 16 bits each, so there are 32 wires going
+  in and 16 wires for 16 bits output ~out~ coming out of the chip.
+
+- Nevertheless, it is easier to think of two numbers going in and one
+  number coming out.
+
+- In HDL, the interface would look like this:
+  #+begin_src C
+    // Adds two 16-bit values
+    CHIP Add16 {
+      IN a[16], b[16];
+      OUT out[16];
+
+     PARTS:
+      // ...
+    }
+  #+end_src
+
+- This approach generalizes to more numbers (aka arrays): for example,
+  for the addition of three 16-bit values, we can add ~first~ and
+  ~second~, and then add the result to ~third~. For the implementation, we
+  use two ~Add16~ chips and store the intermediate result in an array
+  ~temp~:
+  #+begin_src C
+    // Adds two 16-bit values
+    CHIP Add3Way16 {
+      IN first[16], second[16], third[16];
+      OUT out[16];
+
+     PARTS:
+      Add16(a=first, b=second, out=temp); // store temporary result
+      Add16(a-temp,  b=third,  out=out);
+    }
+  #+end_src
+
+- How about a chip that has a bus of 4 bits as input and as output the
+  single bit that's in the bus? To do that, we need to add (with AND)
+  all bits, two at a time (since out basic gates only have 2 inputs):
+
+  #+begin_src C
+    // ANDs together all 4 bits of the bus input
+    CHIP And4Way {
+      IN a[4];
+      OUT out;
+
+     PARTS:
+      AND(a=a[0], b=a[1], out=t01);
+      AND(a=t01,  b=a[2], out=t02);
+      AND(a=t02,  b=a[3], out=out);
+    }
+  #+end_src
+
+- Multi-way chips do this: Mash values from different buses into one
+  another.
+
+- How would you XOR the first and last bits of a 16-bit bus named =bus=?
+  - [X] XOR(a=bus[0], b=bus[15], out=out);
+  - [ ] XOR(a=bus[0], b=bus[16], out=out);
+  - [ ] XOR(a=bus[1], b=bus[15], out=out);
+  - [ ] XOR(a=bus[1], b=bus[16], out=out);
+
+- Example of bit-wise AND of parallel arrays or buses:
+  #+begin_src C
+    // Computes bit-wise AND of its two 4-bit input buses.
+    CHIP And4 {
+      IN a[4], b[4];  // parallel arrays
+      OUT out[4];     // their bit-wise AND
+
+     PARTS:
+      AND(a=a[0], b=b[0], out=out[0]);
+      AND(a=a[1], b=b[1], out=out[1]);
+      AND(a=a[2], b=b[2], out=out[2]);
+      AND(a=a[3], b=b[3], out=out[3]);
+    }
+  #+end_src
+
+- Buses can be composed from and broken into sub-buses.
+
+- Example: The CHIP input is two 8-bit buses (least and most
+  significant byte) - here input and output composition is shown:
+  #+begin_src C
+    ...
+    IN lsb[8], msb[8],...
+      ...
+      // 16-bit input composed from two 8-bit sub-buses
+      Add16(a[0..7]=lsb, a[8..15]=msb, b=..., out=...);
+    // 16-bit output composed from one 4-bit and one 12-bit sub-bus)
+    Add16(..., out[0..3]=t1, out[4..15]=t2);
+  #+end_src
+
+- Some syntactic choices of Nand2Tetris' HDL:
+  1) Overlaps of sub-buses are allowed on output buses of parts.
+  2) Width of internal pins is deduced automatically.
+  3) ~false~ and ~true~ may be used as buses of any width.
+
+- Given the interface description
+  #+begin_example C
+  OUT out, out2[16];
+  #+end_example
+  Which of the following lines are valid in HDL when implementing the
+  =Example16= chip?
+  - [ ] Add16(a=Bus1[0..15], b=Bus2[0..15], out=out2[0..14]);
+  - [X] Add16(a=Bus1[0..15], b=Bus2[0..15], out[0..14]=out2[0..14]);
+  - [X] Add16(a=true, b=false, out=out2);
+  - [ ] Add16(a=c, b=Bus2[0..15], out=out2);
+  - [X] And(a=c, b=Bus2[7], out=out);
+
+- Explanation:
+  #+begin_quote
+  1) =Add16(a=true, b=false, out=out2);= is correct because ~true~ and
+     ~false~ can represent a bus with constant signal of any width.
+  2) =Add16(a=Bus1[0..15], b=Bus2[0..15], out[0..14]=out2[0..14]);= is
+     correct becuase =out[0..14]=out2[0..14]= means that we are
+     discarding the most significant (15th) bit of =Add16='s ~out~ and
+     using the rest to connect to the 15 least significant bits of
+     =Example16='s ~out~.
+  3) =And(a=c, b=Bus2[7], out=out);= is correct because ~And~ expects
+     single bits as inputs ~a~ and ~b~.
+  #+end_quote
+
+* Simulator demo
+
+- I am demonstrating the use of the simulator using a simulation of
+  the Nand chip (which is a primitive of HDL):
+  #+attr_html: :width 400px :float nil:
+  #+caption: The NAND gate implementation (LogiSim)
+  [[../img/NAND.png]]
+
+- We will learn to create this type of diagram in the LogiSim
+  application, too, because it is useful to visualize the gates, and
+  also because you can simulate individual settings.
+
+- These are the steps to developing and testing a chip in HDL:
+  1) Write HDL file in editor.
+  2) Load HDL file into simulator.
+  3) Run HDL file in simulator.
+  4) Load test script into simulator.
+  5) Run test script against compare file.
+  6) Zip your files up and upload them.
+
+- The process in detail using =Nand.hdl=, =Nand.tst= and =Nand.cmp=:
+  1) Write HDL description for the chip (=.hdl=). A description includes
+     a header with the API (Boolean logic), and a ~CHIP~ structure with
+     two parts: The user interface (~IN~ and ~OUT~ pins), and the
+     implementation in the form of ~PARTS~.
+
+     Here is =Nand.hdl=:
+     #+begin_src txt :tangle ~/nand2tetris/projects/mb/Nand.hdl
+       // File name: Nand.hdl
+       //
+       //  Nand gate API:
+       //  if ((a==1) and (b==1) then out = 0 else out = 1
+       //
+       CHIP Nand {  // chip name
+         IN a,b;    // input pins
+         OUT out;   // output pin
+
+        PARTS:
+         And(a=a, b=b, out=aAndb);
+         Not(in=aAndb, out=out);
+       }
+     #+end_src
+
+     Because the chip has two serial primitives, =And= and =Not=, the
+     =PARTS= implementation has two lines:
+
+     - In the next figure, I have indicated the =IN= and =OUT= pins and
+       the wire names for the HDL chip description:
+       #+attr_html: :width 400px :float nil:
+       #+caption: Nand gate with HDL descriptors (LogiSim)
+       [[../img/NAND_hdl.png]]
+
+     - =And(a=a, b=b, out=aAndb)= means that =a= and =b= are fed to an =And=
+       gate whose output wire is called =aAndb=. Any name would be OK
+       here, for example =tmp=.
+
+     - =Not(in=aAndb, out=out)= means that the =Not= gate gets its input
+       from the =aAndb= wire and has =out= as its output.
+
+  2) Load the =.hdl= file into the simulator (=File - Load Chip=). Fix
+     syntax issues and run it on one or more test cases manually.
+     #+attr_html: :width 400px :float nil:
+     [[../img/nand_load_hdl.png]]
+
+  3) Write a testing script (=.tst=) that loads the chip file, the file
+     that the test checks for correctness, and a series of settings
+     for the pins. These settings are evaluated and written into an
+     output file.
+
+     The testing script assumes that =Nand.hdl= and =Nand.cmp= are in the
+     same directory as =Nand.tst=. It's pretty clear what it does:
+     - =load= loads the =.hdl= file.
+     - =output-file= specifies the output file.
+     - =compare-to= specifies the compare file
+     - =output-list= specifies the output file header
+     - Each setting of pins has its own statement whose commands are
+       separated by comma:
+       #+begin_example C
+       set a 0,     // set pin `a` to value `0`
+       set b 0,     // set pin `b` to value `0`
+       eval,        // evaluate the loaded file with these values
+       output;      // write the output to the output-file
+       #+end_example
+
+     Here is the complete script:
+     #+begin_src txt :tangle ~/nand2tetris/projects/mb/Nand.tst
+       load Nand.hdl,
+       output-file Nand.out,
+       compare-to Nand.cmp,
+       output-list a b out;
+
+       set a 0, set b 0, eval, output;
+       set a 0, set b 1, eval, output;
+       set a 1, set b 0, eval, output;
+       set a 1, set b 1, eval, output;
+     #+end_src
+
+  4) Once the script is loaded (=File - Load Script=), you can run it
+     step by step orr in one go using the arrow buttons at the top or
+     the =Run= menu. The script line currently being worked at is
+     highlighed in yellow. Messages appear at the bottom.
+     #+attr_html: :width 600px :float nil:
+     [[../img/Nand_success.png]]
+
+  5) The =output-file= is automatically compared with the
+     =compare-file=. Both of these contain the state space of the gate
+     in the form of a truth table.
+
+     The first line entries come from the =output-list= of the testing
+     script.
+     #+begin_src txt :tangle ~/nand2tetris/projects/mb/Nand.cmp
+     | a | b |out|
+     | 0 | 0 | 1 |
+     | 0 | 1 | 1 |
+     | 1 | 0 | 1 |
+     | 1 | 1 | 0 |
+     #+end_src
+
+  6) Once the tests pass, compress the =.hdl=, the =.tst= and the =.cmp=
+     file with zip, and submit the =.zip= file.
+     #+begin_src bash :results output :exports both
+       cd ~/nand2tetris/projects/mb
+       zip -v Nand.zip Nand.hdl Nand.tst Nand.cmp
+       file Nand.zip
+     #+end_src
+
+     #+RESULTS:
+     : updating: Nand.hdl       (in=245) (out=168) (deflated 31%)
+     : updating: Nand.tst       (in=221) (out=99) (deflated 55%)
+     : updating: Nand.cmp       (in=70) (out=35) (deflated 50%)
+     : total bytes=536, compressed=302 -> 44% savings
+     : Nand.zip: Zip archive data, at least v2.0 to extract, compression method=deflate
+
