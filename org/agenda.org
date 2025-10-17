@@ -1535,12 +1535,17 @@ complex realities underneath.
 [[../img/big_picture2.png]]
 
 - [X] Popquiz review: Digital logic
-- [ ] Boolean logic video available: [[https://tinyurl.com/boolean-logic-review][tinyurl.com/boolean-logic-review]]
-- [ ] Review: Digital logic (XOR and Boolean laws)
-- [ ] Nand2Tetris setup
-- [ ]
-
-** DONE Review: Digital logic
+- [X] Boolean logic video available: [[https://tinyurl.com/boolean-logic-review][tinyurl.com/boolean-logic-review]]
+- [X] Review: Digital logic (XOR and Boolean laws)
+- [X] Nand2Tetris setup
+- [X] Lecture video available: [[https://tinyurl.com/boolean-synthesis][tinyurl.com/boolean-synthesis]].
+- [X] Watch this lecture video before the next session.
+- [X] Lecture & practice: Boolean function synthesis.
+- [X] Test 7 - 30 questions on Boolean logic (Oct 26) 
+- [X] Home assignment: table->function->code->circuit (Oct 26)
+- [ ] Logic gates / interface vs implementation / compositeness
+  
+** Review: Digital logic
 #+OPTIONS: toc:nil num:nil ^:nil: title:nil author:nil date:nil
 1. What are Boolean values and what are the basic Boolean operations?
    #+begin_quote
@@ -1666,7 +1671,7 @@ complex realities underneath.
     x OR y
     #+end_example
 
-** TODO Review: Apply Boolean algebra laws (10 min)
+** Review: Apply Boolean algebra laws (10 min)
 
 - XOR = (NOT(x) AND y) OR (x AND NOT(y)) \equiv  (x OR y) AND NOT(x AND y)
 
@@ -1676,7 +1681,7 @@ complex realities underneath.
 - I got the idea for this exercise from brilliant.org ([[https://github.com/birkenkrahe/csc255/blob/main/org/3_boolean.org#brilliant-question][see here]]). The
   skill of converting {circuits, tables, functions} is key to being
   able to design CPU elements. Writing code is useful.
-    
+  
 - Solution:
   #+begin_example
   f(x,y) = (x \lor y) \land \not (x \land y) \equiv (x \land \not y) \lor (\not x \land y) ?
@@ -1694,15 +1699,6 @@ complex realities underneath.
          = (x \land \not y) \lor (\not x \land y)   Q.E.D.
   #+end_example
   
-** NEXT Boolean normal forms, computability, NAND gates
-#+attr_html: :width 400px :float nil:
-x[[../img/video2.png]]
-
-
-- [ ] Lecture & practice: Boolean function synthesis.
-- [ ] Lecture video available: [[https://tinyurl.com/boolean-synthesis][tinyurl.com/boolean-synthesis]].
-- [ ] Watch this lecture video before the next session.
-
 ** Boolean function synthesis exercise
 
 1) Simplify the final expression:
@@ -1711,4 +1707,184 @@ x[[../img/video2.png]]
    #+end_example
 2) Build a digital circuit for this function with LogiSim Evolution.
 3) Verify the truth table using code (also available in LogiSim).
-  
+
+** Review: Boolean Logic - The Code video - from P to Quantum Computing
+
+*Video:* https://tinyurl.com/boolean-synthesis
+
+1. What's an "easy" computational problem? Example?
+   #+begin_quote
+    "Easy" (in 'polynomial' time): Instructions/operations can be
+     counted - and the result is usually finite (though it may be
+     long).
+
+     For example going through a table by rows and columns. For n=3,
+     this algorithm contains n x b = 3 x 3 operations. It's time
+     complexity is O(n^2) for all n.
+
+     For a table of 1 mio rows and columns, we have 10^12 elements (1
+     trillion) - the operation would take no less than 15 minutes
+     (1000 secondsassuming each operation takes about 1 nanosecond).
+
+     This is not hard just tedious.
+   #+end_quote
+
+   #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+     int main() {
+       // Create a 3x3 table
+       vector<vector<int>> table = {
+         {1, 2, 3},
+         {4, 5, 6},
+         {7, 8, 9}
+       };
+
+       // Range-based loops to print all elements
+       for (const auto &row : table) {
+         for (const auto &value : row) {
+           cout << value << " ";
+         }
+         cout << endl;
+       }
+
+       return 0;
+     }
+   #+end_src
+
+2. What is a "hard" computational problem? Example?
+   #+begin_quote
+   If there is no known "polynomial-time" algorithm, you must try all
+   possible inputs to find one that satisfies a given condition.
+
+   Here is an example of "Boolean satisfiability": Is there an
+   assignment of TRUE/FALSE values to x,y,z that make the whole
+   formula true?
+
+   (x \lor y) \land (y \lor z) \land (x \lor z) = f(x,y,z)
+
+   You know that there are 2^3 = 8 combinations - that's exponential,
+   not polynomial - very large for very large n. For n = 1 mio, even
+   at an unreal speed of 10^12 (1 trillion) assignments per second,
+   this would take 10^310000 years (age of the universe: 10^10).
+   #+end_quote
+
+3. So in a nutshell, what's the difference between easy and hard
+   computational problems?
+   #+begin_quote
+   Easy problems can be solved by devising efficient algorithms - like
+   sorting a list - and running them on fast machines. Solvable
+   quickly (P).
+
+   Hard problems require checking every possible combination of inputs
+   (like a complete truth table) - time grows exponentially. Only
+   checkable quickly, or NP-complete.
+   #+end_quote
+
+4. Is the P vs. NP issue of practical importance?
+   #+begin_quote
+   Very practical: easy problems scale to large inputs - we can sort
+   billions of numbers or search vast datasets super-fast. Hard
+   problems explode - even 100 variables cannot be brute-forced.
+
+   If a task is NP-hard, we design heuristics, approximations, or
+   probabilistic methods. Approaching the truth must be enough.
+
+   It determines what problems are tractable vs. requiring compromises
+   in the real world. All of automation (and of AI) depends on that.
+   #+end_quote
+
+5. Show that =x OR y= can be expressed in terms of =AND= and =NOT= using the
+   truth table and the Boolean identities - steps to do this?
+   #+begin_example
+   1) build a funnction from the truth table
+   
+     | x | y | f(x,y) | f(x,y)       |
+     |---+---+--------+--------------|
+     | 0 | 0 |      0 |              |
+     | 0 | 1 |      1 | NOT(x) AND y |
+     | 1 | 0 |      1 | x AND NOT(y) |
+     | 1 | 1 |      1 | x AND y      |
+
+     f(x,y) = (NOT(x) AND y) OR (x AND NOT(y)) OR (x AND y)
+            = (\not x \land y) \lor (x \land \not y) \lor (x \land y)
+
+   2) Simplify the function:
+
+     f(x,y) = (\not x \land y) \lor x \land (\not y \lor y)
+            = (\not x \lor x) \land (y \lor x)
+            = y \lor x = x \lor y
+
+   3) Nothing gained! Need to remember the De Morgan identity:
+
+      f(x,y) = x \lor y = \not ( \not x \land \not y)
+
+   Btw. for more than 2-3 variables, Karnaugh maps are a more efficient
+   way to derive logical functions (you did that in CSC 245/Digital Logic).
+   #+end_example
+    
+6. What's the "atom" at the heart of physical computer architecture?
+   #+begin_quote
+   It's the Nand gate - the OR operation is redundant (actually,
+   either the OR or the AND operation is redundant - Nor works, too).
+
+   Another way of putting this: Nand is functionally complete.
+   #+end_quote
+   #+attr_html: :width 400px :float nil:
+   [[../img/nand_vs_and_not.png]]
+
+7. How can you prove that Nand is functionally complete?
+   #+begin_quote
+   You have to prove that every Boolean function can be expressed in
+   terms of NAND - decomposes into proving this for NOT and AND:
+
+   1) \not x = \not (x \land x) = x Nand x
+
+   2) x \land y = \not (\not (x \land y)) = \not (x Nand y)
+   #+end_quote
+   #+attr_html: :width 400px :float nil:
+   [[../img/nandx.png]]
+
+   #+attr_html: :width 400px :float nil:
+   [[../img/xnandy.png]]
+
+8. Is this notion of completeness relevant elsewhere in computing?
+   #+begin_quote
+   A "Turing-complete" programming language is an analogous concept:
+   such a language can express any computation that can be done by a
+   Turing machine (tape + head + state + program).
+   
+   Neural networks with non-linear activation functions are universal
+   approximators: They can approximate any continuous function. This
+   does not tell you how many neurons are needed to do this.
+   #+end_quote
+
+9. Doesn't quantum computing change all of this?
+   #+begin_quote
+   "Quantum computing" (computing with more than two logical values)
+   chenges how we compute but not what is computable.
+
+   Quantum computers are still not more than Turing-complete: It can
+   be shown that every quantum computation can be simulated by a
+   classic Turing machine (at much slower speed).
+   #+end_quote
+
+10. Does quantum computing change the P vs. NP (easy vs. hard) issue?
+    #+begin_quote
+    Some specific problems that seem hard classically (NP) can be
+    reclassified from "practically hard" (checking in exponential
+    time) to efficiently solvable. Example: Shor's algorithm (used for
+    encryption).
+
+    Summary table:
+    | Problem class            | Classical (P) | Quantum (BQP) | NP status   |
+    |--------------------------+---------------+---------------+-------------|
+    | Sorting, arithmetic      | Easy          | Easy          | In P        |
+    | Factoring                | Hard          | Easy (Shor)   | In NP       |
+    | Search                   | Hard (O(N))   | √N (Grover)   | In NP       |
+    | SAT, TSP, graph coloring | Hard          | Still hard    | NP-complete |
+    #+end_quote
+
+** Boolean normal forms, computability, NAND gates
+#+attr_html: :width 400px :float nil:
+[[../img/video2.png]]
+
+
