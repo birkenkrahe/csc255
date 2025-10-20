@@ -1,0 +1,78 @@
+#+STARTUP: overview hideblocks indent entitiespretty:
+#+OPTIONS: toc:nil num:nil ^:nil:
+* Project Proposal – “Simulating Cache Misses in C”
+
+- Project Title: Simulating Cache Misses in C
+
+- Team: Demo (Marcus Birkenkrahe)
+
+- Goal: To explore how cache memory behavior affects program
+  performance by simulating different access patterns in C and
+  measuring timing differences.
+
+- Motivation: Modern CPUs rely heavily on cache memory to bridge the
+  speed gap between the processor and main memory. Cache misses can
+  slow programs dramatically. This project will help visualize that
+  performance impact in a controlled way.
+
+- Plan:
+
+  1) Write a small C program that repeatedly accesses large arrays
+     in sequential and random order.
+
+  2) Measure execution time with different array sizes and strides.
+
+  3) Record timing data and visualize it in a chart.
+
+  4) Compare real measurements with simple cache predictions.
+
+- Expected Outcome: A clear demonstration that sequential memory
+  access is faster due to cache locality, supported by timing data
+  and visual output.
+
+* Project Progress Report Log
+
+- Project: Simulating Cache Misses in C: Week 5 Progress Report
+
+- Accomplished:
+  1. Implemented base C program to access arrays sequentially and
+     randomly.
+  2. Used clock_gettime() for timing; tested on Linux VM.
+  3. Recorded timing results for 1 MB, 10 MB, and 100 MB array sizes.
+  4. Observed increasing delay for random access as array size
+     exceeded L3 cache.
+
+- Challenges
+  1. Inconsistent results between runs due to cache persistence.
+  2. Unclear how to flush or control cache between tests.
+  3. Need a better understanding of cache size and associativity for
+     interpretation.
+
+- Next Steps
+  1. Add a simple cache simulator (direct-mapped model) for
+     theoretical comparison.
+  2. Automate multiple test runs and average timings.
+  3. Create plots for timing vs. array size and stride.
+
+- Reflection: So far, the project clarified how memory access order
+  affects CPU performance. The hardest part has been isolating cache
+  effects from background processes.
+
+* Prompt for the NotebookLM video overview
+
+Create a short video overview (2–3 minutes, male voice) summarizing my
+progress on the project “Simulating Cache Misses in C.”
+
+Begin with a brief restatement of my project goal and why it matters.
+Then summarize what I’ve accomplished so far based on my progress log,
+including implementation details, data collection, and key results.
+Describe what challenges I’ve encountered (such as cache flushing,
+timing inconsistencies, or system effects) and how I plan to address
+them.
+
+Conclude by outlining my next steps — such as adding a simple cache
+simulator and improving test automation — and end with one insight or
+lesson learned about how cache locality affects performance.
+
+Use a clear, explanatory tone suitable for a short student project
+update. Keep it focused, engaging, and technically accurate.
