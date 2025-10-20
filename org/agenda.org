@@ -1529,7 +1529,7 @@ complex realities underneath.
   AI-generated video created based on your prompt with
   notebooklm.google.com (free application - time limit).
 
-* Week 8: Boolean Logic (Oct 13, 15, 17)
+* DONE Week 8: Boolean Logic (Oct 13, 15, 17)
 #+attr_html: :width 600px :float nil:
 #+caption: Source: Nishan/Schocken, Nand To Tetris (2021)
 [[../img/big_picture2.png]]
@@ -1541,10 +1541,10 @@ complex realities underneath.
 - [X] Lecture video available: [[https://tinyurl.com/boolean-synthesis][tinyurl.com/boolean-synthesis]].
 - [X] Watch this lecture video before the next session.
 - [X] Lecture & practice: Boolean function synthesis.
-- [X] Test 7 - 30 questions on Boolean logic (Oct 26) 
+- [X] Test 7 - 30 questions on Boolean logic (Oct 26)
 - [X] Home assignment: table->function->code->circuit (Oct 26)
 - [ ] Logic gates / interface vs implementation / compositeness
-  
+
 ** Review: Digital logic
 #+OPTIONS: toc:nil num:nil ^:nil: title:nil author:nil date:nil
 1. What are Boolean values and what are the basic Boolean operations?
@@ -1639,26 +1639,26 @@ complex realities underneath.
 9. Do you remember any Boolean algebra laws? List them alongside their
    definition.
    #+begin_quote
-  - Commutative laws for binary operators AND, OR:
-    (x AND y) = (y AND x)
-    (x OR y)  = (y OR x)
-  - Associative laws:
-    x AND (y AND z) = (x AND y) AND (x AND z)
-    x OR (y OR z) = (x OR y) OR (x OR z)
-  - Distributive laws both over AND and OR
-    x AND (y OR z) = (x AND y) OR (x AND z)
-    x OR (y AND z) = (x OR y) AND (x OR z)
-  - De Morgan laws:
-    NOT(x AND y) = NOT(x) OR NOT(y)
-    NOT(x OR y) = NOT(x) AND NOT(y)
-  - Idempotence (doing it twice is the same as doing it once):
-    a AND a = a
-    a OR a = a
-    NOT(NOT(a)) = a    ("double negation")
-  - Tautology (always true):
-    NOT(a) OR a = TRUE
-    NOT(a) AND a = FALSE
-     #+end_quote
+   - Commutative laws for binary operators AND, OR:
+     (x AND y) = (y AND x)
+     (x OR y)  = (y OR x)
+   - Associative laws:
+     x AND (y AND z) = (x AND y) AND (x AND z)
+     x OR (y OR z) = (x OR y) OR (x OR z)
+   - Distributive laws both over AND and OR
+     x AND (y OR z) = (x AND y) OR (x AND z)
+     x OR (y AND z) = (x OR y) AND (x OR z)
+   - De Morgan laws:
+     NOT(x AND y) = NOT(x) OR NOT(y)
+     NOT(x OR y) = NOT(x) AND NOT(y)
+   - Idempotence (doing it twice is the same as doing it once):
+     a AND a = a
+     a OR a = a
+     NOT(NOT(a)) = a    ("double negation")
+   - Tautology (always true):
+     NOT(a) OR a = TRUE
+     NOT(a) AND a = FALSE
+   #+end_quote
 
 10. Use the Boolean algebra laws to simplify this expression:
     NOT(NOT(x) AND NOT(x OR y))
@@ -1681,29 +1681,29 @@ complex realities underneath.
 - I got the idea for this exercise from brilliant.org ([[https://github.com/birkenkrahe/csc255/blob/main/org/3_boolean.org#brilliant-question][see here]]). The
   skill of converting {circuits, tables, functions} is key to being
   able to design CPU elements. Writing code is useful.
-  
+
 - Solution:
   #+begin_example
   f(x,y) = (x \lor y) \land \not (x \land y) \equiv (x \land \not y) \lor (\not x \land y) ?
                      ---------
          = (x \lor y) \land (\not x \lor \not y) <-- De Morgan
-                     ---------- 
+                     ----------
          = [x \land (\not x \lor \not y)] \lor [ y \land (\not x \lor \not y)] <-- Distributivity
 
          = [(x \land \not x) \lor (x \land \not y)] \lor [(y \land \not x) \lor (y \land \not y)] <-- Tautology
             --- 0 ---                          --- 0 ---
          = [ 0 \lor (x \land \not y)] \lor [(y \land \not x) \lor 0 ]
-            
+
          = (x \land \not y) \lor (y \land \not x) <-- Commutativity
 
          = (x \land \not y) \lor (\not x \land y)   Q.E.D.
   #+end_example
-  
+
 ** Boolean function synthesis exercise
 
 1) Simplify the final expression:
    #+begin_example
-   (!x && !y && !z) || (!x && y && !z) || (x && !y && !z) 
+   (!x && !y && !z) || (!x && y && !z) || (x && !y && !z)
    #+end_example
 2) Build a digital circuit for this function with LogiSim Evolution.
 3) Verify the truth table using code (also available in LogiSim).
@@ -1714,19 +1714,19 @@ complex realities underneath.
 
 1. What's an "easy" computational problem? Example?
    #+begin_quote
-    "Easy" (in 'polynomial' time): Instructions/operations can be
-     counted - and the result is usually finite (though it may be
-     long).
+   "Easy" (in 'polynomial' time): Instructions/operations can be
+   counted - and the result is usually finite (though it may be
+   long).
 
-     For example going through a table by rows and columns. For n=3,
-     this algorithm contains n x b = 3 x 3 operations. It's time
-     complexity is O(n^2) for all n.
+   For example going through a table by rows and columns. For n=3,
+   this algorithm contains n x b = 3 x 3 operations. It's time
+   complexity is O(n^2) for all n.
 
-     For a table of 1 mio rows and columns, we have 10^12 elements (1
-     trillion) - the operation would take no less than 15 minutes
-     (1000 secondsassuming each operation takes about 1 nanosecond).
+   For a table of 1 mio rows and columns, we have 10^12 elements (1
+   trillion) - the operation would take no less than 15 minutes
+   (1000 secondsassuming each operation takes about 1 nanosecond).
 
-     This is not hard just tedious.
+   This is not hard just tedious.
    #+end_quote
 
    #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
@@ -1796,7 +1796,7 @@ complex realities underneath.
    truth table and the Boolean identities - steps to do this?
    #+begin_example
    1) build a funnction from the truth table
-   
+
      | x | y | f(x,y) | f(x,y)       |
      |---+---+--------+--------------|
      | 0 | 0 |      0 |              |
@@ -1820,7 +1820,7 @@ complex realities underneath.
    Btw. for more than 2-3 variables, Karnaugh maps are a more efficient
    way to derive logical functions (you did that in CSC 245/Digital Logic).
    #+end_example
-    
+
 6. What's the "atom" at the heart of physical computer architecture?
    #+begin_quote
    It's the Nand gate - the OR operation is redundant (actually,
@@ -1851,7 +1851,7 @@ complex realities underneath.
    A "Turing-complete" programming language is an analogous concept:
    such a language can express any computation that can be done by a
    Turing machine (tape + head + state + program).
-   
+
    Neural networks with non-linear activation functions are universal
    approximators: They can approximate any continuous function. This
    does not tell you how many neurons are needed to do this.
@@ -1887,4 +1887,61 @@ complex realities underneath.
 #+attr_html: :width 400px :float nil:
 [[../img/video2.png]]
 
+* Week 9: Hardware Description Language (Oct 20, 24)
+#+attr_html: :width 400px :float nil:
+#+caption: Nand2Tetris HDL simulator dashboard
+[[../img/hdl.png]]
+
+- [ ] Review: Boolean logic review
+- [ ] Logic gates
+- [ ] Interface vs. Implementation
+- [ ] Hardware Description Language
+- [ ] Nand2Tetris HDL Simulator
+- [ ] Next week: Building our first chips
+
+** Review - Boolean logic
+
+Everybody! Name one topic, fact, formula or code chunk from last week!
+
+Example topics:
+#+begin_quote
+1. NAND gate/function/diagram:
+
+   | a | b | Nand(a,b) | And(a,b) |
+   |---+---+-----------+----------|
+   | 0 | 0 |         1 |        0 |
+   | 1 | 0 |         1 |        0 |
+   | 0 | 1 |         1 |        0 |
+   | 1 | 1 |         0 |        1 |
+
+2. Boolean Satisfiability (SAT) - first NP-complete problem (1971):
+   Can we make a given logical formula true?
+   
+3. P vs NP - Polynomial solvability vs. Non-polynomial checkability.
+   
+4. Quantum Computing with non-Boolean, quantum-theoretic truth
+   values.
+   
+5. RAG (Retrieval Augmented Generation) - context provider for
+   Generative AI.
+#+end_quote
+
+Example facts:
+#+begin_quote
+1. Every Boolean function can be represented using an expression
+   containing only NAND operations (provable).
+
+2. Every Boolean expression reduces to one of two Boolean values (axiomatic).
+
+3. Truth tables are useful when the state space is small (2-3
+   variables). 
+#+end_quote
+
+Example formulas:
+#+begin_quote
+1. De Morgan: (NOT(x) AND y) = (x and NOT(y))
+2. Tautology: NOT(a) OR a = TRUE
+3. Idempotence: NOT(NOT(x)) = x
+4. Self-NAND property: NAND(x,x) = NOT(x AND x) = NOT(x)
+#+end_quote
 
