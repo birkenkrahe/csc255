@@ -1512,7 +1512,7 @@ complex realities underneath.
     - Deliverable: Calculation or simulation showing the impact of
       8-bit vs. 16-bit bus width on effective memory bandwidth.
 
-*** TODO Pick a team & a topic & start writing the proposal
+*** Pick a team & a topic & start writing the proposal
 
 - Pick a team. (5 min)
 - Pick a topic. (5 min)
@@ -1892,14 +1892,15 @@ complex realities underneath.
 #+caption: Nand2Tetris HDL simulator dashboard
 [[../img/hdl.png]]
 
-- [ ] Review: Boolean logic review
-- [ ] Logic gates
-- [ ] Interface vs. Implementation
+- [X] Review: Boolean logic review
+- [X] Logic gates
+- [X] Interface vs. Implementation
 - [ ] Hardware Description Language
 - [ ] Nand2Tetris HDL Simulator
 - [ ] Next week: Building our first chips
+- [ ] Term project check-in (NotebookLM video) by Nov 14
 
-** Review - Boolean logic
+** DONE Review - Boolean logic
 
 Everybody! Name one topic, fact, formula or code chunk from last week!
 
@@ -1945,3 +1946,12 @@ Example formulas:
 4. Self-NAND property: NAND(x,x) = NOT(x AND x) = NOT(x)
 #+end_quote
 
+** Term project update
+
+I created a mock-up project proposal, project report log, video
+overview prompt and video overview for you to have an example for your
+project update which is due on November 14. I think it's quite good
+(especially given that it's made up - I am sorry that I didn't have a
+real project at this time to feature). Because of my citizenship
+interview (yay!) on November 12, that class is cancelled so you have
+some time to finish it before the deadline. Enjoy!
