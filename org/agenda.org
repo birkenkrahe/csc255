@@ -1887,7 +1887,7 @@ complex realities underneath.
 #+attr_html: :width 400px :float nil:
 [[../img/video2.png]]
 
-* Week 9: Hardware Description Language (Oct 20, 24)
+* DONE Week 9: Hardware Description Language (Oct 20, 24)
 #+attr_html: :width 400px :float nil:
 #+caption: Nand2Tetris HDL simulator dashboard
 [[../img/hdl.png]]
@@ -1900,7 +1900,7 @@ complex realities underneath.
 - [ ] Nand2Tetris HDL Simulator
 - [ ] Next week: Building our first chips
 
-** DONE Review - Boolean logic
+** Review - Boolean logic
 
 Everybody! Name one topic, fact, formula or code chunk from last week!
 
@@ -1917,12 +1917,12 @@ Example topics:
 
 2. Boolean Satisfiability (SAT) - first NP-complete problem (1971):
    Can we make a given logical formula true?
-   
+
 3. P vs NP - Polynomial solvability vs. Non-polynomial checkability.
-   
+
 4. Quantum Computing with non-Boolean, quantum-theoretic truth
    values.
-   
+
 5. RAG (Retrieval Augmented Generation) - context provider for
    Generative AI.
 #+end_quote
@@ -1935,7 +1935,7 @@ Example facts:
 2. Every Boolean expression reduces to one of two Boolean values (axiomatic).
 
 3. Truth tables are useful when the state space is small (2-3
-   variables). 
+   variables).
 #+end_quote
 
 Example formulas:
@@ -1946,23 +1946,251 @@ Example formulas:
 4. Self-NAND property: NAND(x,x) = NOT(x AND x) = NOT(x)
 #+end_quote
 
+* Week 10: Project 1: Basic circuits
+
+- [ ] Term project update using NotebookLM.
+
+- [ ] Review: HDL - Do It Yourself at [[https://tinyurl.com/review-hdl][tinyurl.com/review-hdl]] - Make
+  copy, fill in the answers, upload your URL to Canvas by 3:20 pm.
+
 ** NEXT Term project update
+#+attr_html: :width 400px :float nil:
+[[../img/projectUpdate.png]]
 
 - Give me a short overview of your project progress.
 
-- You've only got 5 weeks (not counting Thanksgiving week).
+- You've only got 4 weeks (not counting Thanksgiving week).
 
-- You should try to finish this well before the last week.
+- You should try to finish this before the last week.
 
-- Created a mock-up project proposal for one of the projects.
-  
-- It includes your deliverables:
+- I created a mock-up project proposal for one of the projects.
+
+- The assignment lists some notes for each of your projects.
+
+- The assignment also includes your deliverables (by Nov 14):
+
   1. Project proposal (you should develop this - details, references)
   2. Project report log (accomplished/challenges/next steps)
   3. Prompt that links the proposal to the project log
 
 - You have some time on November 12 (class cancelled) to finish this.
 
-** Hardware Description Language
+** TODO Review questions: HDL
 
-- [ ] 
+1. What does HDL stand for, and what is its primary purpose?
+   #+begin_quote
+   HDL stands for *Hardware Description Language* and is used to
+   describe the structure and behavior of hardware circuits.
+   #+end_quote
+
+2. In HDL, what is the =CHIP= data structure like when compared to C or
+   C++?
+   #+begin_quote
+   The =CHIP= data structure in HDL is similar to a ~struct~ in C or a
+   ~class~ with ~public~ members in C++ - it has data members and methods.
+   #+end_quote
+
+3. In HDL, what does the keyword =PARTS:= introduce?
+   #+begin_quote
+   The list of *components (gates or subchips)* used to build the
+   current chip.
+   #+end_quote
+
+4. In HDL terms, what part of a chip design is comparable to a
+   function's declaration in programming?
+   #+begin_quote
+   The stub file - it declares the chip's interface but not its
+   implementation.
+   #+end_quote
+
+5. What type of programming paradigm best describes HDL?
+   #+begin_quote
+   HDL is *functional* or *declarative* — it describes what exists, not
+   what executes. It is not *procedural* and not *object-oriented*.
+   #+end_quote
+
+6. Why is the order of statements in HDL significant?
+   #+begin_quote
+   Because HDL describes a *static circuit diagram* where wiring order
+   determines connectivity and meaning.
+   #+end_quote
+
+7. What are the three main ways to run the HDL hardware simulator?
+   #+begin_quote
+   *Interactive*, *script-based*, and *with or without compare/output
+   files*.
+   #+end_quote
+
+8. What files are typically provided for each chip in a Nand2Tetris
+   project?
+   #+begin_quote
+   A =.hdl= stub file, a =.tst= test script, and a =.cmp= compare file. Here
+   is the stub file for the Xor gate:
+   #+end_quote
+   #+begin_example
+   // This file is part of www.nand2tetris.org
+   // and the book "The Elements of Computing Systems"
+   // by Nisan and Schocken, MIT Press.
+   // File name: projects/1/Xor.hdl
+   /**
+   * Exclusive-or gate:
+   * if ((a and Not(b)) or (Not(a) and b)) out = 1, else out = 0
+   */
+   CHIP Xor {
+       IN a, b;
+       OUT out;
+
+       PARTS:
+       //// Replace this comment with your code.
+   }
+   #+end_example
+
+9. How are compare (=.cmp=) files generated?
+   #+begin_quote
+   By evaluating the equivalent Boolean functions for all input values
+   (aka "behavioral simulation") using a correct implementation. You
+   can do this with C++ or Python code, to produce the expected truth
+   table, or by simulating the circuits in LogiSim with the analyzer.
+   #+end_quote
+
+10. What is the purpose of the symbolic link created with a command
+    like =ln -s ~/nand2tetris/tools/HardwareSimulator.sh hdl= in a
+    directory that is in the ~$PATH~?
+    #+begin_quote
+    To make the HardwareSimulator shell script executable from any
+    directory in the ~$PATH~ using the command =hdl=.
+    #+end_quote
+
+** TODO Practice: Building the NAND gate
+
+1. [ ] Model the gate in LogiSim Evolution.
+2. [ ] Extract the compare file from LogiSim Evolution.
+3. [ ] Write HDL file in an editor.
+4. [ ] Open the HDL simulator software.
+5. [ ] Load HDL file into the simulator.
+6. [ ] Run HDL file in the simulator.
+7. [ ] Write test script in an editor.
+8. [ ] Load test script into the simulator.
+9. [ ] Load the compare file into the simulator.
+10. [ ] Run test script against the compare file.
+
+If the last step passed successfully, zip .hdl, .cmp, and .tst files
+and submit the .zip file to Canvas.
+
+*** Model the gate in LogiSim Evolution (5 min)
+
+1) Open the ~LogiSim Evolution~ software on your PC.
+
+2) Save the file as =Nand.circ=.
+
+3) Draw the NAND diagram with pins, gates, wires.
+
+4) Label all pins, gates and wires. Use =a=, =b= for =IN= and =out= for =OUT=.
+
+5) Check the correctness of the diagram with the simulator.
+
+6) This diagram now contains all the information for the =CHIP=
+   implementation in the stub file. Save the file.
+
+Expected result:
+#+attr_html: :width 400px :float nil:
+#+caption: Nand gate with HDL descriptors (LogiSim)
+[[../img/NAND_hdl.png]]
+
+*** Extract the compare file from the model (5 min)
+
+1) In the ~Design~ panel of the LogiSim dashboard, right-click on the
+   diagram name (=main=) and choose ~Analyze Circuit~.
+
+2) Export the truth table as =Nand.txt= (you can only export into .txt).
+
+3) You have to edit the file before loading it as =Nand.cmp=.
+   #+begin_quote
+   The file has to have an exact format to work with the hardware
+   simulator. Find =Xor.cmp= in the Nand2Tetris ~projects/1~ folder and
+   edit the =Nand.txt= file, then save it as =Nand.cmp=.
+   #+end_quote
+
+4) Alternatively, you can write a C++ or Python script to create the
+   .cmp file (this is faster):
+   #+begin_src C++ :cmdline > ../sim/Nand2.cmp :main yes :includes <iostream> <fstream> :namespaces std :results none
+     ofstream fout("Nand.cmp");
+     fout << "| a | b |out|" << endl;
+     for (bool a : {false,true})
+       for (bool b : {false,true})
+         fout << "| " << a << " | " << b << " | " << !(a && b) << " |" << endl;
+     fout.close();
+   #+end_src
+
+   #+begin_src bash :results output :exports both
+     cat Nand.cmp
+   #+end_src
+
+   #+RESULTS:
+   : | a | b |out|
+   : | 0 | 0 | 1 |
+   : | 0 | 1 | 1 |
+   : | 1 | 0 | 1 |
+   : | 1 | 1 | 0 |
+
+*** Write the HDL file (10 min)
+
+1) Find the ~Xor.hdl~ stub file in the ~projects/1~ folder and adapt it to
+   build a Nand chip. Remember that correct indentation is critical.
+
+   #+name: Xor.hdl (stub file)
+   #+begin_src txt
+     // This file is part of www.nand2tetris.org
+     // and the book "The Elements of Computing Systems"
+     // by Nisan and Schocken, MIT Press.
+     // File name: projects/1/Xor.hdl
+     /**
+      * Exclusive-or gate:
+      * if ((a and Not(b)) or (Not(a) and b)) out = 1, else out = 0
+      */
+     CHIP Xor {
+         IN a, b;
+         OUT out;
+
+         PARTS:
+         //// Replace this comment with your code.
+     }
+   #+end_src
+
+2) Replace the comment at the top by the following:
+   #+begin_example
+   // File name: Nand.hdl
+   //
+   // Nand gate API:
+   // ...
+   //
+   #+end_example
+
+   The API is the if-then description of the gate.
+
+3) Complete the ~PARTS:~ implementation:
+   - One line for each gate
+   - Follow the syntax ~Gate(a= , b= , out= )~
+   - Provided that you used a, b, out for IN and OUT in the pins
+     definition.
+
+4) Make a folder =/yourName= in the ~projects~ folder of the Hardware
+   Simulator software, and save save the file as =Nand.hdl= (this makes
+   it easier to load later).
+
+   Solution:
+   #+begin_src txt :tangle ~/nand2tetris/projects/mb/Nand2.hdl
+       // File name: Nand.hdl
+       //
+       //  Nand gate API:
+       //  if ((a==1) and (b==1) then out = 0 else out = 1
+       //
+       CHIP Nand {  // chip name
+         IN a,b;    // input pins
+         OUT out;   // output pin
+
+        PARTS:
+         And(a=a, b=b, out=aAndb);
+         Not(in=aAndb, out=out);
+       }
+   #+end_src
