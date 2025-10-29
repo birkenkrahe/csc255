@@ -1946,14 +1946,26 @@ Example formulas:
 4. Self-NAND property: NAND(x,x) = NOT(x AND x) = NOT(x)
 #+end_quote
 
-* Week 10: Project 1: Basic circuits
+* Week 10: Project 1: 15 basic circuits
 
-- [ ] Term project update using NotebookLM.
+- [X] Term project update using NotebookLM.
 
-- [ ] Review: HDL - Do It Yourself at [[https://tinyurl.com/review-hdl][tinyurl.com/review-hdl]] - Make
+- [X] Review: HDL - Do It Yourself at [[https://tinyurl.com/review-hdl][tinyurl.com/review-hdl]] - Make
   copy, fill in the answers, upload your URL to Canvas by 3:20 pm.
 
-** NEXT Term project update
+- [ ] Building the Nand gate from start to finish.
+
+- [ ] Building the And, Or, Not, and Xor chips from Nand.
+
+- [ ] Intro to multi-bit buses.
+
+- [ ] Building the And16, Or16 and Not16 chips.
+
+- [ ] Intro to multiplexers and demultiplexers.
+
+- [ ] Building Mux, Mux16, and DMux chips.
+
+** DONE Term project update
 #+attr_html: :width 400px :float nil:
 [[../img/projectUpdate.png]]
 
@@ -1975,7 +1987,7 @@ Example formulas:
 
 - You have some time on November 12 (class cancelled) to finish this.
 
-** TODO Review questions: HDL
+** DONE Review questions: HDL
 
 1. What does HDL stand for, and what is its primary purpose?
    #+begin_quote
@@ -1993,13 +2005,13 @@ Example formulas:
 3. In HDL, what does the keyword =PARTS:= introduce?
    #+begin_quote
    The list of *components (gates or subchips)* used to build the
-   current chip.
-   #+end_quote
+   current chip - the implementation details.
+   #+end_quotea
 
 4. In HDL terms, what part of a chip design is comparable to a
    function's declaration in programming?
    #+begin_quote
-   The stub file - it declares the chip's interface but not its
+   The stub file - it declares the chip's interface (API) but not its
    implementation.
    #+end_quote
 
@@ -2054,14 +2066,14 @@ Example formulas:
    #+end_quote
 
 10. What is the purpose of the symbolic link created with a command
-    like =ln -s ~/nand2tetris/tools/HardwareSimulator.sh hdl= in a
+    like =ln -s /nand2tetris/tools/HardwareSimulator.sh hdl= in a
     directory that is in the ~$PATH~?
     #+begin_quote
     To make the HardwareSimulator shell script executable from any
     directory in the ~$PATH~ using the command =hdl=.
     #+end_quote
 
-** TODO Practice: Building the NAND gate
+** IN PROGRESS Practice: Building the NAND gate
 
 1. [ ] Model the gate in LogiSim Evolution.
 2. [ ] Extract the compare file from LogiSim Evolution.
@@ -2077,120 +2089,134 @@ Example formulas:
 If the last step passed successfully, zip .hdl, .cmp, and .tst files
 and submit the .zip file to Canvas.
 
-*** Model the gate in LogiSim Evolution (5 min)
+** TODO Rationale for project 1
 
-1) Open the ~LogiSim Evolution~ software on your PC.
+A typical computer architecture is based on a set of elementary logic
+gates like And, Or, Mux, etc. as well as on their bitwise versions
+And6, Or16, Mux16, etc. (assuming a 16-bit machine).
 
-2) Save the file as =Nand.circ=.
+In this project, you will build a typical set of basic logic
+gates. These gates form the elementary building blocks from which you
+will build the Hack computer's CPU and RAM chips in later projects.
 
-3) Draw the NAND diagram with pins, gates, wires.
+*** Constraints
 
-4) Label all pins, gates and wires. Use =a=, =b= for =IN= and =out= for =OUT=.
+- Prerequisites:
+  1. [ ] Learn the basics of Hardware Description Language (HDL).
+  2. [ ] Learn the basics of the HDL simulator (online/offline).
 
-5) Check the correctness of the diagram with the simulator.
+- *Outcome:* Text files with the HDL code of 15 chips to be built.
 
-6) This diagram now contains all the information for the =CHIP=
-   implementation in the stub file. Save the file.
+- *Caveat:* The names of the HDL files to be submitted must be the exact
+  file names that appear in the nand2tetris/projects/01 folder on your
+  computer.
 
-Expected result:
-#+attr_html: :width 400px :float nil:
-#+caption: Nand gate with HDL descriptors (LogiSim)
-[[../img/NAND_hdl.png]]
+- Simply edit the =*.hdl= files in that folder using any text editor,
+  write the HDL code in them, and save them using their given manes,
+  or enter the code straight into the Web IDE.
 
-*** Extract the compare file from the model (5 min)
+- All files should be packed in a zip file =project1.zip= and submitted
+  (without subfolder).
 
-1) In the ~Design~ panel of the LogiSim dashboard, right-click on the
-   diagram name (=main=) and choose ~Analyze Circuit~.
+- You can check the scripts yourself using the provided tests in =*.tst=
+  files (so you don't have to write these yourself).
 
-2) Export the truth table as =Nand.txt= (you can only export into .txt).
+- The Hardware Simulator is described in a short online =Guide=.
 
-3) You have to edit the file before loading it as =Nand.cmp=.
-   #+begin_quote
-   The file has to have an exact format to work with the hardware
-   simulator. Find =Xor.cmp= in the Nand2Tetris ~projects/1~ folder and
-   edit the =Nand.txt= file, then save it as =Nand.cmp=.
-   #+end_quote
+*** Objectives
 
-4) Alternatively, you can write a C++ or Python script to create the
-   .cmp file (this is faster):
-   #+begin_src C++ :cmdline > ../sim/Nand2.cmp :main yes :includes <iostream> <fstream> :namespaces std :results none
-     ofstream fout("Nand.cmp");
-     fout << "| a | b |out|" << endl;
-     for (bool a : {false,true})
-       for (bool b : {false,true})
-         fout << "| " << a << " | " << b << " | " << !(a && b) << " |" << endl;
-     fout.close();
-   #+end_src
+Build the following chips (aka gates):
+1) Nand (given - don't have to build)
+2) Not (from Nand only)
+3) And (from Nand only)
+4) Or (from Nand only)
+5) Xor (from Nand only)
+6) Mux (from Nand using previously created chips)
+7) DMux
+8) Not16
+9) And16
+10) Or16
+11) Mux16
+12) Or8Way
+13) Mux4Way16
+14) Mux8Way16
+15) DMux4Way
+16) DMux8Way
 
-   #+begin_src bash :results output :exports both
-     cat Nand.cmp
-   #+end_src
+Since Nand is considered primitive, there is no need to implement it
+(we'll do it anyway as a demo).
 
-   #+RESULTS:
-   : | a | b |out|
-   : | 0 | 0 | 1 |
-   : | 0 | 1 | 1 |
-   : | 1 | 0 | 1 |
-   : | 1 | 1 | 0 |
+** Files
 
-*** Write the HDL file (10 min)
+- For each chip Xxx in the list, a skeletal =Xxx.hdl= program, also
+  called a *stub* file, is provided. Its PARTS (implementation) section
+  is missing.
 
-1) Find the ~Xor.hdl~ stub file in the ~projects/1~ folder and adapt it to
-   build a Nand chip. Remember that correct indentation is critical.
+- For each chip Xxx in the list, a =Xxx.txt= script is provided that
+  tells the hardware simulator how to test the chip, along with a
+  =Xxx.cmp= compare file containing the correct outputs that the
+  supplied test is expected to generate. Your task is writing, and
+  testing, the chip implementations.
 
-   #+name: Xor.hdl (stub file)
-   #+begin_src txt
-     // This file is part of www.nand2tetris.org
-     // and the book "The Elements of Computing Systems"
-     // by Nisan and Schocken, MIT Press.
-     // File name: projects/1/Xor.hdl
-     /**
-      * Exclusive-or gate:
-      * if ((a and Not(b)) or (Not(a) and b)) out = 1, else out = 0
-      */
-     CHIP Xor {
-         IN a, b;
-         OUT out;
+** Contract
 
-         PARTS:
-         //// Replace this comment with your code.
-     }
-   #+end_src
+- For each chip Xxx in the list, the chip implementation (modified
+  =Xxx.hdl= file), tested by the supplied =Xxx.tst= file, must generate
+  the outputs listed in the supplied =Xxx.cmp= file (a truth table).
 
-2) Replace the comment at the top by the following:
-   #+begin_example
-   // File name: Nand.hdl
-   //
-   // Nand gate API:
-   // ...
-   //
-   #+end_example
+- If the outputs generated by your chip disagree with the desired
+  outputs, the simulator will report error messages.
 
-   The API is the if-then description of the gate.
+** Online IDE
 
-3) Complete the ~PARTS:~ implementation:
-   - One line for each gate
-   - Follow the syntax ~Gate(a= , b= , out= )~
-   - Provided that you used a, b, out for IN and OUT in the pins
-     definition.
+- All the =Xxx.hdl=, =Xxx.tst=, and =Xxx.cmp= files are available in browser
+  memory.
 
-4) Make a folder =/yourName= in the ~projects~ folder of the Hardware
-   Simulator software, and save save the file as =Nand.hdl= (this makes
-   it easier to load later).
+- You cannot upload and test any other than the pre-set chips.
 
-   Solution:
-   #+begin_src txt :tangle ~/nand2tetris/projects/mb/Nand2.hdl
-       // File name: Nand.hdl
-       //
-       //  Nand gate API:
-       //  if ((a==1) and (b==1) then out = 0 else out = 1
-       //
-       CHIP Nand {  // chip name
-         IN a,b;    // input pins
-         OUT out;   // output pin
+- If you mess up the files in the Online IDE, you can go to the
+  =Settings= Tab and choose =Reset=.
 
-        PARTS:
-         And(a=a, b=b, out=aAndb);
-         Not(in=aAndb, out=out);
-       }
-   #+end_src
+** Local App
+
+- This software is *not* needed for the Nand2Tetris projects but it
+  teaches you the underlying principles of the Hardware Description
+  Language and the simulator so we'll do it in class together.
+
+- To develop and test your own chips, you need to download and install
+  the local HDL simulator software (for Mac, Windows or Linux) from
+  here: [[https://tinyurl.com/nand2tetris-simulator][tinyurl.com/nand2tetris-simulator]] (see below for details).
+
+- Download the software including the =project= and =tools= directories as
+  a =zip= file. Unpack it. The simulator is started with the =.bat=
+  (Windows) or the =.sh= file (Mac/Linux).
+
+- I created a symbolic link from the script to an executable:
+  =~/nand2tetris/tools/HardwareSimulator.sh= to =~/.local/bin/hdlsim=.
+  And now I can run =hdlsim= from anywhere on my machine.
+
+** TODO Building And, Or, Not, Xor chips from Nand in the Web IDE
+
+For the remainder of the week:
+
+- Begin by building the Not chip using only Nand
+- Next, build And
+- Next, build Or
+- Next, build Xor
+
+Building these will be easier and faster because you can use the Web
+IDE, which has =Nand= built-in as your building block.
+
+Feel free to do this in the desktop software instead (that's what I
+do, because it gives me more control and furthers my insight).
+
+These builds are graded: Submit your files in one Zip file
+=project1.zip= in Canvas. Each chip should come with the following files>
+#+begin_example
+Xxx.circ - Generate first in LogiSim Evolution and label pins and wiring
+Xxx.hdl  - HDL API and implementation (must complete in Web IDE)
+Xxx.cmp  - HDL compare-file (can copy from Web IDE)
+Xxx.tst  - HDL test file (can copy from Web IDE)
+#+end_example
+
+  

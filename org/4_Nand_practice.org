@@ -1,0 +1,233 @@
+#+TITLE: HDL Practice - Building the NAND gate
+#+STARTUP: overview hideblocks indent entitiespretty:
+* Objectives
+
+1. [X] Model the gate in LogiSim Evolution.
+2. [X] Extract the compare file from LogiSim Evolution.
+3. [ ] Write HDL file in an editor.
+4. [ ] Open the HDL simulator software.
+5. [ ] Load HDL file into the simulator.
+6. [ ] Run HDL file in the simulator.
+7. [ ] Write test script in an editor.
+8. [ ] Load test script into the simulator.
+9. [ ] Run test script against the compare file.
+10. [ ] Compress your files and submit to Canvas.
+
+If the last step passed successfully, zip .hdl, .cmp, and .tst files
+and submit the .zip file to Canvas.
+
+* DONE Model the gate in LogiSim Evolution (5 min)
+
+1) Open the ~LogiSim Evolution~ software on your PC.
+
+2) Save the file as =Nand.circ=.
+
+3) Draw the NAND diagram with pins, gates, wires.
+
+4) Label all pins, gates and wires. Use =a=, =b= for =IN= and =out= for =OUT=.
+
+5) Check the correctness of the diagram with the simulator.
+
+6) This diagram now contains all the information for the =CHIP=
+   implementation in the stub file. Save the file.
+
+Expected result:
+#+attr_html: :width 400px :float nil:
+#+caption: Nand gate with HDL descriptors (LogiSim)
+[[../img/NAND_hdl.png]]
+
+* DONE Extract the compare file from the model (5 min)
+
+1) In the ~Design~ panel of the LogiSim dashboard, right-click on the
+   diagram name (=main=) and choose ~Analyze Circuit~.
+
+2) Export the truth table as =Nand.txt= (you can only export into .txt).
+
+3) You have to edit the file before loading it as =Nand.cmp=.
+   #+begin_quote
+   The file has to have an exact format to work with the hardware
+   simulator. Find =Xor.cmp= in the Nand2Tetris ~projects/1~ folder and
+   edit the =Nand.txt= file, then save it as =Nand.cmp=.
+   #+end_quote
+
+4) Alternatively, you can write a C++ or Python script to create the
+   .cmp file (this is faster):
+   #+begin_src C++ :cmdline > ~/nand2tetris/projects/mb2/Nand.cmp :main yes :includes <iostream> <fstream> :namespaces std :results none
+     ofstream fout("/home/aletheia/nand2tetris/projects/mb2/Nand.cmp");
+     fout << "| a | b |out|" << endl;
+     for (bool a : {false,true})
+       for (bool b : {false,true})
+         fout << "| " << a << " | " << b << " | " << !(a && b) << " |" << endl;
+     fout.close();
+   #+end_src
+
+   #+begin_src bash :results output :exports both
+     cd ~/nand2tetris/projects/mb2/
+     cat Nand.cmp
+   #+end_src
+
+   #+RESULTS:
+   : | a | b |out|
+   : | 0 | 0 | 1 |
+   : | 0 | 1 | 1 |
+   : | 1 | 0 | 1 |
+   : | 1 | 1 | 0 |
+
+* Write the HDL file (10 min)
+
+1) Find the ~Xor.hdl~ stub file in the ~projects/1~ folder and adapt it to
+   build a Nand chip. Remember that correct indentation is critical.
+
+   #+name: Xor.hdl (stub file)
+   #+begin_src txt
+     // This file is part of www.nand2tetris.org
+     // and the book "The Elements of Computing Systems"
+     // by Nisan and Schocken, MIT Press.
+     // File name: projects/1/Xor.hdl
+     /**
+      * Exclusive-or gate:
+      * if ((a and Not(b)) or (Not(a) and b)) out = 1, else out = 0
+      */
+     CHIP Xor {
+         IN a, b;
+         OUT out;
+
+         PARTS:
+         //// Replace this comment with your code.
+     }
+   #+end_src
+
+2) Replace the comment at the top by the following:
+   #+begin_example
+   // File name: Nand.hdl
+   //
+   // Nand gate API:
+   // ...
+   //
+   #+end_example
+
+   The API is the if-then description of the gate.
+
+3) Complete the ~PARTS:~ implementation:
+   - One line for each gate
+   - Follow the syntax ~Gate(a= , b= , out= )~
+   - Provided that you used a, b, out for IN and OUT in the pins
+     definition.
+
+4) Make a folder =/yourName= in the ~projects~ folder of the Hardware
+   Simulator software, and save save the file as =Nand.hdl= (this makes
+   it easier to load later).
+
+   Solution:
+   #+begin_src txt :tangle ~/nand2tetris/projects/mb/Nand2.hdl
+       // File name: Nand.hdl
+       //
+       //  Nand gate API:
+       //  if ((a==1) and (b==1) then out = 0 else out = 1
+       //
+       CHIP Nand {  // chip name
+         IN a,b;    // input pins
+         OUT out;   // output pin
+
+        PARTS:
+         And(a=a, b=b, out=aAndb);
+         Not(in=aAndb, out=out);
+       }
+   #+end_src
+
+* Open the HDL simulator desktop software (5 min)
+
+1) If you installed ~nand2tetris~ properly, you should have a ~tools~
+   directory with a shell script either for Windows (.bat) or
+   Linux/MacOS (.sh), called =HardwareSimulator=.
+
+2) Run this shell script to start the software.
+   #+attr_html: :width 400px :float nil:
+   [[../img/nand_load_hdl.png]]
+
+3) The desktop software has the same dashboard elements as the online
+   Web IDE but organized slightly differently. It is not tied to the
+   built-in chips, and you can use it to design any chip.
+
+* Load the HDL file into the simulator
+
+1) In the dashboard, open =File > Load chip= or click on the the green
+   symbol. Find your =Nand.hdl= file and load it. It should appear in
+   the HDL panel.
+   
+2) The software may refuse to load the Chip with an error message like
+   ~"Chip name does not match the HDL name"~. To get rid of this error,
+   make sure that the directory that you created in =projects= does not
+   contain any other .hdl file like =Not.hdl=. Otherwise, you run into a
+   circular dependency: =Nand.hdl= tries to build Nand out of And and
+   Not but the built-in And and Not chips are themselves built with
+   Nand.
+
+3) Loading the .hdl file automatically checks its syntax. Move on.
+
+* Run the HDL file in the simulator
+
+1) The simulator gives you the input and output pins (the interface)
+   and the internal pins (the implementation).
+   
+2) You can change the values indidivually like in LogiSim and run it
+   with the buttons at top or using the =Run > Run= menu. The pins will
+   update.
+
+3) You cannot edit the HDL file in the software, this must be done
+   outside.
+
+* Write the HDL test script in an editor
+
+1) Write a test script (=.tst=) that loads the chip (.hdl) file, and
+   specifies ~output-file~ (=Nand.out=), ~compare-to~ file (=Nand.cmp=) and
+   ~output-list~ (the interface).
+
+2) The =Nand.hdl= and =Nand.cmp= files need to be in the same directory,
+   so you need to move the =Nand.cmp= file to wherever your =Nand.hdl= is.
+
+3) The last part of the test script is a series of statements of the
+   following form for each input leading to an output:
+   #+begin_example
+   set [input pin] [value], [...], eval[uate], output;
+   #+end_example
+
+   For the Nand chip, the script looks like this:
+   #+begin_src txt :tangle ~/nand2tetris/projects/mb2/Nand.tst
+       load Nand.hdl,
+       output-file Nand.out,
+       compare-to Nand.cmp,
+       output-list a b out;
+
+       set a 0, set b 0, eval, output;
+       set a 0, set b 1, eval, output;
+       set a 1, set b 0, eval, output;
+       set a 1, set b 1, eval, output;
+   #+end_src
+
+* Load the test script into the HDL simulator
+
+1) Use =File > Load script= to load the script into the simulator. You
+   should see this:
+   #+attr_html: :width 600px :float nil:
+   [[../img/Nand_success.png]]
+
+* Run the test script in the HDL simulator
+
+1) Reset the simulator with the buttons at top or with the =Run=
+   menu. The yellow highlight should now be on the first line.
+
+2) Step through the script one step at a time (button or menu).
+
+3) Make sure all files are present where the =Nand.hdl= file is. There
+   will be no error messages. You can set breakpoints if you want to
+   debug longer programs.
+
+4) If you get to the end, you should see the message =End of script -
+   Comparison ended successfully= at the bottom of the dashboard.
+
+* Compress all files and submit to Canvas
+
+Use ~zip~, ~gzip~ or ~tar~ to compress your three files (.hdl, .tst, .cmp)
+and submit the ZIP file to Canvas.
+
