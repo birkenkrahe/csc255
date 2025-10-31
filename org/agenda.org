@@ -1946,24 +1946,24 @@ Example formulas:
 4. Self-NAND property: NAND(x,x) = NOT(x AND x) = NOT(x)
 #+end_quote
 
-* Week 10: Project 1: 15 basic circuits
+* Week 10: Project 1: Basic circuits 
 
 - [X] Term project update using NotebookLM.
 
 - [X] Review: HDL - Do It Yourself at [[https://tinyurl.com/review-hdl][tinyurl.com/review-hdl]] - Make
   copy, fill in the answers, upload your URL to Canvas by 3:20 pm.
 
-- [ ] Building the Nand gate from start to finish.
+- [X] Building the Nand gate from start to finish.
 
-- [ ] Building the And, Or, Not, and Xor chips from Nand.
+- [ ] *Lab:* Building the And, Or, Not, and Xor chips from Nand.
 
-- [ ] Intro to multi-bit buses.
+- [ ] *Lecture:* Intro to multi-bit buses.
 
-- [ ] Building the And16, Or16 and Not16 chips.
+- [ ] *Lab:* Building the And16, Or16 and Not16 chips.
 
-- [ ] Intro to multiplexers and demultiplexers.
+- [ ] *Lecture:* Intro to multiplexers and demultiplexers.
 
-- [ ] Building Mux, Mux16, and DMux chips.
+- [ ] *Lab:* Building Mux, Mux16, and DMux chips.
 
 ** DONE Term project update
 #+attr_html: :width 400px :float nil:
@@ -2075,8 +2075,10 @@ Example formulas:
 
 ** IN PROGRESS Practice: Building the NAND gate
 
-1. [ ] Model the gate in LogiSim Evolution.
-2. [ ] Extract the compare file from LogiSim Evolution.
+See videos including software download/install in Canvas.
+
+1. [X] Model the gate in LogiSim Evolution.
+2. [X] Extract the compare file from LogiSim Evolution.
 3. [ ] Write HDL file in an editor.
 4. [ ] Open the HDL simulator software.
 5. [ ] Load HDL file into the simulator.
@@ -2214,4 +2216,20 @@ These builds are graded: Submit your files in one Zip file
 2) Xxx.png - Screenshot of the IDE with the completed =.hdl= file and the msg:
 #+end_quote
 [[../img/success.png]]
-  
+
+** Hints: Building NOT with NAND
+
+1) Start by creating the logic circuit in LogiSim.
+2) Remember (a NAND a) = NOT(a)
+3) Label all pins and wires.
+4) You only have to create the implementation ~PARTS~.
+5) Check out the built-in chip (answer hidden).
+6) Your answer (one line only) should use this template:
+   #+begin_example
+   Nand(a= , b= , out= )
+   #+end_example
+7) For AND, OR, XOR, remember the NAND identities from class:
+   - a AND b is realized with three NAND gates.
+   - a AND b is realized with three NAND gates, too.
+8) This took me about 1/2 hour each for a full solution.
+   
