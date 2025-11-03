@@ -1946,7 +1946,7 @@ Example formulas:
 4. Self-NAND property: NAND(x,x) = NOT(x AND x) = NOT(x)
 #+end_quote
 
-* Week 10: Project 1: Basic circuits 
+* DONE Week 10: Project 1: Basic circuits 
 
 - [X] Term project update using NotebookLM.
 
@@ -1955,7 +1955,7 @@ Example formulas:
 
 - [X] Building the Nand gate from start to finish.
 
-- [ ] *Lab:* Building the And, Or, Not, and Xor chips from Nand.
+- [X] *Lab:* Building the And, Or, Not, and Xor chips from Nand.
 
 - [ ] *Lecture:* Intro to multi-bit buses.
 
@@ -1965,7 +1965,7 @@ Example formulas:
 
 - [ ] *Lab:* Building Mux, Mux16, and DMux chips.
 
-** DONE Term project update
+** Term project update
 #+attr_html: :width 400px :float nil:
 [[../img/projectUpdate.png]]
 
@@ -1987,7 +1987,7 @@ Example formulas:
 
 - You have some time on November 12 (class cancelled) to finish this.
 
-** DONE Review questions: HDL
+** Review questions: HDL
 
 1. What does HDL stand for, and what is its primary purpose?
    #+begin_quote
@@ -2073,25 +2073,25 @@ Example formulas:
     directory in the ~$PATH~ using the command =hdl=.
     #+end_quote
 
-** IN PROGRESS Practice: Building the NAND gate
+** Practice: Building the NAND gate
 
 See videos including software download/install in Canvas.
 
 1. [X] Model the gate in LogiSim Evolution.
-2. [X] Extract the compare file from LogiSim Evolution.
-3. [ ] Write HDL file in an editor.
+2. [ ] Extract the compare file from LogiSim Evolution.
+3. [X] Write HDL file in an editor.
 4. [ ] Open the HDL simulator software.
 5. [ ] Load HDL file into the simulator.
-6. [ ] Run HDL file in the simulator.
+6. [X] Run HDL file in the simulator.
 7. [ ] Write test script in an editor.
 8. [ ] Load test script into the simulator.
 9. [ ] Load the compare file into the simulator.
-10. [ ] Run test script against the compare file.
+10. [X] Run test script against the compare file.
 
 If the last step passed successfully, zip .hdl, .cmp, and .tst files
 and submit the .zip file to Canvas.
 
-** TODO Rationale for project 1
+** Rationale for project 1
 
 A typical computer architecture is based on a set of elementary logic
 gates like And, Or, Mux, etc. as well as on their bitwise versions
@@ -2194,7 +2194,7 @@ Since Nand is considered primitive, there is no need to implement it
   =~/nand2tetris/tools/HardwareSimulator.sh= to =~/.local/bin/hdlsim=.
   And now I can run =hdlsim= from anywhere on my machine.
 
-** TODO Building And, Or, Not, Xor chips from Nand in the Web IDE
+** Building And, Or, Not, Xor chips from Nand in the Web IDE
 
 For the remainder of the week:
 
@@ -2233,3 +2233,47 @@ These builds are graded: Submit your files in one Zip file
    - a AND b is realized with three NAND gates, too.
 8) This took me about 1/2 hour each for a full solution.
    
+* Week 11: Basic Circuits continued (Project 1) & Intro to the ALU (Project 2)
+
+- [ ] Remember to submit (*Nov 5*): Building NAND in the HDL Simulator.
+- [ ] Resubmit 100% correct solutions for NOT, AND, OR, XOR as Nand.
+- [ ] Home assignment: Finish Project 1 (by *Nov 17*).
+
+** Review: And as a function of Nand
+
+1. Do the algebra.
+2. Draw the diagram.
+3. Label the diagram.
+4. Design the chip PARTS.
+5. Run the tests.
+
+** Build the Xor chip from Nand chips
+
+- Try it on your own first.
+  
+- There are three other methods to do this:
+  #+begin_quote
+  1) Load balancing (leads to a 5-Nand solution)
+  2) Algebraic derivation (leads to a 4-Nand solution)
+  3) Using previously built chips (5-Nand solution)
+  #+end_quote
+
+** Home assignment: Finish all basic circuits (multi-bit and multi-plex)
+
+- To do: Mux, DMux, Not16, And16, Or16, Mux16, Or8Way, Mux4Way16,
+  Mux8Way16, DMux4Way, DMux8Way.
+
+- I will introduce the circuits to you with a short lecture (Wed).
+
+- You only need to submit a single (clearly visible) screenshot of
+  your working, tested Hardware Simulator dashboard with the CHIP.
+
+* Week 12: Project 3
+
+* Week 13: Project 4
+
+* Week 14: Project 5
+
+* Week 15: Project 6
+
+* Week 16: Your project presentations
