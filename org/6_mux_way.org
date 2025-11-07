@@ -1,0 +1,295 @@
+#+TITLE: Lecture & Practice: Multiplexers (Mux) and Demultiplexers (DMux)
+#+AUTHOR: Grok (based on Marcus Birkenkrahe's Nand2Tetris Notes)
+#+SUBTITLE: CSC 255 - Computer Architecture - Lyon College Fall 2025
+#+STARTUP: overview hideblocks indent
+#+OPTIONS: toc:1 num:1 ^:nil
+#+PROPERTY: header-args:C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+
+* Objectives (2 min)
+
+- Understand multiplexers (Mux) and demultiplexers (DMux)
+- Build and test the basic Mux chip using HDL
+- Explore multi-way variants (e.g., Mux4Way16)
+- Connect to real-world applications
+- Implement Mux.hdl (2-way)
+- Mux4Way16.hdl (multi-way)
+
+* Introduction to Multiplexers (Mux) (5 min)
+
+- A *multiplexer (Mux)* selects one input from multiple sources and
+  routes it to a single output.
+
+- The Mux:
+  1. Controlled by *selection bits* (sel). For a basic 2-way Mux: 2
+     inputs (a, b), 1 sel bit.
+  2. For n input pins, 2^n possible inputs require n sel bits.
+  3. API: If sel==0, out=a; else out=b.
+- Why useful? Programmable logic! E.g., use Mux to switch between gates (And vs. Or).
+- Diagram (sketch on board or show in LogiSim):
+  #+attr_html: :width 200px :float nil:
+  [[../img/mux.png]]
+
+- Full truth table (generated via code - run this in class to demo):
+  #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    cout << "| a | b | sel | out |\n"
+    << "---------------------\n";
+    for (bool sel : {false,true}) {
+      for (bool a : {false,true}) {
+        for (bool b : {false,true}) {
+          if (!sel)
+            cout <<"| "<<a<<" | "<<b<<" |  "<<sel<<"  |  "<<a<<"  |\n";
+          else
+            cout <<"| "<<a<<" | "<<b<<" |  "<<sel<<"  |  "<<b<<"  |\n";
+        }
+      }
+     }
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  | a | b | sel | out |
+  ---------------------
+  | 0 | 0 |  0  |  0  |
+  | 0 | 1 |  0  |  0  |
+  | 1 | 0 |  0  |  1  |
+  | 1 | 1 |  0  |  1  |
+  | 0 | 0 |  1  |  0  |
+  | 0 | 1 |  1  |  1  |
+  | 1 | 0 |  1  |  0  |
+  | 1 | 1 |  1  |  1  |
+  #+end_example
+
+- Abbreviated version (for quick reference):
+  | sel | out |
+  |-----+-----|
+  |  0  |  a  |
+  |  1  |  b  |
+
+- Example: Programmable And/Or gate using Mux (API: sel=0 → And; sel=1
+  → Or).  Truth table (run code):
+  #+begin_src C++
+    cout << "| a | b |sel|out|\n";
+    for (bool sel : {false,true}) {
+      for (bool a : {false,true}) {
+        for (bool b : {false,true}) {
+          if (!sel)
+            cout <<"| "<<a<<" | "<<b<<" | "<<sel<<" | " << (a&&b) <<" |\n";
+          else
+            cout <<"| "<<a<<" | "<<b<<" | "<<sel<<" | " << (a||b) <<" |\n";
+        }
+      }
+     }
+  #+end_src
+
+  #+RESULTS:
+  : | a | b |sel|out|
+  : | 0 | 0 | 0 | 0 |
+  : | 0 | 1 | 0 | 0 |
+  : | 1 | 0 | 0 | 0 |
+  : | 1 | 1 | 0 | 1 |
+  : | 0 | 0 | 1 | 0 |
+  : | 0 | 1 | 1 | 1 |
+  : | 1 | 0 | 1 | 1 |
+  : | 1 | 1 | 1 | 1 |
+
+  - Diagram (optional LogiSim demo: Import table, analyze circuit) - 2 min
+    #+attr_html: :width 400px :float nil:
+    [[../img/AndMuxOr.png]]  (Fan out a/b to And/Or, then Mux selects.)
+
+* Introduction to Demultiplexers (DMux) (5 min)
+
+- A *demultiplexer (DMux)* is the inverse: Routes a single input to one
+  of multiple outputs.
+
+- Basic 2-way: 1 input (in), 1 sel bit → Outputs to a or b.
+-
+  API: If sel==0, {a,b}={in,0}; else {a,b}={0,in}.
+
+- Diagram:
+  #+attr_html: :width 300px :float nil:
+  [[../img/DMux.png]]
+
+- Truth table (generated code):
+  #+begin_src C++
+    cout << "|in |sel| a | b |\n";
+    for (bool in : {false,true}) {
+      for (bool sel : {false,true}) {
+        if (!sel)
+          cout <<"| "<<in<<" | "<<sel<<" | " << in << " | " << 0 << " |\n";
+        else
+          cout <<"| "<<in<<" | "<<sel<<" | " << 0 << " | " << in << " |\n";
+      }
+     }
+  #+end_src
+
+  #+RESULTS:
+  : |in |sel| a | b |
+  : | 0 | 0 | 0 | 0 |
+  : | 0 | 1 | 0 | 0 |
+  : | 1 | 0 | 1 | 0 |
+  : | 1 | 1 | 0 | 1 |
+
+- Real-world: Mux/DMux in networks (e.g., WiFi sharing 2.4GHz band;
+  fiber optics combining signals).
+
+- Review Questions (Quick Poll - 3 min):
+  1. If in=1 on DMux and outputs feed a Mux, what's Mux out? (Depends
+     on sel bits.)
+  2. Same, but both sel=0? (Mux out=1; trace: DMux → {1,0}; Mux
+     selects first=1.)
+
+* Build the Mux chip
+
+- Let's build the Mux gate using And, Or, Not: Derive the full
+  Boolean function from the truth table, then simplify:
+  #+begin_example
+  Rows where out = 1:
+  Row 3: a = 1, b = 0, sel = 0 → Minterm: a AND NOT b AND NOT sel
+  Row 4: a = 1, b = 1, sel = 0 → Minterm: a AND b AND NOT sel
+  Row 6: a = 0, b = 1, sel = 1 → Minterm: NOT a AND b AND sel
+  Row 8: a = 1, b = 1, sel = 1 → Minterm: a AND b AND sel
+
+  -> out = (a AND NOT b AND NOT sel) OR
+           (a AND b AND NOT sel)     OR
+           (NOT a AND b AND sel)     OR
+           (a AND b AND sel)
+  #+end_example
+
+- Simplification using distributive law and tautology:
+  #+begin_example
+  ((a \land \not b) \lor (a \land b)) \land \not sel \lor  // factor out \not sel
+  ((\not a \land b) \lor (a \land b)) \land sel =    // factor out sel
+
+  (a \land (b \lor \not b)) \land \not sel \lor        // tautology x \lor \not x = 1
+  (b \land (\not a \lor a)) \land sel =
+
+  (a \land 1 \land \not sel) \lor (b \land 1 \land sel) =
+
+  (a \land \not sel) \lor (b \land sel) = out
+  #+end_example
+
+* PRACTICE Create Mux with Not, And, Or (20 min)
+
+- To complete the HDL stub file
+  1) Draw the diagram corresponding to the final Mux function.
+  2) Label all pins, gates and wires.
+  3) Derive the .hdl implementation.
+  4) Test it with AND, OR and MUX gates in the HardwareSimulator.
+  5) Create the Nand version for the CHIP submission.
+
+- Solution for the circuit diagram:
+  #+attr_html: :width 400px :float nil:
+  [[../img/2x1_mux.png]]
+
+- Solution for the .hdl file (in IDE)
+  #+begin_src txt :tangle Mux.hdl
+      // Mux.hdl (stub)
+      CHIP Mux {
+          IN a, b, sel;
+          OUT out;
+          PARTS:
+          // Mux implemented using And, Or, Not
+          Not(in=sel, out=notSel);
+          And(a=a, b=notSel, out=aAndNotSel);
+          And(a=b, b=sel, out=bAndSel);
+          Or(a=aAndNotSel, b=bAndSel, out=out);
+      }
+  #+end_src
+
+- Test script (load/run in simulator):
+  #+begin_src txt :tangle Mux.tst
+      load Mux.hdl,
+      output-file Mux.out,
+      compare-to Mux.cmp,
+      output-list a b sel out;
+      set a 0, set b 0, set sel 0, eval, output;
+      set a 0, set b 1, set sel 0, eval, output;
+      set a 1, set b 0, set sel 0, eval, output;
+      set a 1, set b 1, set sel 0, eval, output;
+      set a 0, set b 0, set sel 1, eval, output;
+      set a 0, set b 1, set sel 1, eval, output;
+      set a 1, set b 0, set sel 1, eval, output;
+      set a 1, set b 1, set sel 1, eval, output;
+  #+end_src
+
+- Compare file (generate via earlier C++ code, save as Mux.cmp).
+
+- Nand2Tetris IDE screenshot (what you should submit to Canvas)
+  #+attr_html: :width 600px :float nil:
+  [[../img/ide_mux.png]]
+
+- Your homework (for submission as part of the assignment): Build Mux
+  with Nand chips.
+
+* PRACTICE Building a DMux (2-way De-Multiplexer)
+
+- Instead of 2 x 1 (2 in 1 out), the DMux is 1 x 2 (1 in 2 out)
+
+- The Boolean function derivation uses
+  #+begin_example
+  a = in \land \not sel
+  b = in \land sel
+  #+end_example
+
+- Instead of combining like Mux (out = (a \land \not sel) \lor (b \land sel)), it
+  splits the input in two.
+
+- You can adapt the HDL from the Mux right away knowing this:
+  #+begin_example
+  // DMux implemented using And, Or, Not
+  Not(in=sel, out=notSel);     // the same
+  And(a=in, b=notSel, out=a);  // input rerouted to a
+  And(a=in, b=sel, out=b);     // input rerouted to b
+  #+end_example
+
+- Circuit diagram:
+  #+attr_html: :width 400px :float nil:
+  [[../img/Dmux_And_Not.png]]
+
+* Multi-Way Variants (10 min)
+
+- Extend for more inputs: E.g., Mux4Way16 (4 16-bit inputs, 2 sel bits).
+  - Diagram:
+    #+attr_html: :width 400px :float nil:
+    [[../img/Mux4Way16.png]]
+  - Abbreviated truth table:
+    | sel[1] | sel[0] | out |
+    |--------+--------+-----|
+    |   0    |   0    |  a  |
+    |   0    |   1    |  b  |
+    |   1    |   0    |  c  |
+    |   1    |   1    |  d  |
+  - Why? Handles wider data (16-bit buses) and more choices.
+    
+  - Build from Mux16 gates (nest them: First pair a/b and c/d, then
+    Mux the results).
+
+- HDL Stub (demo loading):
+  #+begin_src txt :tangle Mux4Way16.hdl
+    CHIP Mux4Way16 {
+        IN a[16], b[16], c[16], d[16], sel[2];
+        OUT out[16];
+        PARTS:
+        // Nest Mux16 chips.
+        Mux16(a=a, b=b, sel=sel[0], out=abOut);
+        Mux16(a=c, b=d, sel=sel[0], out=cdOut);
+        Mux16(a=abOut, b=cdOut, sel=sel[1], out=out);
+    }
+  #+end_src
+
+* Practice: Building Mux4Way16.hdl (10 min)
+
+- *Hands-On:* Students complete the HDL above (or from
+  stub). Generate/test .tst and .cmp (adapt from Mux; focus on key
+  inputs).
+- Tip: Reuse Mux16 (built-in or from prior). Test with simulator.
+- Challenge: Why 2 sel bits? (2^2=4 choices.)
+
+* Wrap-Up (flexible)
+
+- Key Takeaway: Mux/DMux enable data routing—foundation for ALU/CPU.
+
+- Homework: Build DMux.hdl (similar to Mux). Zip/submit Mux.hdl,
+  Mux4Way16.hdl, .tst, .cmp to Canvas.
+
+- Next: ALU integration.
