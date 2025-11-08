@@ -3,7 +3,7 @@
 * Objectives
 
 1. [X] Model the gate in LogiSim Evolution.
-2. [X] Extract the compare file from LogiSim Evolution.
+2. [ ] Extract the compare file from LogiSim Evolution.
 3. [ ] Write HDL file in an editor.
 4. [ ] Open the HDL simulator software.
 5. [ ] Load HDL file into the simulator.
@@ -16,7 +16,7 @@
 If the last step passed successfully, zip .hdl, .cmp, and .tst files
 and submit the .zip file to Canvas.
 
-* DONE Model the gate in LogiSim Evolution (5 min)
+* Model the gate in LogiSim Evolution
 
 1) Open the ~LogiSim Evolution~ software on your PC.
 
@@ -36,7 +36,7 @@ Expected result:
 #+caption: Nand gate with HDL descriptors (LogiSim)
 [[../img/NAND_hdl.png]]
 
-* DONE Extract the compare file from the model (5 min)
+* Extract the compare file from the model
 
 1) In the ~Design~ panel of the LogiSim dashboard, right-click on the
    diagram name (=main=) and choose ~Analyze Circuit~.
@@ -73,7 +73,16 @@ Expected result:
    : | 1 | 0 | 1 |
    : | 1 | 1 | 0 |
 
-* Write the HDL file (10 min)
+   - This is how your =Nand.cmp= file (in the same directory) should
+     look like:
+     
+    | a | b |out|
+    | 0 | 0 | 1 |
+    | 0 | 1 | 1 |
+    | 1 | 0 | 1 |
+    | 1 | 1 | 0 |
+
+* Write the HDL file
 
 1) Find the ~Xor.hdl~ stub file in the ~projects/1~ folder and adapt it to
    build a Nand chip. Remember that correct indentation is critical.
@@ -108,6 +117,22 @@ Expected result:
 
    The API is the if-then description of the gate.
 
+   It should look like this:
+   #+name: Xor.hdl (stub file)
+   #+begin_src txt :tangle ~/Nand.hdl
+     // File name: Nand.hdl
+     // API:
+     //  if( a==1 and b==1 ) then out = 0 else out =1
+     CHIP Nand {
+         IN a, b;
+         OUT out;
+
+         PARTS:
+          And(a=a, b=b, out=aAndb ); // template for first gate
+          Not(in=aAndb, out=out );   // template for second gate
+     }
+   #+end_src
+
 3) Complete the ~PARTS:~ implementation:
    - One line for each gate
    - Follow the syntax ~Gate(a= , b= , out= )~
@@ -135,7 +160,7 @@ Expected result:
        }
    #+end_src
 
-* Open the HDL simulator desktop software (5 min)
+* Open the HDL simulator desktop software
 
 1) If you installed ~nand2tetris~ properly, you should have a ~tools~
    directory with a shell script either for Windows (.bat) or
@@ -154,7 +179,7 @@ Expected result:
 1) In the dashboard, open =File > Load chip= or click on the the green
    symbol. Find your =Nand.hdl= file and load it. It should appear in
    the HDL panel.
-   
+
 2) The software may refuse to load the Chip with an error message like
    ~"Chip name does not match the HDL name"~. To get rid of this error,
    make sure that the directory that you created in =projects= does not
@@ -169,7 +194,7 @@ Expected result:
 
 1) The simulator gives you the input and output pins (the interface)
    and the internal pins (the implementation).
-   
+
 2) You can change the values indidivually like in LogiSim and run it
    with the buttons at top or using the =Run > Run= menu. The pins will
    update.
@@ -192,14 +217,15 @@ Expected result:
    set [input pin] [value], [...], eval[uate], output;
    #+end_example
 
-   For the Nand chip, the script looks like this:
+   For the Nand chip, the =Nand.tst= script looks like this (without the
+   C-style comments - though they should not hurt):
    #+begin_src txt :tangle ~/nand2tetris/projects/mb2/Nand.tst
-       load Nand.hdl,
-       output-file Nand.out,
-       compare-to Nand.cmp,
-       output-list a b out;
+       load Nand.hdl,           // load the CHIP
+       output-file Nand.out,    // specify where to write the output
+       compare-to Nand.cmp,     // specify what to compare it with
+       output-list a b out;     // generate the output file header
 
-       set a 0, set b 0, eval, output;
+       set a 0, set b 0, eval, output;   // check binary values
        set a 0, set b 1, eval, output;
        set a 1, set b 0, eval, output;
        set a 1, set b 1, eval, output;
@@ -230,4 +256,3 @@ Expected result:
 
 Use ~zip~, ~gzip~ or ~tar~ to compress your three files (.hdl, .tst, .cmp)
 and submit the ZIP file to Canvas.
-

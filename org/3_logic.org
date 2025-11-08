@@ -432,7 +432,7 @@ Test this with code:
 : | 1 | 0 |  1 |  1 |
 : | 1 | 1 |  0 |  0 |
 
-* NEXT Boolean Function Synthesis (normal forms)
+* Boolean Function Synthesis (normal forms)
 
 - There are three agents: The truth table (state space), the Boolean
   expression (function), and finally the digital circuit (physics).
@@ -622,7 +622,7 @@ x OR y
 
 That didn't get us very far. We don't just need to simplify (we know
 the answer to that) but eliminate OR if we can! The answer is simply
-given in the form of the De Morgen identity:
+given in the form of the De Morgan identity:
 #+begin_example
 (x OR y) = NOT(NOT(x) AND NOT(y))
 #+end_example
@@ -653,6 +653,8 @@ given in the form of the De Morgen identity:
      #+begin_example
      NOT(x) = NOT(x AND x) = (x NAND x)
      #+end_example
+     #+attr_html: :width 400px :float nil:
+     [[../img/nandx.png]]
 
   2) Express AND with NAND
      #+begin_example
@@ -664,6 +666,17 @@ given in the form of the De Morgen identity:
 - Gate logic is a technique for implementing Boolean functions using
   basic building blocks of digital circuits (electronic devices that
   take binary input and produce binary output).
+
+- Each of the elementary logic gates can be represented uniquely by:
+  1) A gate or circuit diagram (in->out)
+  2) A functional specification (if-then-else)
+  3) A truth table (state space)
+
+- All of these descriptions are fully equivalent: They are
+  abstractions. We said nothing about how the gate is built or
+  implemented as an electronic part or a chip.
+
+* NAND gate
 
 - Elementary logic gates: NAND
 
@@ -682,87 +695,92 @@ given in the form of the De Morgen identity:
 
      | a | b | out |
      |---+---+-----|
-     | 0 | 0 |   0 |
+     | 0 | 0 |   1 |
      | 0 | 1 |   1 |
      | 1 | 0 |   1 |
-     | 1 | 1 |   1 |
+     | 1 | 1 |   0 |
 
-- All of these descriptions are fully equivalent: They are
-  abstractions. We said nothing about how the gate is built or
-  implemented as an electronic part or a chip.
+* AND gate
+#+attr_html: :width 400px :float nil:
+#+caption: AND gate (LogiSim)
+[[../img/AND_gate.png]]
+#+begin_example
+if (a==1 and b ==1)
+then out=1 else out=0
+#+end_example
 
-- Elementary logic gates: AND, OR, NOT
+* OR gate
+#+attr_html: :width 400px :float nil:
+#+caption: OR gate (LogiSim)
+[[../img/OR_gate.png]]
+#+begin_example
+if (a==1 or b ==1)
+then out=1 else out=0
+#+end_example
 
-  1. AND gate:
-     #+attr_html: :width 400px :float nil:
-     #+caption: AND gate (LogiSim)
-     [[../img/AND_gate.png]]
-     #+begin_example
-     if (a==1 and b ==1)
-     then out=1 else out=0
-     #+end_example
+* NOT gate:
+#+attr_html: :width 400px :float nil:
+#+caption: NOT gate (LogiSim)
+[[../img/NOT_gate.png]]
+#+begin_example
+if (in==0)
+then out=1 else out=0
+#+end_example
 
-  2. OR gate:
-     #+attr_html: :width 400px :float nil:
-     #+caption: OR gate (LogiSim)
-     [[../img/OR_gate.png]]
-     #+begin_example
-     if (a==1 or b ==1)
-     then out=1 else out=0
-     #+end_example
+* Composite gates: An example
+#+attr_html: :width 400px :float nil:
+#+Caption: Composite AND gate (interface)
+[[../img/composite.png]]
 
-  3. NOT gate:
-     #+attr_html: :width 400px :float nil:
-     #+caption: NOT gate (LogiSim)
-     [[../img/NOT_gate.png]]
-     #+begin_example
-     if (in==0)
-     then out=1 else out=0
-     #+end_example
-
-- Composite gates: An example
-  #+attr_html: :width 400px :float nil:
-  #+Caption: Composite AND gate (interface)
-  [[../img/composite.png]]
-
-  #+begin_example
-  if (a==1 and b==1 and c==1)
-     then out=1 else out=0
-  #+end_example
+#+begin_example
+if (a==1 and b==1 and c==1)
+   then out=1 else out=0
+#+end_example
 
 - Does the order of the input matter for this composite gate? Do you
   get a different result when swapping b and c for example?
-  #+begin_export ascii
-  No, as you can see from the functional description.
-  #+end_export
+  #+begin_quote
+  No, because of associativity, as you can see from the functional
+  description.
+  #+end_quote
 
-- To realize this gate, you need to connect two AND gates as shown
-  here: The dashed box in the figure shows the *interface* of this chip,
-  which is what the user sees: Three inputs, one output.
+- To realize this gate as a diagram, you need to connect two AND gates
+  as shown here: The dashed box in the figure shows the *interface* of
+  this chip, which is what the user sees: Three inputs, one output.
   #+attr_html: :width 400px :float nil:
   #+caption: Composite AND operator (implementation)
   [[../img/composite2.png]]
 
-- The interface (aka specification) is the gate's abstraction and
+- The *interface* (aka specification) is the gate's abstraction and
   answers the question "What does it do?" The inside is the gate's
-  implementation and answers the question "How does it work?"
+  *implementation* and answers the question "How does it work?"
+
+- Do you recognize this interface/implementation concept?
+  #+begin_quote
+  Data structures: ~public~ member functions of a ~class~ are interface
+  (visible and usable in ~main~), while ~private~ member data are
+  implementation, and can only accessed through the functions.
+
+  All objects (e.g. cars): steering wheel is interface (usable),
+  steering column is implementation (hidden).
+  #+end_quote
 
 - There should be only one way to describe the gate while there may be
   many ways to implement it: One abstraction, many implementations.
 
 - To describe the electric circuit behind this, a different
   diagrammatic language is used: When relays or switches A and B are
-  closed, electric current flows through the circuit and the lamp is
-  ON (out = 1).
+  closed, electric current (originating at the battery on the left)
+  flows through the circuit and the lamp is ON (out = 1).
   #+attr_html: :width 400px :float nil:
-  #+caption: AND gate electric circuit implementation
+  #+caption: AND gate electric circuit [implementation]
   [[../img/AND_circuit.png]]
 
 - To describe the electric circuit behind the OR gate, this diagram
   can be used: When either of the switches A or B is latched, current
   flows and the lamp turns ON.
   #+attr_html: :width 400px :float nil:
-  #+caption: AND gate electric circuit [implementation]
+  #+caption: OR gate electric circuit [implementation]
   [[../img/OR_circuit.png]]
 
 - And here is the diagram for the composite gate shown earlier:
@@ -776,12 +794,12 @@ given in the form of the De Morgen identity:
   #+end_example
 
 - We will not deal with physical implementations (electrical
-  engineering) but only with the abstractions.
+  engineering) but only with the abstractions ([[https://youtu.be/sTu3LwpF6XI?si=k1DRLefz6b9OSKTu][see video though]]).
 
 - Summary:
 
-  1. The chip interface describes what the chip is doing; the chip
-     implementation specifies how the chip is doing it.
+  1. The chip *interface* describes what the chip is doing; the chip
+     *implementation* specifies how the chip is doing it.
 
   2. There are many possible implementations for every interface.
 
@@ -796,6 +814,10 @@ given in the form of the De Morgen identity:
 - A chip architect needs a complete and exact description of its
   function (through an interface diagram + truth table or +
   description, or an implementation diagram with inside view).
+
+- The following question links logic theory (Boolean equivalence),
+  circuit design (how XOR differs from AND and OR), and verification
+  practice (testing correctness in the simulator).
 
 - Which of these statements is true?
   - [X] The XOR gate outputs 1 if and only if its two input bits are
@@ -854,7 +876,6 @@ given in the form of the De Morgen identity:
      w2 = notaAndb
      #+end_example
 
-
 4) We describe the diagram one chip part at a time:
    #+name: stub file
    #+begin_example C
@@ -902,7 +923,8 @@ Our HDL:
 - Provides all you need for learning
 - Syntax can be mastered in an hour
 - Is accompanied by an online hardware simulator
-
+- There is also a desktop Java application
+  
 *See also:* Textbook Appendix A, HDL Survival Guide (nand2tetris.org)
 
 * Hardware simulation
@@ -927,9 +949,45 @@ Our HDL:
 
   4) Inspect the resulting values of input/output pins
 
+- This is like LogiSim simulation except non-graphical.
+
+- We will use LogiSim + HDL for our chip project.
+
+* Installing the Hardware Simulator locally
+
+- Follow the instructions here for Windows/MacOS/Linux:
+  [[https://tinyurl.com/hdl-install][tinyurl.com/hdl-install]] - download and unzip the code.
+
+- To open the simulator like a regular executable, you can create a
+  symbolic link in any directory, on Linux e.g. in =~/.local/bin=:
+  #+begin_example sh
+  ln -s ~/nand2tetris/tools/HardwareSimulator.sh HardwareSimulator
+  #+end_example
+
+- Make the file executable so that you can run it
+  #+begin_example sh
+  chmod +x HardwareSimulator
+  #+end_example
+
+- Check that it's in the ~$PATH~:
+  #+begin_example
+  which HardwareSimulator
+  #+end_example
+
+- Since this is a Java application, you may need to change the app
+  resolution. Insert =-Dsun.java2d.uiScale=2= between the =java= and the
+  =-classpath= option in the .sh file:
+  #+begin_example sh
+  java -Dsun.java2d.uiScale=2 \  ### <-- Added scaling property here
+		-classpath ...
+  #+end_example
+
+- The advantage of this simulator is that you can test any chip with
+  it, and not just the chips prescribed for the Nand2Tetris project.
+
 * Demo of the IDE - NOT and XOR chips
 
-1) Open the IDE at nand2tetris.github.io/web-ide/
+1) Open the online IDE at [[https://nand2tetris.github.io/web-ide/][nand2tetris.github.io/web-ide/]].
 
 2) You want to simulate the following gate:
    [[../img/XOR_gate.png]]
@@ -960,11 +1018,11 @@ Our HDL:
 9) Since there are five gates, you need five instructions. They need
    to be unique. Add this code to the
    #+begin_example C
-   Not (in=a, out=nota); // lower NOT
-   Not (in=b, out=notb); // upper NOT
-   And (a=a, b=notb, out=w1); // upper AND
-   And (a=nota, b=b, out=w2); // lower AND
-   Or  (a=w1, b=w2, out=out);
+     Not (in=a, out=nota); // lower NOT
+     Not (in=b, out=notb); // upper NOT
+     And (a=a, b=notb, out=w1); // upper AND
+     And (a=nota, b=b, out=w2); // lower AND
+     Or  (a=w1, b=w2, out=out);
    #+end_example
 
 10) Change the pins in the middle pane to get the desired
@@ -1026,142 +1084,7 @@ Our HDL:
 
 - Missing: Chip implementation.
 
-* Multi-Bit Buses
-
-- To carry out operations, we usually manipulate collections of bits
-  in the form of arrays.
-
-- Conceptually, it is convenient to think about such a collection as a
-  single entity called a "bus".
-
-- Hardware description languages provide convenient notation for
-  handling bus data.
-
-- Example: Addition of two 16-bit integers
-  #+attr_html: :width 400px :float nil:
-  [[../img/16_bit_adder.png]]
-
-- Both ~a~ and ~b~ input carry 16 bits each, so there are 32 wires going
-  in and 16 wires for 16 bits output ~out~ coming out of the chip.
-
-- Nevertheless, it is easier to think of two numbers going in and one
-  number coming out.
-
-- In HDL, the interface would look like this:
-  #+begin_src C
-    // Adds two 16-bit values
-    CHIP Add16 {
-      IN a[16], b[16];
-      OUT out[16];
-
-     PARTS:
-      // ...
-    }
-  #+end_src
-
-- This approach generalizes to more numbers (aka arrays): for example,
-  for the addition of three 16-bit values, we can add ~first~ and
-  ~second~, and then add the result to ~third~. For the implementation, we
-  use two ~Add16~ chips and store the intermediate result in an array
-  ~temp~:
-  #+begin_src C
-    // Adds two 16-bit values
-    CHIP Add3Way16 {
-      IN first[16], second[16], third[16];
-      OUT out[16];
-
-     PARTS:
-      Add16(a=first, b=second, out=temp); // store temporary result
-      Add16(a-temp,  b=third,  out=out);
-    }
-  #+end_src
-
-- How about a chip that has a bus of 4 bits as input and as output the
-  single bit that's in the bus? To do that, we need to add (with AND)
-  all bits, two at a time (since out basic gates only have 2 inputs):
-
-  #+begin_src C
-    // ANDs together all 4 bits of the bus input
-    CHIP And4Way {
-      IN a[4];
-      OUT out;
-
-     PARTS:
-      AND(a=a[0], b=a[1], out=t01);
-      AND(a=t01,  b=a[2], out=t02);
-      AND(a=t02,  b=a[3], out=out);
-    }
-  #+end_src
-
-- Multi-way chips do this: Mash values from different buses into one
-  another.
-
-- How would you XOR the first and last bits of a 16-bit bus named =bus=?
-  - [X] XOR(a=bus[0], b=bus[15], out=out);
-  - [ ] XOR(a=bus[0], b=bus[16], out=out);
-  - [ ] XOR(a=bus[1], b=bus[15], out=out);
-  - [ ] XOR(a=bus[1], b=bus[16], out=out);
-
-- Example of bit-wise AND of parallel arrays or buses:
-  #+begin_src C
-    // Computes bit-wise AND of its two 4-bit input buses.
-    CHIP And4 {
-      IN a[4], b[4];  // parallel arrays
-      OUT out[4];     // their bit-wise AND
-
-     PARTS:
-      AND(a=a[0], b=b[0], out=out[0]);
-      AND(a=a[1], b=b[1], out=out[1]);
-      AND(a=a[2], b=b[2], out=out[2]);
-      AND(a=a[3], b=b[3], out=out[3]);
-    }
-  #+end_src
-
-- Buses can be composed from and broken into sub-buses.
-
-- Example: The CHIP input is two 8-bit buses (least and most
-  significant byte) - here input and output composition is shown:
-  #+begin_src C
-    ...
-    IN lsb[8], msb[8],...
-      ...
-      // 16-bit input composed from two 8-bit sub-buses
-      Add16(a[0..7]=lsb, a[8..15]=msb, b=..., out=...);
-    // 16-bit output composed from one 4-bit and one 12-bit sub-bus)
-    Add16(..., out[0..3]=t1, out[4..15]=t2);
-  #+end_src
-
-- Some syntactic choices of Nand2Tetris' HDL:
-  1) Overlaps of sub-buses are allowed on output buses of parts.
-  2) Width of internal pins is deduced automatically.
-  3) ~false~ and ~true~ may be used as buses of any width.
-
-- Given the interface description
-  #+begin_example C
-  OUT out, out2[16];
-  #+end_example
-  Which of the following lines are valid in HDL when implementing the
-  =Example16= chip?
-  - [ ] Add16(a=Bus1[0..15], b=Bus2[0..15], out=out2[0..14]);
-  - [X] Add16(a=Bus1[0..15], b=Bus2[0..15], out[0..14]=out2[0..14]);
-  - [X] Add16(a=true, b=false, out=out2);
-  - [ ] Add16(a=c, b=Bus2[0..15], out=out2);
-  - [X] And(a=c, b=Bus2[7], out=out);
-
-- Explanation:
-  #+begin_quote
-  1) =Add16(a=true, b=false, out=out2);= is correct because ~true~ and
-     ~false~ can represent a bus with constant signal of any width.
-  2) =Add16(a=Bus1[0..15], b=Bus2[0..15], out[0..14]=out2[0..14]);= is
-     correct becuase =out[0..14]=out2[0..14]= means that we are
-     discarding the most significant (15th) bit of =Add16='s ~out~ and
-     using the rest to connect to the 15 least significant bits of
-     =Example16='s ~out~.
-  3) =And(a=c, b=Bus2[7], out=out);= is correct because ~And~ expects
-     single bits as inputs ~a~ and ~b~.
-  #+end_quote
-
-* Simulator demo
+* Simulator demo (Canvas in-class assignment) with Nand
 
 - I am demonstrating the use of the simulator using a simulation of
   the Nand chip (which is a primitive of HDL):
@@ -1174,12 +1097,16 @@ Our HDL:
   also because you can simulate individual settings.
 
 - These are the steps to developing and testing a chip in HDL:
-  1) Write HDL file in editor.
-  2) Load HDL file into simulator.
-  3) Run HDL file in simulator.
-  4) Load test script into simulator.
-  5) Run test script against compare file.
-  6) Zip your files up and upload them.
+  1. Model the gate in LogiSim Evolution.
+  2. Extract the compare file from LogiSim Evolution.
+  3. Write HDL file in an editor.
+  4. Open the HDL simulator software.
+  5. Load HDL file into the simulator.
+  6. Run HDL file in the simulator.
+  7. Write test script in an editor.
+  8. Load test script into the simulator.
+  9. Load the compare file into the simulator.
+  10. Run test script against the compare file.
 
 - The process in detail using =Nand.hdl=, =Nand.tst= and =Nand.cmp=:
   1) Write HDL description for the chip (=.hdl=). A description includes
@@ -1294,3 +1221,584 @@ Our HDL:
      : total bytes=536, compressed=302 -> 44% savings
      : Nand.zip: Zip archive data, at least v2.0 to extract, compression method=deflate
 
+* Multi-Bit Buses
+
+- To carry out operations, we usually manipulate collections of bits
+  in the form of arrays.
+
+- Conceptually, it is convenient to think about such a collection as a
+  single entity called a "bus".
+
+- Hardware description languages provide convenient notation for
+  handling bus data.
+
+- Example: Addition of two 16-bit integers
+  #+attr_html: :width 400px :float nil:
+  [[../img/16_bit_adder.png]]
+
+- Both ~a~ and ~b~ input carry 16 bits each, so there are 32 wires going
+  in and 16 wires for 16 bits output ~out~ coming out of the chip.
+
+- Nevertheless, it is easier to think of two numbers going in and one
+  number coming out.
+
+- In HDL, the interface would look like this:
+  #+begin_src C
+    // Adds two 16-bit values
+    CHIP Add16 {
+      IN a[16], b[16];
+      OUT out[16];
+
+     PARTS:
+      // ...
+    }
+  #+end_src
+
+- This approach generalizes to more numbers (aka arrays): for example,
+  for the addition of three 16-bit values, we can add ~first~ and
+  ~second~, and then add the result to ~third~. For the implementation, we
+  use two ~Add16~ chips and store the intermediate result in an array
+  ~temp~:
+  #+begin_src C
+    // Adds two 16-bit values
+    CHIP Add3Way16 {
+      IN first[16], second[16], third[16];
+      OUT out[16];
+
+     PARTS:
+      Add16(a=first, b=second, out=temp); // store temporary result
+      Add16(a-temp,  b=third,  out=out);
+    }
+  #+end_src
+
+- How about a chip that has a bus of 4 bits as input and as output the
+  single bit that's in the bus? To do that, we need to add (with AND)
+  all bits, two at a time (since out basic gates only have 2 inputs):
+
+  #+begin_src C
+    // ANDs together all 4 bits of the bus input
+    CHIP And4Way {
+      IN a[4];
+      OUT out;
+
+     PARTS:
+      AND(a=a[0], b=a[1], out=t01);
+      AND(a=t01,  b=a[2], out=t02);
+      AND(a=t02,  b=a[3], out=out);
+    }
+  #+end_src
+
+- Multi-way chips do this: Mash values from different buses into one
+  another.
+
+- How would you XOR the first and last bits of a 16-bit bus named =bus=?
+  - [X] XOR(a=bus[0], b=bus[15], out=out);
+  - [ ] XOR(a=bus[0], b=bus[16], out=out);
+  - [ ] XOR(a=bus[1], b=bus[15], out=out);
+  - [ ] XOR(a=bus[1], b=bus[16], out=out);
+
+- Example of bit-wise AND of parallel arrays or buses:
+  #+begin_src C
+    // Computes bit-wise AND of its two 4-bit input buses.
+    CHIP And4 {
+      IN a[4], b[4];  // parallel arrays
+      OUT out[4];     // their bit-wise AND
+
+     PARTS:
+      AND(a=a[0], b=b[0], out=out[0]);
+      AND(a=a[1], b=b[1], out=out[1]);
+      AND(a=a[2], b=b[2], out=out[2]);
+      AND(a=a[3], b=b[3], out=out[3]);
+    }
+  #+end_src
+
+- Buses can be composed from and broken into sub-buses.
+
+- Example: The CHIP input is two 8-bit buses (least and most
+  significant byte) - here input and output composition is shown:
+  #+begin_src C
+    ...
+    IN lsb[8], msb[8],...
+      ...
+      // 16-bit input composed from two 8-bit sub-buses
+      Add16(a[0..7]=lsb, a[8..15]=msb, b=..., out=...);
+      // 16-bit output composed from one 4-bit and one 12-bit sub-bus)
+      Add16(..., out[0..3]=t1, out[4..15]=t2);
+  #+end_src
+
+- Some syntactic choices of Nand2Tetris' HDL:
+  1) Overlaps of sub-buses are allowed on output buses of parts.
+  2) Width of internal pins is deduced automatically.
+  3) ~false~ and ~true~ may be used as buses of any width.
+
+- Given the interface description
+  #+begin_example C
+  OUT out, out2[16];
+  #+end_example
+  Which of the following lines are valid in HDL when implementing the
+  =Example16= chip?
+  - [ ] Add16(a=Bus1[0..15], b=Bus2[0..15], out=out2[0..14]);
+  - [X] Add16(a=Bus1[0..15], b=Bus2[0..15], out[0..14]=out2[0..14]);
+  - [X] Add16(a=true, b=false, out=out2);
+  - [ ] Add16(a=c, b=Bus2[0..15], out=out2);
+  - [X] And(a=c, b=Bus2[7], out=out);
+
+- Explanation:
+  #+begin_quote
+  1) =Add16(a=true, b=false, out=out2);= is correct because ~true~ and
+     ~false~ can represent a bus with constant signal of any width.
+  2) =Add16(a=Bus1[0..15], b=Bus2[0..15], out[0..14]=out2[0..14]);= is
+     correct becuase =out[0..14]=out2[0..14]= means that we are
+     discarding the most significant (15th) bit of =Add16='s ~out~ and
+     using the rest to connect to the 15 least significant bits of
+     =Example16='s ~out~.
+  3) =And(a=c, b=Bus2[7], out=out);= is correct because ~And~ expects
+     single bits as inputs ~a~ and ~b~.
+  #+end_quote
+
+* 16-bit variants
+
+- Each input of the And16 gate is a 16-bit vector. In LogiSim, you
+  need to change the number of =Data Bits= to 16 for input, output and
+  for the And gate.
+
+- In the image, a[0] \land b[0] = 1.1 = 1.
+  #+attr_html: :width 400px :float nil:
+  [[../img/And16.png]]
+
+- *Interesting:* The Analysis Circuit function in LogiSim Evolution
+  cannot handle more than 20 inputs, so 8-bit systems is the maximum
+  to generate automatic truth tables and/or create circuits from them.
+
+- The computations are not sequential but parallel - all operations
+  are 2-to-1 bit. The gate is a 16-bit extension of the elementary And
+  gate. In the HDL file you have =IN a[16],b[16]=, =OUT out[16]=, and 16
+  elementary gates:
+  #+begin_example txt
+  AND(a=a[0], b=b[0], out=out[0])
+  AND(a=a[1], b=b[1], out=out[1])
+  ...
+  #+end_example
+
+* Multiplexer (Mux)
+
+- A *multiplexer* selects binary information from one of many input
+  lines and directs it to a single output line. The selection of a
+  particular line is controlled by a set of selection lines. Normally,
+  there are 2^n input lines and n selector lines.
+
+- =Mux= is a 2-way multiplexer with 2 input lines and 1 selector line.
+  #+attr_html: :width 200px :float nil:
+  [[../img/mux.png]]
+
+- To get the complete truth table, let's write a C++ program: It runs
+  through the values [0,1] for three input variables a,b,sel, with the
+  API: =if (sel==0) then out=a; else out=b=
+
+  #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    cout << "| a | b | sel | out |\n"
+    << "---------------------\n";
+    for (bool sel : {false,true})
+      {
+        for (bool a : {false,true})
+          {
+            for (bool b : {false,true})
+              {
+                if (!sel)
+                  cout <<"| "<<a<<" | "<<b<<" |  "<<sel<<"  |  "<<a<<"  |\n";
+                else
+                  cout <<"| "<<a<<" | "<<b<<" |  "<<sel<<"  |  "<<b<<"  |\n";
+              }
+          }
+      }
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  | a | b | sel | out |
+  ---------------------
+  | 0 | 0 |  0  |  0  |
+  | 0 | 1 |  0  |  0  |
+  | 1 | 0 |  0  |  1  |
+  | 1 | 1 |  0  |  1  |
+  | 0 | 0 |  1  |  0  |
+  | 0 | 1 |  1  |  1  |
+  | 1 | 0 |  1  |  0  |
+  | 1 | 1 |  1  |  1  |
+  #+end_example
+
+- In this case, an abbreviated truth table will do:
+  | sel | out |
+  |-----+-----|
+  |   0 | a   |
+  |   1 | b   |
+
+- MUX is used to build a programmable gate: You can select either an
+  AND or an OR gate:
+  #+begin_example
+  if (sel==0)
+    out = (a And b)
+  else
+    out = (a Or b)
+  #+end_example
+
+- Truth table:
+  #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    cout << "| a | b |sel|out|\n";
+    for (bool sel : {false,true})
+      {
+        for (bool a : {false,true})
+          {
+        for (bool b : {false,true})
+          {
+            if (!sel)
+              cout <<"| "<<a<<" | "<<b<<" | "<<sel<<" | "
+                   << (a&&b) <<" |\n";
+            else
+              cout <<"| "<<a<<" | "<<b<<" | "<<sel<<" | "
+                   << (a||b) <<" |\n";
+          }
+          }
+      }
+  #+end_src
+
+  #+RESULTS:
+  : | a | b |sel|out|
+  : | 0 | 0 | 0 | 0 |
+  : | 0 | 1 | 0 | 0 |
+  : | 1 | 0 | 0 | 0 |
+  : | 1 | 1 | 0 | 1 |
+  : | 0 | 0 | 1 | 0 |
+  : | 0 | 1 | 1 | 1 |
+  : | 1 | 0 | 1 | 1 |
+  : | 1 | 1 | 1 | 1 |
+
+- Or shorter:
+  | sel | out     |
+  |-----+---------|
+  |   0 | a And b |
+  |   1 | b Or b  |
+
+- To get the circuit diagram, import the truth table in this text
+  format (for Mux):
+  #+begin_example
+  a b c | x
+  ~~~~~~~~~
+  0 0 0 | 0
+  0 0 1 | 0
+  0 1 0 | 0
+  0 1 1 | 1
+  1 0 0 | 1
+  1 0 1 | 0
+  1 1 0 | 1
+  1 1 1 | 1
+  #+end_example
+
+- Modifying the code accordingly:
+  #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    cout << "a b c | x \n";
+    cout << "~~~~~~~~~\n";
+    for (bool sel : {false,true})
+      {
+        for (bool a : {false,true})
+          {
+        for (bool b : {false,true})
+          {
+            if (!sel)
+              cout <<a<<" "<<b<<" "<<sel<<" | " << (a && b) << endl;
+            else
+              cout <<a<<" "<<b<<" "<<sel<<" | " << (a || b) << endl;
+          }
+          }
+      }
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+  a b c | x
+  ~~~~~~~~~
+  0 0 0 | 0
+  0 1 0 | 0
+  1 0 0 | 0
+  1 1 0 | 1
+  0 0 1 | 0
+  0 1 1 | 1
+  1 0 1 | 1
+  1 1 1 | 1
+  #+end_example
+
+- The result is not very clear and far from the presented minimal
+  diagram because the multiplexer was re-built instead of used.
+  #+attr_html: :width 400px :float nil:
+  [[../img/AndMuxOr_LogiSim.png]]
+
+- This diagram does the job: It shows how the a,b input is fanned out
+  into both And and Or gates, and the Mux decides the output.
+  #+attr_html: :width 400px :float nil:
+  [[../img/AndMuxOr.png]]
+
+- The HDL code for this Chip:
+  #+begin_src txt :tangle ../hdl/project1/AndMuxOr.hdl
+    CHIP AndMuxOr {
+      IN a, b, sel;
+      OUT out;
+
+      PARTS:
+      And(a=a,b=b,out=andOut);
+      Or (a=a,b=b,out=orOut);
+      Mux(a=andOut,b=orOut,sel=sel,out=out);
+    }
+  #+end_src
+
+- The testing script:
+  #+begin_src txt :tangle ../hdl/project1/AndMuxOr.tst
+    load AndMuxOr.hdl,
+    output-file AndMuxOr.out,
+    compare-to AndMuxOr.cmp,
+    output-list a b sel out;
+
+    set a 0, set b 0, set sel 0, eval, output;
+    set a 0, set b 1, set sel 0, eval, output;
+    set a 1, set b 0, set sel 0, eval, output;
+    set a 1, set b 1, set sel 0, eval, output;
+    set a 0, set b 0, set sel 1, eval, output;
+    set a 0, set b 1, set sel 1, eval, output;
+    set a 1, set b 0, set sel 1, eval, output;
+    set a 1, set b 1, set sel 1, eval, output;
+  #+end_src
+
+- The compare file from code:
+  #+begin_src txt :tangle ../hdl/project1/AndMuxOr.cmp
+  | a | b |sel|out|
+  | 0 | 0 | 0 | 0 |
+  | 0 | 1 | 0 | 0 |
+  | 1 | 0 | 0 | 0 |
+  | 1 | 1 | 0 | 1 |
+  | 0 | 0 | 1 | 0 |
+  | 0 | 1 | 1 | 1 |
+  | 1 | 0 | 1 | 1 |
+  | 1 | 1 | 1 | 1 |
+  #+end_src
+
+- Implementing Mux from elementary gates: This can be done with And,
+  Or, and Not gates. So the normal form method applies:
+  #+begin_example
+  | a | b |sel|out|
+  | 0 | 0 | 0 | 0 |
+  | 0 | 1 | 0 | 0 |
+  | 1 | 0 | 0 | 0 |
+  | 1 | 1 | 0 | 1 |
+  | 0 | 0 | 1 | 0 |
+  | 0 | 1 | 1 | 1 |
+  | 1 | 0 | 1 | 1 |
+  | 1 | 1 | 1 | 1 |
+  #+end_example
+
+* Demultiplexer (DMux)
+
+- Inverted 2-way multiplexer: Depending on the selection bit, it
+  channels or distributes the input to either the a or the b output.
+  #+attr_html: :width 300px :float nil:
+  [[../img/DMux.png]]
+
+- The API:
+  #+begin_example
+  if (sel==0)
+     {a,b}={in,0}
+  else
+     {a,b}={0,in}
+  #+end_example
+
+- The truth table from the diagram (reuse code, change function):
+  #+begin_src C++ :main yes :includes <iostream> <cstdlib> <string> <fstream> <vector> :namespaces std :results output :exports both :noweb yes
+    cout << "|in |sel| a | b |\n";
+    for (bool in : {false,true})
+      {
+        for (bool sel : {false,true})
+          {
+        if (!sel)
+          cout <<"| "<<in<<" | "<<sel<<" | " << in << " | " << 0 << " |\n";
+        else
+          cout <<"| "<<in<<" | "<<sel<<" | " << 0 << " | " << in << " |\n";
+          }
+      }
+  #+end_src
+
+  #+RESULTS:
+  : |in |sel| a | b |
+  : | 0 | 0 | 0 | 0 |
+  : | 0 | 1 | 0 | 0 |
+  : | 1 | 0 | 1 | 0 |
+  : | 1 | 1 | 0 | 1 |
+
+- *Review question:* Suppose that 1 is fed into the IN input of a DMux
+  chip, and the output wires are fed into a Mux chip. What would be
+  the output of the Mux?
+
+  - [ ] 0
+
+  - [ ] 1
+
+  - [ ] It depends on the selection bits of the chips.
+
+- *Review question:* Suppose that 1 is fed into the IN input of a DMux
+  chip, the output wires are fed into a Mux chip, the selection bits
+  of the Mux and of the DMux are set to 0 - what's the output of the
+  Mux?
+  #+begin_quote
+  if (sel_{DMux}==0) then {a,b}_{DMux} = {in,0} = {1,0}
+  if (sel_{Mux}==0) then out_{Mux} = b = 1.
+  #+end_quote
+
+- *Example:* Multiplexing and demultiplexing in communication networks
+  without synchronizing source or destination. Multiple data streams
+  can be combined into one shared transmission medium so that more
+  than one signal can travel on the same channel. An oscillator
+  produces selection bits that select one or the other stream.
+
+- *Mux:* Several devices in your home share the same 2.4 GHz radio band,
+  and when you have a fiber optic connection, many customer signals
+  are travelling on the same fiber independently.
+
+- *DMux:* The Wifi access point separates the signals based on timing,
+  channel frequency, or MAC addresses (broadcast).
+
+* Multi-way variants
+#+attr_html: :width 400px :float nil:
+[[../img/Mux4Way16.png]]
+
+- You have a 2-bit selector because you need 2 bits to select 4
+  different possibilities - one selector for {a,b} and one for {c,d}.
+
+- The abbreviated truth table:
+
+  | sel[1] | sel[0] | out |
+  |--------+--------+-----|
+  |      0 |      0 |  a  |
+  |      0 |      1 |  b  |
+  |      1 |      0 |  c  |
+  |      1 |      1 |  d  |
+
+- The HDL stub:
+  #+begin_src txt
+    CHIP Mux4Way16 {
+      IN a[16],b[16],c[16],d[16],sel[2];
+      OUT out[16];
+
+    PARTS:
+    // ...
+    }
+  #+end_src
+
+- The chip can be built from several Mux16 gates and other elementary
+  gates as needed.
+
+
+
+* Project 1 Overview ([[https://youtu.be/OZlvyGaRmQQ?si=XPpL1u-SwUJV0VfS][video]])
+** Overview
+
+#+attr_html: :width 400px :float nil:
+[[../img/michelangelo.png]]
+
+- Why these gates?
+  #+begin_quote
+  They are commonly used, and they are all the elementary 2-bit logic
+  gates, 16-bit and multi-way variants needed to build our computer.
+  #+end_quote
+
+- Overview:
+  | Elementary | 16-bit variant | Multi-way variant |
+  |------------+----------------+-------------------|
+  | Not        | Not16          | Or8Way            |
+  | And        | And16          | Mux4Way16         |
+  | Or         | Or16           | Mux8Way16         |
+  | Xor        | Mux16          | DMux4Way          |
+  | Mux        |                | DMux8Way          |
+  | DMux       |                |                   |
+
+** How to proceed
+
+- Once you built NOT, AND etc. in NAND form, you can use them.
+
+- Xor as an example. You get an API, a .cmp compare file, a testing
+  script .tst, a .hdl stub. You have built then chip if when running
+  your Xor.hdl on the supplied Xor.tst, your Xor.out is the same as
+  the supplied Xor.cmp.
+
+- All the files are included in the local software and in the online
+  IDE (which can be reset).
+
+** Hack Chipset API
+
+- How can you know what the names of the input and output pins are?
+  #+begin_quote
+  If the gates are part of the Hack software set then the API is
+  included in the HDL survival guide.
+  #+end_quote
+
+- If you don't implement some chips from the Hack chipset, you can
+  still use them as chip-parts of other chips, just rename their given
+  stub files (You cannot do this in the Online IDE, I think).
+
+- When the simulator gets to the part in the implementation and cannot
+  find a part, it will automatically revert to the built-in chip. So
+  you can build the chips in any order in principle.
+
+- Best practice advice:
+
+  1) Build the chips in the given order (complexity ordered).
+
+  2) You can use built-in implementations.
+
+  3) You could design "helper chips" that are like "private methods"
+     but you don't really need or should do it.
+
+  4) Stive to use as few chip parts as possible (elegant, readable,
+     well designed).
+
+- Implementation endnotes
+
+  1) You have to use an external editor (outside of the online IDE).
+
+  2) A chip cannot be used in its own implementation - there's no
+     recursion.
+
+  3) In the simulator, errors are reported in red at the bottom left.
+
+  4) Multi-bit busses are indexed right to left: if A is a 16-bit bus
+     then A[0] is the right-most bit (aka Least Significant Bit or
+     LSB), and A[15] is the left-most bit (aka Most Significant Bit or
+     MSB).
+
+* Perspectives & Followup questions
+
+1) Is it possible to build a computer with a logic gate other than NAND?
+   #+begin_quote
+   You can also use NOR, or {And, Or, Not} gates, or other
+   possibilities. These are like axioms in geometry. NAND are popular
+   because they are cheap to build.
+   #+end_quote
+2) If you actually had to build a NAND gate, how would you do it?
+   #+begin_quote
+   That's rather physics than Computer Science: An NMOS or CMOS
+   2-transistor implementation that establishes the logic at the
+   physical level. But for Hack we abstract the physics away.
+   #+end_quote
+3) How does this HDL compare to real HDLs in the professional field?
+   #+begin_quote
+   This HDL is pretty real but other HDLs have a lot more high level
+   programming constructs similar to C. They feature the notion of
+   time and clocks to build sequential logic (for memories/counters).
+   #+end_quote
+4) The chips of project 1 are simple. How do you go about designing
+   complex chips with hundreds of parts and connections?
+   #+begin_quote
+   There are many different techniques, like Karnaugh maps, to
+   simplify Boolean functions. At the same time, many chip design
+   sub-problems are NP-complete or NP-hard involving: Placement,
+   timing optimization, power optimization, routing etc. Therefore,
+   solution approaches are not exact but heuristic, supported by
+   approximation algorithms: You break the problem down into simpler
+   ones, which are easier to optimize and construct.
+   #+end_quote

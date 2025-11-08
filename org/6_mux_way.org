@@ -24,7 +24,8 @@
      inputs (a, b), 1 sel bit.
   2. For n input pins, 2^n possible inputs require n sel bits.
   3. API: If sel==0, out=a; else out=b.
-- Why useful? Programmable logic! E.g., use Mux to switch between gates (And vs. Or).
+- Why useful? Programmable logic! E.g., use Mux to switch between
+  gates (And vs. Or).
 - Diagram (sketch on board or show in LogiSim):
   #+attr_html: :width 200px :float nil:
   [[../img/mux.png]]
@@ -220,7 +221,7 @@
 
 - Your homework (for submission as part of the assignment): Build Mux
   with Nand chips.
-
+p
 * PRACTICE Building a DMux (2-way De-Multiplexer)
 
 - Instead of 2 x 1 (2 in 1 out), the DMux is 1 x 2 (1 in 2 out)
