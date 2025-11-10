@@ -1957,14 +1957,6 @@ Example formulas:
 
 - [X] *Lab:* Building the And, Or, Not, and Xor chips from Nand.
 
-- [ ] *Lecture:* Intro to multi-bit buses.
-
-- [ ] *Lab:* Building the And16, Or16 and Not16 chips.
-
-- [ ] *Lecture:* Intro to multiplexers and demultiplexers.
-
-- [ ] *Lab:* Building Mux, Mux16, and DMux chips.
-
 ** Term project update
 #+attr_html: :width 400px :float nil:
 [[../img/projectUpdate.png]]
@@ -2233,19 +2225,28 @@ These builds are graded: Submit your files in one Zip file
    - a AND b is realized with three NAND gates, too.
 8) This took me about 1/2 hour each for a full solution.
    
-* Week 11: Basic Circuits continued (Project 1) & Intro to the ALU (Project 2)
+* DONE Week 11: Basic Circuits continued (Project 1) 
+#+attr_html: :width 600px :float nil:
+#+caption: Xor gate as circuit diagram and HDL simulator files (Source: Nisan/Schocken 2020)
+[[../img/xor_all.png]]
 
-- [ ] Remember to submit (*Nov 5*): Building NAND in the HDL Simulator.
-- [ ] Resubmit 100% correct solutions for NOT, AND, OR, XOR as Nand.
-- [ ] Home assignment: Finish Project 1 (by *Nov 17*).
+- [X] Remember to submit (*Nov 5*): Building NAND in the HDL Simulator.
+- [X] Resubmit 100% correct solutions for NOT, AND, OR, XOR as Nand.
+- [X] Home assignment: Finish Project 1 (by *Nov 17*).
+
+- [X] *Lecture:* Intro to multi-bit buses, esp. Not16 and And16.
+- [X] *Lab:* Building the PARTS of the And16 CHIPs as Nand CHIPs.
+
+- [X] *Lecture:* Intro to multiplexers and demultiplexers.
+- [X] *Lab:* Building the PARTS of the Mux CHIP
 
 ** Review: And as a function of Nand
 
-1. Do the algebra.
-2. Draw the diagram.
-3. Label the diagram.
-4. Design the chip PARTS.
-5. Run the tests.
+1. [X] Do the algebra.
+2. [X] Draw the diagram.
+3. [X] Label the diagram.
+4. [X] Design the chip PARTS.
+5. [X] Run the tests.
 
 ** Build the Xor chip from Nand chips
 
@@ -2268,12 +2269,23 @@ These builds are graded: Submit your files in one Zip file
 - You only need to submit a single (clearly visible) screenshot of
   your working, tested Hardware Simulator dashboard with the CHIP.
 
-* Week 12: Project 3
+- You have until after the deadline for the term project review
+  (Nov 14) to finish this - submission deadline is Nov 17.
 
-* Week 13: Project 4
 
-* Week 14: Project 5
+* Week 12: Boolean Arithmetic and ALU (Project 2) - Nov 10, 14
 
-* Week 15: Project 6
+- [ ] No meeting this Wednesday: Work on your projects!
 
+- [ ] Test 8: Multi-bit chips, multiplexers and de-multiplexers
+- [ ] Boolean arithmetic: numbers, operations, addition
+- [ ] Adders and incrementer for the ALU
+  
+- [ ] Negative numbers and Two's Complement method
+- [ ] Arithmetic-Logic-Unit for the CPU
+- [ ] Home project assignment: Build Adder chips (Nov 21)
+
+* Week 13: Term project review & Memory
+* Week 14: 
+* Week 15: 
 * Week 16: Your project presentations

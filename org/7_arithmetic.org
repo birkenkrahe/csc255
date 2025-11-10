@@ -1,0 +1,455 @@
+#+TITLE: Session on Boolean Arithmetic (Chapter 2)
+#+AUTHOR: Marcus Birkenkrahe
+#+SUBTITLE: CSC 255 Computer Architecture - Fall 2025
+#+STARTUP: overview hideblocks indent
+#+OPTIONS: toc:1 num:1 ^:nil
+#+PROPERTY: header-args:R :session *R* :results output :exports both :noweb yes
+#+PROPERTY: header-args:python :session *Python* :results output :exports both :noweb yes
+#+PROPERTY: header-args:C :main yes :includes <stdio.h> :results output :exports both :noweb yes
+#+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
+
+* Objectives
+- Grasp binary number representation and its constraints.
+- Master binary addition with carry propagation and overflow detection.
+- Understand negative number representation using two's complement.
+- Explore the ALU specification for the Hack computer.
+
+Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
+
+* Introduction
+
+** Hook
+
+- Quote: "Counting is the religion of this generation, its hope and
+  salvation." (Gertrude Stein, 1874–1946) What does she mean by that?
+  #+begin_quote
+  The quote metaphorically highlights the central role of numerical
+  systems, particularly binary, in modern computing. What does
+  "religion" promise? - Salvation through technological progress and
+  abstraction. Which abstraction is involved in counting?
+
+  The abstraction that everything can be counted.
+  #+end_quote
+
+- Prompt: "Why might binary be critical for computers?"
+  #+begin_quote
+  Binary is fundamental to computers for several compelling
+  reasons. First, it aligns perfectly with the physical nature of
+  *electronic circuits*, which operate using two distinct states—on
+  (representing 1) and off (representing 0). This two-state system is
+  inherently reliable because it minimizes ambiguity; unlike decimal
+  systems with ten states (0-9), which could require precise voltage
+  levels for each digit, binary only needs to distinguish between two
+  levels, *reducing error rates* in hardware.
+
+  Second, binary simplifies the design and *manufacturing of digital
+  components* like transistors and gates. These components can be built
+  using basic switches that are either open or closed, making
+  production cost-effective and scalable—crucial for mass-producing
+  computers.
+
+  Third, binary supports *efficient computation* through Boolean
+  algebra: where logical operations (AND, OR, NOT) map directly to
+  circuit behavior, enabling complex calculations to be broken down
+  into manageable steps.
+
+  Finally, binary’s *fixed-width representation* (e.g., 16-bit words)
+  allows computers to handle data uniformly, facilitating memory
+  addressing and arithmetic operations, which are the backbone of
+  programming.
+
+  This synergy between hardware simplicity and computational power is
+  why binary became the universal language of computing.
+  #+end_quote
+
+** Agenda
+
+- Detailed lecture on Binary Numbers, Binary Addition, Two's
+  Complement, and ALU Specification (35 minutes).
+
+- Brief Practice and Wrap-up (10 minutes).
+
+- Note: Hardware implementation (e.g., adders, ALU) is for the next
+  session.
+
+- Today, we’ll build a theoretical foundation for how computers
+  handle numbers and computations. Let’s start with binary.
+
+* Binary Numbers
+
+** Concept
+
+- When we are told that a certain code, say, 6083, represents a number
+  using the decimal system, then, by convention, we take this number
+  to be decomposable into a sum of powers of 10: Each digit is \(d \times
+  10^p\) (e.g., 6×10² + 0×10¹ + 8×10⁰). 10 is the base of this system.
+
+- Binary uses base-2: Similarly, the code 10011 represents a number
+  using base 2, where each bit is \(b \times 2^p\).
+
+- Fixed-width words: Computers are finite machines that use a fixed
+  word size for representing numbers. The fixed word size implies that
+  there is a limit on the number of values that these registers can
+  represent" E.g., 16-bit Hack range is 0 to 65,535 (\(2^{16}\)).
+
+- Maximum value: With \(k\) bits all 1, the range is 0 to \(2^k -
+  1\). Proof: \(2^0 + 2^1 + \cdots + 2^{k-1} = 2^k - 1\) - Geometric series
+  sum:
+  #+begin_quote
+  \(S = a\frac{r^n-1}{r-1}\)
+  #+end_quote
+  Where $a$ is the first value, and $r$ is the base value (2).
+
+- The decimal representation of numbers is a human indulgence:
+  Computers handle everything in binary and care naught about decimal.
+
+- Large numbers require multiple registers, impacting speed.
+  #+begin_quote
+  Each register holds a portion of the number, e.g. high and low
+  bits. This is called *multi-precision arithmetic*. This process
+  involves carry propagation between registers, which increases
+  latency and slows down processing.
+  #+end_quote
+
+** Example
+- Convert 45 to 8-bit binary: 32 (2⁵) + 8 (2³) + 4 (2²) + 1 (2⁰)
+  = 00101101. Verify: \(0×2^7 + 0×2^6 + 1×2^5 + 0×2^4 + 1×2^3 +
+  1×2^2 + 0×2^1 + 1×2^0 = 32 + 8 + 4 + 1 = 45\).
+
+- Do it yourself: Convert 87 (dec) into binary!
+  #+begin_example
+  0d87 = 64 + 16 + 4 + 2 + 1 = 1010111 -> 0b01010111
+         ^6   ^4  ^2  ^1  ^0
+  #+end_example
+
+- Do it yourself: Convert 99 (dec) into binary!
+  #+begin_example
+  99 = 64 + 32 + 2 + 1 = 0b01100011
+  #+end_example
+
+- Reverse: 1100101 to decimal: \(1×2^6 + 1×2^5 + 0×2^4 + 0×2^3 +
+  1×2^2 + 0×2^1 + 1×2^0 = 64 + 32 + 0 + 0 + 4 + 0 + 1 = 101\).
+
+- Max 4-bit: 1111 = \(8 + 4 + 2 + 1 = 15\), or \(2^4 - 1 = 15\).
+
+- Inside computers, everything is represented using binary codes. For
+  example, when we press the keyboard keys labeled 1, 9, and
+  Enter... what ends up stored in the computer’s memory is the binary
+  code 10011. Do you remember from the first part of the class, how?
+  #+begin_quote
+  Initially, pressing the keys 1, 9, and Enter sends electrical
+  signals through the keyboard’s circuitry, which are interpreted by
+  the computer’s input system as specific key codes based on standards
+  like ASCII (American Standard Code for Information Interchange). The
+  key 1 is encoded as 49 in decimal (binary 110001), 9 as 57 (binary
+  111001), and Enter as 13 (binary 1101) in ASCII, but the example
+  simplifies this to 10011, likely representing a processed or
+  truncated value (e.g., a partial input or error in the
+  example). These signals are converted into binary data—sequences of
+  0s and 1s—by the keyboard controller, which toggles voltage levels
+  (e.g., 0V for 0, 5V for 1) in the computer’s hardware. This binary
+  data is then stored in the computer’s memory, typically RAM, as a
+  series of bits organized into bytes, where 10011 might reflect a
+  5-bit segment of a larger word (e.g., padded to 8-bit 00010011 for
+  19 in decimal). The operating system and software further process
+  this data, mapping it to characters or commands, but at the hardware
+  level, it remains a binary representation, enabling the computer to
+  manipulate and store information efficiently
+  #+end_quote
+
+** Overflow and multi-bit use
+
+- Overflow example: What is 16-bit 65,535 + 1 on a 16-bit computer?
+  #+begin_quote
+  65,535 + 1 = 0 (wraps around). Max value  11111111 11111111.
+  65,536 requires a 17-bit representation (100000000 00000000).
+
+  The result of adding any two n-bit numbers will be correct up to n
+  bits.
+  #+end_quote
+
+- Multi-bit use: Does entering the number equivalent to \(2^{32}\) cause
+  overflow?
+  #+begin_quote
+  32-bit systems handle 0 to 4,294,967,295 for unsigned integers,
+  common in modern CPUs (\(2^{32}-1\)). Overflow occurs when you try to
+  add 1 to that number. The transition triggers the overflow.
+  #+end_quote
+
+- Why can I then still do this:
+  #+begin_src R :session *R* :results output :exports both
+    1.844674e+19+1
+  #+end_src
+
+  #+RESULTS:
+  : [1] 1.844674e+19
+
+- Answer:
+  #+begin_quote
+  It works because it is handled as a floating-point number or an
+  unbounded integer (as in R/Python - more bits are allocated
+  dynamically). Must check the exact data type, e.g. ~uint64_t~ in C.
+  #+end_quote
+
+** Visual (1 minute)
+
+- Whiteboard: 4-bit table (0000=0 to 1111=15) with overflow arrow.
+  #+begin_example
++-----------------------------------+
+| Binary | Decimal | Notes          |
++-----------------------------------+
+| 0000   | 0       |                |
+| 0001   | 1       |                |
+| 0010   | 2       |                |
+| 0011   | 3       |                |
+| 0100   | 4       |                |
+| 0101   | 5       |                |
+| 0110   | 6       |                |
+| 0111   | 7       |                |
+| 1000   | 8       |                |
+| 1001   | 9       |                |
+| 1010   | 10      |                |
+| 1011   | 11      |                |
+| 1100   | 12      |                |
+| 1101   | 13      |                |
+| 1110   | 14      |                |
+| 1111   | 15      | Max 4-bit      |
++-----------------------------------+
+       |          \
+       |           \
+       v            \
+[Overflow Arrow] --> 10000 = 16 (requires 5 bits)
+  #+end_example
+
+* Binary operations
+
+- What do we want to do with numbers?
+  + Addition
+  + Subtraction
+  + Multiplication
+  + Division
+  + Comparison
+
+- What we want to avoid is "extra hardware" - special chips that can
+  only do one operation are harder to create & run than having one
+  chip that can be manipulated with software to perform the ops.
+
+- Negative number representation will simplify subtraction and
+  comparison without extra hardware.
+
+- Multiplication and division are deferred to software: Software over
+  hardware design whenever possible.
+
+- We continue with binary addition.
+
+* Binary Addition
+
+- Though we know how to convert decimal to binary that is not what the
+  computer does. Instead, it implements a carry-over algorithm.
+
+** Concept - Bitwise addition
+
+- A pair of binary numbers can be added bitwise from right to left,
+  using the same decimal addition algorithm. Rules: 0+0=0, 0+1=1,
+  1+0=1, 1+1=10 (carry 1).
+
+- Remember that this is different from adding bits logically (rather
+  than arithmetically) in a digital circuit, or bitwise AND:
+  0\land0=0\land1=1\land0=0 and 1\land1=1.
+
+- This is second grade stuff when you learnt to add numbers with
+  carry-on:
+  #+begin_example
+    5 7 8 3
+  + 2 4 5 6
+  ---------
+          9
+        3      -> carry 1 (10^2)
+      2        -> carry 1 (10^3)
+    8
+  = 8239
+  #+end_example
+
+- We conveniently write binary numbers as 2x4-bit words:
+  #+begin_example
+    0001 0101 = 21 = 1 + 4 + 16
+  + 0101 1100 = 92 = 4 + 8 + 16 + 64
+    ---------
+            1 = 1 + 0
+           0  = 0 + 0
+          0   = 1 + 1 = 10     -> 1
+         0    = 0 + 1 + 1 = 10 -> 1
+       1      = 1 + 1 + 1 = 11 -> 1
+      1       = 0 + 0 + 1 = 1
+     1        = 0 + 1 = 1
+
+    0111 0001 = 64 + 32 + 16 + 1 = 113
+  #+end_example
+
+- Process: Start at LSB, propagate carry to MSB. Continue this
+  lockstep process until the two left most significant bits (MSB) are
+  added.
+
+- What is the software name for the "carry-on bit"?
+  #+begin_quote
+  Overflow: If the most significant bitwise addition generates a carry
+  of 1, we have what is known as overflow... We are content to
+  guarantee that the result of adding any two n-bit numbers will be
+  correct up to n bits.
+  #+end_quote
+
+- What about overflow?
+  #+begin_quote
+  If the MSB generates a carry-on bit, the word size is not sufficient
+  to hold the result of the addition. The wrap-around replaces the
+  carry-on 1 by a 0 and effectively truncates the integer.
+  #+end_quote
+
+** Different Adder Designs
+
+- Though we base addition on the simple 2nd grade carry-on algorithm,
+  there are actually several different designs:
+
+  + *Ripple-Carry adders (RCA)*: full adders chained together so that
+    the carry out of one bit "ripples" to the carry-in of the next.
+
+  + *Carry-Lookahead Adder (CLA)*: precomputes carry signals for all bit
+    positions in parallel, reducing computing delay from O(n) to O(log
+    n) - critical for high-performance CPUs.
+
+  + *Carry-Skip Adder*: groups bits and skips carry propagation within
+    groups when possible using multiplexers to bypass unnecessary
+    stages. E.g. if a group of bits has no carry, the carry can skip
+    to the next group.
+
+  + *Carry-Select Adder* and *Carry-Save Adder* used in multi-operand
+    addition (e.g. multiplication).
+
+** Example (3 minutes)
+
+- Compute: 5 + 3 in binary on an 8-bit computer, using carry-on - will
+  there be overflow?
+  #+begin_example
+    0101 5
+  + 0011 3
+  ------
+       0 (1)
+      0  (1)
+     0   (1)
+    1    8   (no overflow)
+  #+end_example
+
+- Compute 14 and 1 in binary using carry-on on an 8-bit computer -
+  will there be overflow?
+  #+begin_example
+    1110 14
+  + 0001  1
+  ------
+       1
+      1
+     1
+    1   =15 (no overflow)
+  #+end_example
+
+- Compute 15 + 1 on an 8-bit computer using carry-on. Will there be
+  overflow?
+  #+begin_quote
+  1111 (15) + 0001 (1) = 10000 → 0000 (ignore carry,
+  incorrect).
+  #+end_quote
+
+* Building an adder hardware component
+
+- For the ALU, we distinguish
+  + half-adder (designed to add two bits),
+  + full-adder (designed to add three bits),
+  + adder (designed to add two n-bit numbers)
+  + incrementer (designed to add 1 to a given number - but not to add
+    at all, only to fetch the next instruction from memory).
+
+** Half Adder
+
+- Going back to the previous example: To do one slice of the whole
+  operation, a single carry on in position 2, we don't care about any
+  other number anywhere else; we only add 1 + 1 = 10 = 0 carry 1.
+  #+begin_example
+    0001 0101 = 21 = 1 + 4 + 16
+  + 0101 1100 = 92 = 4 + 8 + 16 + 64
+    ---------
+            1 = 1 + 0
+           0  = 0 + 0
+          0   = 1 + 1 = 10     -> 1
+         0    = 0 + 1 + 1 = 10 -> 1
+       1      = 1 + 1 + 1 = 11 -> 1
+      1       = 0 + 0 + 1 = 1
+     1        = 0 + 1 = 1
+
+    0111 0001 = 64 + 32 + 16 + 1 = 113
+  #+end_example
+
+- But that's a 2-input-2-output operation, and we have a CHIP for it,
+  the *half adder*:
+  #+attr_html: :width 600px :float nil:
+  [[../img/half_adder.png]]
+
+- The API:
+  #+begin_example C
+  CHIP HalfAdder {
+    IN a,b;
+    OUT sum, carry;
+    PARTS:
+    // HDL implementation
+  }    
+  #+end_example
+
+- This is the first CHIP to implement in the next lab!
+
+** Full Adder
+
+- The condition for the half adder to work is that the carry-on was
+  zero. When it's 1, we have a three-bit addition scenario:
+  #+begin_example C
+  IN a,b,c;       // c is the carry-on input
+  OUT sum, carry; // 
+  #+end_example
+
+- The CHIP going with this interface is the *full adder*
+  #+attr_html: :width 400px :float nil:
+  [[../img/full_adder.png]]
+
+- But of course, we know how to handle multi-input-bit and
+  multi-output-bit gates.
+
+** Multi-bit Adder
+
+- You can now compose an addition over multiple bits by successive
+  full adder operations aka serial chips (this is an RCA or
+  ripple-carry adder design).
+
+- Example: For an 8-bit ripple-carry adder, 8 full-adders are chained
+  together, where the carry-out of one full-adder serves as the
+  carry-in of the next.
+
+- What does this sequential addition (each full-adder waiting for the
+  result of the previous one) mean for the time spent on the process?
+  #+begin_quote
+  Each full-adder performs with O(n) for n bits, for example 8 clock
+  cycles for n=8 or an 8-bit addition as in our example.
+  #+end_quote
+
+- The serial composition of chips is the multi-bit chip we already
+  encountered with And16 and its friends. For a 16-bit Adder, ~out=a+b~
+  as 16-bit integers =a[15]=, =b[15]=, =out[16]= (ignoring overflow for
+  now).
+
+- Chip interface:
+  #+attr_html: :width 400px :float nil:
+  [[../img/16_bit_adder.png]]
+
+- Full design:
+  #+attr_html: :width 600px :float nil:
+  [[../img/16_bit_adder2.png]]
+    
+- We're OK to ignore overflow for now (with unsigned integers). But
+  for signed integers (negative numbers) we must reconsider.
+
