@@ -2272,8 +2272,7 @@ These builds are graded: Submit your files in one Zip file
 - You have until after the deadline for the term project review
   (Nov 14) to finish this - submission deadline is Nov 17.
 
-
-* Week 12: Boolean Arithmetic and ALU (Project 2) - Nov 10, 14
+* IN PROGRESS Week 12: Boolean Arithmetic and term project review - Nov 10, 14
 
 - [ ] No meeting this Wednesday: Work on your projects!
 
@@ -2285,7 +2284,31 @@ These builds are graded: Submit your files in one Zip file
 - [ ] Arithmetic-Logic-Unit for the CPU
 - [ ] Home project assignment: Build Adder chips (Nov 21)
 
-* Week 13: Term project review & Memory
-* Week 14: 
-* Week 15: 
-* Week 16: Your project presentations
+** NEXT Term project review
+#+attr_html: :width 400px :float nil:
+[[../img/review.png]]
+
+Project-specific notes:
+- Dissect a segmentation fault: Show how you identified the cause,
+  tools used (e.g., gdb, valgrind), and what insights you gained about
+  memory or pointer errors.
+
+- Visualize virtual memory layout: Demonstrate your visualization
+  output or explain what patterns you discovered in memory regions
+  (stack, heap, text, data).
+
+- Build and inspect a Linux kernel module: Summarize what you learned
+  about the kernel build process, module loading/unloading, and
+  debugging strategies.
+
+- Parallelism in practice: Check Amdahl’s Law: Present your
+  experimental setup, timing results, and how they compare to
+  theoretical speedup predictions.
+
+- Measure the process-memory gap: Describe your measurement method
+  (e.g., using /proc, ps, or timing tools) and discuss what the
+  results reveal about virtual vs. physical memory.
+
+* Week 13: Arithmetic-Logic Unit - Nov 17, 19, 21
+* Week 14: Memory and Machine language - Dec 1, 3, 5
+* Week 15: Your project presentations
