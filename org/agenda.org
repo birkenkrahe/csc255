@@ -2272,7 +2272,7 @@ These builds are graded: Submit your files in one Zip file
 - You have until after the deadline for the term project review
   (Nov 14) to finish this - submission deadline is Nov 17.
 
-* IN PROGRESS Week 12: Boolean Arithmetic and term project review - Nov 10, 14
+* DONE Week 12: Boolean Arithmetic and term project review - Nov 10, 14
 
 - [ ] No meeting this Wednesday: Work on your projects!
 
@@ -2284,7 +2284,7 @@ These builds are graded: Submit your files in one Zip file
 - [ ] Arithmetic-Logic-Unit for the CPU
 - [ ] Home project assignment: Build Adder chips (Nov 21)
 
-** NEXT Term project review
+** Term project review
 #+attr_html: :width 400px :float nil:
 [[../img/review.png]]
 
@@ -2310,7 +2310,9 @@ Project-specific notes:
   results reveal about virtual vs. physical memory.
 
 
-** Review: Binary arithmetic
+* Week 13: Arithmetic-Logic Unit - Nov 17, 19, 21
+
+** TODO Review: Binary arithmetic
 
 1. How does the computer deal with very, very large numbers?
    #+begin_quote
@@ -2342,6 +2344,7 @@ Project-specific notes:
      = 64 + 32 + 4 = 100\).
    #+end_quote
 
-* Week 13: Arithmetic-Logic Unit - Nov 17, 19, 21
+
+
 * Week 14: Memory and Machine language - Dec 1, 3, 5
 * Week 15: Your project presentations
