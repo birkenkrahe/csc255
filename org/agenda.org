@@ -2274,21 +2274,22 @@ These builds are graded: Submit your files in one Zip file
 
 * DONE Week 12: Boolean Arithmetic and term project review - Nov 10, 14
 
-- [ ] No meeting this Wednesday: Work on your projects!
+- [X] No meeting this Wednesday: Work on your projects!
 
-- [ ] Test 8: Multi-bit chips, multiplexers and de-multiplexers
-- [ ] Boolean arithmetic: numbers, operations, addition
-- [ ] Adders and incrementer for the ALU
+- [X] Test 8: Multi-bit chips, multiplexers and de-multiplexers
+- [X] Boolean arithmetic: numbers, operations, addition
+- [X] Adders and incrementer for the ALU
   
 - [ ] Negative numbers and Two's Complement method
 - [ ] Arithmetic-Logic-Unit for the CPU
-- [ ] Home project assignment: Build Adder chips (Nov 21)
+- [ ] Home project assignment: Build Adder chips (+Nov 21+)
 
 ** Term project review
 #+attr_html: :width 400px :float nil:
 [[../img/review.png]]
 
-Project-specific notes:
+*Project-specific notes:*
+
 - Dissect a segmentation fault: Show how you identified the cause,
   tools used (e.g., gdb, valgrind), and what insights you gained about
   memory or pointer errors.
@@ -2312,7 +2313,16 @@ Project-specific notes:
 
 * Week 13: Arithmetic-Logic Unit - Nov 17, 19, 21
 
-** TODO Review: Binary arithmetic
+- [ ] Binary operations
+- [ ] Binary addition
+- [ ] Building adder hardware (Half Adder with Xor, And)
+- [ ] Negative numbers and Two's Complement
+- [ ] ALU specification
+- [ ] Project: Adder designs (deadline Nov 30)
+- [ ] Test 9: Binary arithmetic and adder design
+- [ ] Next: Memory hardware & Machine language
+
+** Review: Binary arithmetic
 
 1. How does the computer deal with very, very large numbers?
    #+begin_quote
@@ -2344,7 +2354,8 @@ Project-specific notes:
      = 64 + 32 + 4 = 100\).
    #+end_quote
 
-
-
 * Week 14: Memory and Machine language - Dec 1, 3, 5
+
+- [ ] Test 10: Memory chip design
+
 * Week 15: Your project presentations
