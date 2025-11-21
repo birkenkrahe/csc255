@@ -7,7 +7,6 @@
 #+PROPERTY: header-args:python :session *Python* :results output :exports both :noweb yes
 #+PROPERTY: header-args:C :main yes :includes <stdio.h> :results output :exports both :noweb yes
 #+PROPERTY: header-args:C++ :main yes :includes <iostream> :results output :exports both :noweb yes
-
 * Objectives
 - Grasp binary number representation and its constraints.
 - Master binary addition with carry propagation and overflow detection.
@@ -224,21 +223,26 @@ Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
 * Binary operations
 
 - What do we want to do with numbers?
+  #+begin_quote
   + Addition
   + Subtraction
   + Multiplication
   + Division
   + Comparison
+  #+end_quote
 
-- What we want to avoid is "extra hardware" - special chips that can
-  only do one operation are harder to create & run than having one
-  chip that can be manipulated with software to perform the ops.
+- What we want to avoid:
+  #+begin_quote
+  "Extra hardware" - special chips that can only do one operation are
+  harder to create & run than having one chip that can be manipulated
+  with software to perform the ops.
 
-- Negative number representation will simplify subtraction and
-  comparison without extra hardware.
+  - The good news: Negative number representation will simplify
+    subtraction and comparison without extra hardware.
 
-- Multiplication and division are deferred to software: Software over
-  hardware design whenever possible.
+  - Multiplication and division are deferred to software. As a rule:
+    Choose software design over hardware design whenever possible.
+  #+end_quote
 
 - We continue with binary addition.
 
@@ -255,10 +259,10 @@ Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
 
 - Remember that this is different from adding bits logically (rather
   than arithmetically) in a digital circuit, or bitwise AND:
-  0\land0=0\land1=1\land0=0 and 1\land1=1.
+  0 \land 0 = 0 \land 1 = 1 \land 0 = 0 and 1 \land 1 = 1.
 
-- This is second grade stuff when you learnt to add numbers with
-  carry-on:
+- This is second-grade school stuff (when you learnt to add and
+  subtract numbers with carry-on):
   #+begin_example
     5 7 8 3
   + 2 4 5 6
@@ -325,7 +329,7 @@ Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
   + *Carry-Select Adder* and *Carry-Save Adder* used in multi-operand
     addition (e.g. multiplication).
 
-** Example (3 minutes)
+** Example
 
 - Compute: 5 + 3 in binary on an 8-bit computer, using carry-on - will
   there be overflow?
@@ -358,7 +362,7 @@ Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
   incorrect).
   #+end_quote
 
-* Building an adder hardware component
+* Adders
 
 - For the ALU, we distinguish
   + half-adder (designed to add two bits),
@@ -399,7 +403,7 @@ Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
     OUT sum, carry;
     PARTS:
     // HDL implementation
-  }    
+  }
   #+end_example
 
 - This is the first CHIP to implement in the next lab!
@@ -410,7 +414,7 @@ Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
   zero. When it's 1, we have a three-bit addition scenario:
   #+begin_example C
   IN a,b,c;       // c is the carry-on input
-  OUT sum, carry; // 
+  OUT sum, carry; //
   #+end_example
 
 - The CHIP going with this interface is the *full adder*
@@ -449,7 +453,227 @@ Sources: Nand2Tetris by Nisan/Schocken (MIT Press, 2020), and Grok.
 - Full design:
   #+attr_html: :width 600px :float nil:
   [[../img/16_bit_adder2.png]]
-    
+
 - We're OK to ignore overflow for now (with unsigned integers). But
   for signed integers (negative numbers) we must reconsider.
 
+* IN PROGRESS Building the half adder (with Xor and AND)
+#+OPTIONS: toc:nil num:nil ^:nil:  title:nil
+- Look at the =output= in the truth table: You notice that the =carry= is
+  an =AND= operation, and the =sum= operation is an =Xor= operation.
+
+- You can read the ~CHIP~ implementation straight off the table:
+  #+begin_example C
+  CHIP HalfAdder {
+    IN a, b;    // 1-bit inputs
+    OUT sum,    // Right bit of a + b
+        carry;  // Left bit of a + b
+
+    PARTS:
+    Xor(a=a,b=b,out=sum);
+    And(a=a,b=b,out=carry);
+  }
+  #+end_example
+
+- Build this in LogiSim! Test it by simulating with
+  #+begin_example
+  a = 1, b = 1, c = 0 (carry_in) -> carry = 0  (carry_out)
+  a = 1, b = 0, c = 1 (carry_in) -> carry = 1  (carry_out)
+  a = 1, b = 1, c = 1 (carry_in) -> carry = 0  (carry_out)
+  #+end_example
+
+- Solution diagram:
+  #+attr_html: :width 400px :float nil:
+  [[../img/half_adder_logisim.png]]
+
+- For the project submission, you need to replace the ~XOR~ and the ~AND~
+  suitable combination of ~NAND~ chips.
+
+* Building the full adder from half adders
+
+- We begin by building a full adder in Logisim:
+
+  1) Open the software
+
+  2) Under ~Arithmetic~, find the ~Adder~
+
+  3) Change the ~Data Bits~ of the ~Adder~ to =1=
+
+  4) Attach pins for =a=, =b=, and =c= (carry-in)
+
+  5) Label the pins accordingly.
+
+  6) Simulate the operations:
+     #+begin_example
+     a = 1, b = 0, c_in = 0
+     a = 1, b = 1, c_in = 0 -> out = 0, c_out = 1
+     a = 1, b = 0, c_in = 1 -> out = 0, c_out = 1
+     a = 1, b = 1, c_in = 1 -> out = 1, c_out = 1
+     #+end_example
+
+- Solution diagram:
+  #+attr_html: :width 400px :float nil:
+  [[../img/adder_logisim.png]]
+
+- It would be nice to turn this into a compact chip in LogiSim to
+  build the Adder (but I haven't been able to do it).
+
+- For the HDL, we have 1-bit inputs, and a right and a left bit of the
+  operation =a + b + c_in= as the API in the IDE shows:
+  #+begin_example
+  IN a, b, c;  // 1-bit inputs (c is carry-in)
+  OUT sum,     // Right bit of a + b + c
+      carry;   // Left bit of a + b + c
+  #+end_example
+
+- The data flow through the full adder looks like this:
+  1) a  +  b    = s1  (first half-adder: intermediate sum)
+  2) s1 +  c1   = sum (second half-adder: intermediate sum to carry-in)
+  3) c1 OR c2   = carry (carry-out)
+
+  #+begin_example
+     a -----\
+             HA1 ---- s1 ----\
+     b -----/               HA2 ---- sum
+                             /
+    carryIn  ---------------/
+
+    carryOut = c1 OR c2
+  #+end_example
+
+- Build this in the IDE:
+  1) first half-adder adds =a + b = s1= and carries =c1=
+  2) second half-adder adds =s1 + c = sum= and carries =c2=
+  3) Carry-out is OR of the two carries
+
+- Solution:
+  #+begin_example C
+  CHIP FullAdder {
+    IN a, b, c;  // 1-bit inputs (c is carry-in)
+    OUT sum,     // Right bit of a + b + c
+        carry;   // Left bit of a + b + c
+
+    PARTS:
+    // First half-adder: add a and b
+    HalfAdder(a=a , b=b , sum=s1 , carry=c1 );
+    // Second half-adder: add intermediate sum to carry-in
+    HalfAdder(a=s1 , b=c , sum=sum , carry=c2 );
+    // Carry-out is OR of the two carries
+    Or(a=c1 , b=c2 , out=carry );
+  }
+  #+end_example
+
+- For the project submission, you need to replace the ~OR~ with a
+  suitable combination of ~NAND~ chips, and you can use the ~HalfAdder~
+  (itself built from ~NAND~ only).
+
+* Building the multi-bit adder from half-adder and full-adder
+
+- Here is the API for an ~Add3~ chip:
+  #+begin_example C
+  CHIP Add3 {
+    IN a[3], b[3];
+    OUT out[3];
+    PARTS:
+    // ...
+  }
+  #+end_example
+
+- Let's use the example of a 3-bit adder ~Add3~ (instead of ~Add16~):
+  #+begin_example
+   A = 101 (5)            1 0 1
+   B = 011 (3)        +   0 1 1
+                      ---------
+   a[0]+b[0]   LSB            0   1+1=0   out[0] (half-adder) carry = 1
+   a[1]+b[1]   Bit 1        0     0+1+1=0 out[1] (full-adder) carry = 1
+   a[2]+b[2]   MSB        1       1+0+1=0 out[2] (full-adder) carry = 1
+                      = 1 0 0 0
+  #+end_example
+
+- From the example, can you design the CHIP?
+
+- Solution:
+  #+begin_example C
+  // Notice that the carry for the MSB is ignored (overflow)
+  HalfAdder(a=a[0], b=b[0], sum=out[0], carry=carry0); // LSB
+  FullAdder(a=a[1], b=b[1], c=carry0, sum=out[1], carry=carry1); // Bit 1
+  FullAdder(a=a[2], b=b[2], c=carry1, sum=out[2], carry=carry); // MSB
+  #+end_example
+
+- You can now generalize this to ~Add16~ easily and test it in the IDE.
+
+* Negative Numbers and Two's Complement
+
+** Concept
+
+- An n-bit binary system can code \(2^n\) different things. If we
+  have to represent signed numbers... split the available code
+  space into two subsets" (p. 3). Need for negatives.
+
+- Two's complement: "-x is taken to be the code that represents
+  \(2^n - x\)" (p. 4), or flip all bits of x and add 1. Range:
+  \(-2^{n-1}\) to \(2^{n-1} - 1\).
+
+- "Subtraction is handled as a special case of addition" (p. 4),
+  simplifying hardware.
+
+** Example
+- 4-bit: 5 = 0101, -5: invert 0101 = 1010, +1 = 1011.
+- Add 5 + (-5): 0101 + 1011 = 10000 → 0000 (0, correct).
+- Subtract 3 - 5: 3 = 0011, -5 = 1011, 0011 + 1011 = 1110 (-2).
+** Additional Insight
+- Overflow detection: Sign bit mismatch (e.g., -8 + -1).
+- Two's Complement is of the most remarkable and unsung heroes of
+  applied computer science
+** Visual
+
+- Whiteboard: 4-bit table (0000=0, 1000=-8, 1111=-1).
+
+* ALU Specification
+** Concept
+- "All the functions performed by digital computers—not only
+  arithmetic operations—can be reduced to adding binary numbers"
+  (p. 2).
+- ALU is the CPU’s computational core, handling addition, sign
+  conversion, etc.
+- Hack ALU: 16-bit inputs x, y; 6 control bits (zx, zy, nx, ny, f,
+  no); outputs: 16-bit result, zr, ng.
+** Example
+- x + y: f=1, zx=0, zy=0, nx=0, ny=0, no=0 → result = x + y.
+- -x: zx=1, nx=1, f=1, no=1 → result = -x.
+- Zero flag: zr=1 if result=000...0.
+** Additional Insight
+- Control bits enable multiplexing (e.g., add vs. AND).
+- Precursor to CPU execution.
+
+* Practice
+** Exercises 1: Binary Conversion
+- Convert 73 to 8-bit binary.
+  - Solution: 64 (2⁶) + 8 (2³) + 1 (2⁰) = 01001001.
+- Convert 1100100 to decimal.
+  - Solution: \(1×2^6 + 1×2^5 + 0×2^4 + 0×2^3 + 1×2^2 + 0×2^1 + 0×2^0 = 64 + 32 + 4 = 100\).
+** Exercise 2: Binary Addition
+- Add 0110 (6) + 0011 (3).
+  - Solution: 0110 + 0011 = 1001 (9).
+- Check overflow: 1111 (15) + 0001 (1).
+  - Solution: 1111 + 0001 = 10000 → 0000 (overflow).
+** Exercise 3: Two's Complement
+- Find -3 in 4-bit two's complement.
+  - Solution: 3 = 0011, invert = 1100, +1 = 1101.
+- Add 2 + (-3).
+  - Solution: 2 = 0010, -3 = 1101, 0010 + 1101 = 1111 (-1).
+** Exercise 4: ALU Operation
+- x=4 (0100), y=2 (0010), f=1 (add).
+  - Solution: 0100 + 0010 = 0110 (6).
+
+* Wrap-up
+** Takeaways
+- Binary limits to \(2^k - 1\); addition carries overflow risks.
+- Two's complement simplifies signed arithmetic.
+- ALU integrates operations via control bits.
+** Homework
+- Convert -8 to 8-bit two's complement.
+  - Solution: 8 = 00001000, invert = 11110111, +1 = 11111000.
+- Add 5 + (-7) in 4-bit.
+  - Solution: 5 = 0101, -7 = 1001, 0101 + 1001 = 1110 (-2).
+- Read ALU implementation hints for next class.
