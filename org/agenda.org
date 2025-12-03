@@ -1946,7 +1946,7 @@ Example formulas:
 4. Self-NAND property: NAND(x,x) = NOT(x AND x) = NOT(x)
 #+end_quote
 
-* DONE Week 10: Project 1: Basic circuits 
+* DONE Week 10: Project 1: Basic circuits
 
 - [X] Term project update using NotebookLM.
 
@@ -2000,11 +2000,11 @@ Example formulas:
    current chip - the implementation details.
    #+end_quotea
 
-4. In HDL terms, what part of a chip design is comparable to a
-   function's declaration in programming?
-   #+begin_quote
-   The stub file - it declares the chip's interface (API) but not its
-   implementation.
+   4. In HDL terms, what part of a chip design is comparable to a
+      function's declaration in programming?
+      #+begin_quote
+      The stub file - it declares the chip's interface (API) but not its
+      implementation.
    #+end_quote
 
 5. What type of programming paradigm best describes HDL?
@@ -2224,8 +2224,8 @@ These builds are graded: Submit your files in one Zip file
    - a AND b is realized with three NAND gates.
    - a AND b is realized with three NAND gates, too.
 8) This took me about 1/2 hour each for a full solution.
-   
-* DONE Week 11: Basic Circuits continued (Project 1) 
+
+* DONE Week 11: Basic Circuits continued (Project 1)
 #+attr_html: :width 600px :float nil:
 #+caption: Xor gate as circuit diagram and HDL simulator files (Source: Nisan/Schocken 2020)
 [[../img/xor_all.png]]
@@ -2251,7 +2251,7 @@ These builds are graded: Submit your files in one Zip file
 ** Build the Xor chip from Nand chips
 
 - Try it on your own first.
-  
+
 - There are three other methods to do this:
   #+begin_quote
   1) Load balancing (leads to a 5-Nand solution)
@@ -2279,7 +2279,7 @@ These builds are graded: Submit your files in one Zip file
 - [X] Test 8: Multi-bit chips, multiplexers and de-multiplexers
 - [X] Boolean arithmetic: numbers, operations, addition
 - [X] Adders and incrementer for the ALU
-  
+
 - [ ] Negative numbers and Two's Complement method
 - [ ] Arithmetic-Logic-Unit for the CPU
 - [ ] Home project assignment: Build Adder chips (+Nov 21+)
@@ -2310,19 +2310,22 @@ These builds are graded: Submit your files in one Zip file
   (e.g., using /proc, ps, or timing tools) and discuss what the
   results reveal about virtual vs. physical memory.
 
+* DONE Week 13: Binary addition - Nov 17, 19, 21
+#+attr_html: :width 400px :float nil:
+[[../img/alu.jpg]]
 
-* Week 13: Arithmetic-Logic Unit - Nov 17, 19, 21
-
-- [ ] Binary operations
-- [ ] Binary addition
-- [ ] Building adder hardware (Half Adder with Xor, And)
-- [ ] Negative numbers and Two's Complement
-- [ ] ALU specification
-- [ ] Project: Adder designs (deadline Nov 30)
+- [X] Binary operations
+- [X] Binary addition
+- [X] Building adder hardware
+- [ ] +Negative numbers and Two's Complement+
+- [ ] Project 2: Adder designs (deadline now *December 7*)
 - [ ] Test 9: Binary arithmetic and adder design
-- [ ] Next: Memory hardware & Machine language
+- [ ] +Next: ALU specification+
+- [ ] Bonus: Distributed event streaming with Apache Kafka
 
-** Review: Binary arithmetic
+*Don't forget your term projects: Sprint review assignment coming soon!*
+
+** Review: Binary arithmetic I
 
 1. How does the computer deal with very, very large numbers?
    #+begin_quote
@@ -2330,7 +2333,7 @@ These builds are graded: Submit your files in one Zip file
    adheres to maximum floating-point precision for representation of
    numbers.
    #+end_quote
-     
+
 2. What is "overflow" for a computer?
    #+begin_quote
    The result of an artihmetic operation like 65,535 + 1 on a 16-bit
@@ -2345,17 +2348,182 @@ These builds are graded: Submit your files in one Zip file
 
 4. Convert 73 to 8-bit binary.
    #+begin_quote
-   - Solution: 64 (2⁶) + 8 (2³) + 1 (2⁰) = 01001001.
+   - Solution: 64 (2⁶) + 8 (2³) + 1 (2⁰) = 0100 1001.
    #+end_quote
 
-5. Convert 1100100 to decimal.
+5. Convert binary 0110 0100 to decimal.
    #+begin_quote
    - Solution: \(1×2^6 + 1×2^5 + 0×2^4 + 0×2^3 + 1×2^2 + 0×2^1 + 0×2^0
      = 64 + 32 + 4 = 100\).
    #+end_quote
 
-* Week 14: Memory and Machine language - Dec 1, 3, 5
+** Review Binary arithmetic II
 
-- [ ] Test 10: Memory chip design
+1. What's to be preferred: Build special hardware or design special
+   software?
+   #+begin_quote
+   Usually, software over hardware design whenever possible though
+   there are exceptions (e.g. large matrix multiplications for deep
+   learning tasks, or graphics generation).
+   #+end_quote
+
+2. How many bits does the half-adder add?
+   #+begin_quote
+   #+attr_html: :width 400px :float nil:
+   [[../img/half_adder.png]]
+   #+end_quote
+
+3. How many bits does the full-adder add?
+   #+begin_quote
+   #+attr_html: :width 400px :float nil:
+   [[../img/full_adder.png]]
+   #+end_quote
+
+4. Why do we need a full adder?
+   #+begin_quote
+   Because binary addition of two multi-bit numbers always produces a
+   carry, and at every bit position after the least significant bit
+   you must add *three* values: the bit from a, the bit from b, and the
+   carry-in from the previous (less significant) position.  The
+   half-adder cannot do the 3-input addition. It only handles the LSB
+   position.
+   #+end_quote
+   Example:
+   #+begin_example
+   a = 1              half-adder: a + b = 1 + 1 = 0
+   b = 1              full-adder: a + b + c = 1 + 1 + 1 = 10
+   c = 1 (carry-in)
+   #+end_example
+
+5. Which chip can add two 3-bit numbers?
+   #+begin_quote
+   #+attr_html: :width 400px :float nil:
+   [[../img/16_bit_adder2.png]]
+
+   A custom chip =Add3= which inputs =a[3]= and =b[3]= and outputs =out[3]=.
+   #+end_quote
+   Example:
+   #+begin_example
+   A = 101 (5)            1 0 1
+   B = 011 (3)        +   0 1 1
+                      ---------
+   a[0]+b[0]   LSB            0   1+1=0   out[0] (half-adder) carry = 1
+   a[1]+b[1]   Bit 1        0     0+1+1=0 out[1] (full-adder) carry = 1
+   a[2]+b[2]   MSB        1       1+0+1=0 out[2] (full-adder) carry = 1
+                      = 1 0 0 0
+   #+end_example
+
+* Week 14: Distributed Processing Architecture - Dec 1, 3, 5
+#+attr_html: :width 400px :float nil:
+[[../img/kafka.jpg]]
+
+- [X] Some of you are missing assignments: Submit late for 50%
+- [X] Final presentation: *Schedule date*, and *share link* for materials
+- [X] Deadline for materials (if you want a grade): December 12, 2025
+- [X] Test 9 is available (binary arithmetic/adders in HDL)
+- [X] Change of topic: Distributed Computer Architecture
+
+- [ ] *Please fill in the course evaluation now! (5 min)*  
+- [ ] Test 10: Apache Kafka (next week)
+
+** DONE Why change course?
+
+The idea came to me first after I (recently) dug more deeply into data
+engineering where the relationship between hardware and software
+matters most and is most at the surface.
+
+Apache Kafka is a software system that is closest to the metal of the
+hardware. It will serve as an introduction to distributed computer
+architectures. The specific use case is big data streaming and
+building resilient data pipelines.
+
+Apache Kafka (and other platforms like it) runs as software on servers
+built around the von Neumann computer architecture (CPU + RAM + I/O),
+and leverages the hardware elements for fast streaming of big data.
+
+** DONE Part 1: Distributed computing architectures
+
+- Challenges
+- Lambda architecture
+- Kappa architecture
+  
+** IN PROGRESS Part 2: Intro to Apache Kafka & Installation
+
+- Zero to Hero: Apache Kafka (video analysis)
+- Apache Kafka concepts (viz von Neumann architecture)
+- Installing Apache Kafka on Google Cloud Shell [Linux or Windows]
+
+** Part 3: Using Apache Kafka
+
+- Batch vs streaming & logging
+- Keys & message serialization
+- Scale & consumer groups
+
+
+** NEXT Review Data Architecture and Theory
+
+[I asked Gemini to produce 5 review questions based on the whiteboard
+screenshots from the last class.]
+
+1. *The "Big Data" Definition:* On the board, we broke down "Big Data"
+   into the "5 Vs." We categorized them into two groups: "Measurable"
+   and "Qualitative." Which 'Vs' fell into the *Measurable* category?
+   #+begin_quote
+   *Answer:* Volume (size), Variety (format), and Velocity (streaming).
+   (The Qualitative ones were Veracity and Value).
+   #+end_quote
+
+2. *Pipeline Stages:* According to the "Data Pipeline" diagram we drew,
+   what is the correct chronological order of the four main stages of
+   data movement?
+   #+begin_quote
+   *Answer:* Inject (or Ingest) -> Store -> Transform -> Analyze.
+   #+end_quote
+
+3. *Lambda Architecture:* In the Lambda Architecture diagram, incoming
+   data is split into two distinct processing paths (layers) before
+   reaching the "Serving Layer." What are these two layers called?
+   #+begin_quote
+   *Answer:* The *Batch Layer* (associated with human/historical analysis)
+    and the *Speed Layer* (associated with machine/real-time analysis).
+   #+end_quote
+
+4. *Kappa Architecture:* How does the Kappa Architecture differ
+   fundamentally from the Lambda Architecture in terms of its
+   processing layers?
+   #+begin_quote
+   *Answer:* Unlike Lambda, which has two paths (Batch + Speed), Kappa
+    simplifies this into a single *"Real-time" layer* (Streaming) using
+    tools like Apache Kafka for both processing and storage.
+   #+end_quote
+
+5. *Scaling Strategies:* On the board, we drew a diagram of "Houses"
+   with vertical and horizontal arrows. What is the difference between
+   the "Vertical" approach (making the house bigger) and the
+   "Horizontal" approach (building more houses), and which one is
+   Kafka designed for?
+   #+begin_quote
+   *Answer:*
+   - *Vertical Scaling (Scale Up):* Buying a bigger, more expensive
+     computer (adding RAM/CPU to one node).
+   - *Horizontal Scaling (Scale Out):* Adding more cheap computers
+     (nodes) to the cluster.
+   - *Kafka's Choice:* Kafka is a *Distributed System*, so it relies on
+     *Horizontal Scaling*.
+   #+end_quote
+
+** TODO Review Apache Kafka Basics
+
+1. I tested the scripts in a folder =kafka= that contains all the
+   installation, the =data= storage and the metadata. If I now rename
+   =kafka= -> =kafka2=, do I have to make any changes?
+
+   #+begin_quote
+   All links inside =kafka= are relative links. The only change you have
+   to make (not while running a Kafka instance - you must stop the
+   server) is to change =log.dirs= in =config/kraft/server.properties= to
+   =/home/birkenkrahekafka2/data= (better to use an absolute path here).
+   #+end_quote
+   
 
 * Week 15: Your project presentations
