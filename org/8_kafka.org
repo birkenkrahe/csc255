@@ -1,0 +1,2008 @@
+#+TITLE: Introduction to Distributed Computing Architectures
+#+AUTHOR: Marcus Birkenkrahe (pledged)
+#+SUBTITLE: CSC 255 - Computer Architecture - Fall 2025 Lyon College
+#+STARTUP: overview hideblocks indent entitiespretty:
+#+OPTIONS: toc:nil num:nil ^:nil:
+* Objectives
+
+- Modern data-processing oriented computer architecture
+- Introduction to Apache Kafka (video + discussion)
+- Installing Apache Kafka on Linux + Windows
+- Using Apache Kafka: read/write and key/value balancing
+- Scaling and consuming in the distributed system
+
+* Modern data [computer] architecture: challenges
+
+- What is data architecture? Can you define it?
+  #+begin_quote
+  A way to guarantee, using computer systems architecture that data
+  can be captured, ingested, stored, and processed for analysis.
+  #+end_quote
+
+- What is new in data architecture? Can you name anything?
+  #+begin_quote
+  1. Big data (5V = volume, variety, velocity, veracity, value)
+  2. Data lakes, data warehouses (Apache Airflow, Snowflake)
+  3. Relational databases (SQL) vs. graph databases (NoSQL)
+  4. Streaming vs. batch
+  5. Cloud vs. on-site/premises
+  #+end_quote
+
+- What is the impact on computer architecture?
+  #+begin_quote
+  Modern data computing architecture requires:
+  1. Scalability = growth (horizontal vs. vertical)
+  2. Security = access control (public vs. private)
+  3. Self-service = data pipelines (stream vs. batch)
+  #+end_quote
+
+- What's the workflow?
+  #+begin_quote
+  Also called the data engineering lifecycle
+  #+attr_html: :width 600px :float nil:
+  [[../img/lifecycle.png]]
+  #+end_quote
+
+* Examples of modern data architecture
+
+- *Lambda architecture* (2011): handles big data in real-time.
+  1. The batch layer aims at perfect accuracy (immutable).
+  2. The speed layer is not perfect but fast (low latency).
+  3. The service layer unifies batch and speed layer views.
+  #+attr_html: :width 400px :float nil:
+  [[../img/lambda.png]]
+
+- Lambda architecture ensures human-fault tolerance but is more
+  complex with dual data pipelines. Examples: Hadoop, Apache Spark
+  (speed layer), Apache Cassandra (NoSQL database).
+
+- *Kappa architecture*:
+  1. Solely relies on real-time streaming (batch = special case of
+     streams, replaying historical logs)
+  2. Only a speed layer - always fast.
+  3. No serving layer: Outputs written directly to views from the
+     stream processor. No merging required.
+  #+attr_html: :width 400px :float nil:
+  [[../img/kappa.png]]
+
+- Kappa architecture simplifies Lambda architecture: it's ideal for
+  stream-native environments but less suited if batch recomputation is
+  frequent or if storage costs for long logs prohibitive. Examples:
+  Apache Kafka.
+
+- *Use cases:*
+
+  1) Lambda: Fraud detection in finance analyzes systems in real-time
+     alongside historical patterns to detect anomalies. Batch layers
+     used for audits, speed layers for immediate alerts.
+
+  2) Kappa: Uber analyses ride data instantly using a unified Apache
+     Kafka (stream storage and connect) and Flink (stream processing).
+
+- In addition (outside of our scope) there are orchestration tools
+  that schedule and manage ETL pipelines (like Apache Airflow) and
+  DAGs (Directed Acyclic Graphs) - two data engineering concepts.
+
+- *Issues:* The more moving parts are present, the more difficult data
+  governance and operations become (leading to DevOps and MLOps
+  methodologies). The abstraction only simplifies the interface, not
+  the implementation, and generates more and more *metadata*.
+
+* PRACTICE Zero to Hero Plan: Apache Kafka
+
+- Think of Apache Kafka as a program to create log files on a disk.
+
+- It does for streaming data what Git does for files on a network.
+
+- Where does the name for "Apache Kafka" come from?
+  #+begin_quote
+  Apache Kafka was named after the author Franz Kafka because the
+  system is optimized for writing data (as in logging events
+  efficiently). Made me think of "In the Penal Colony" (1919). See
+  https://www.gutenberg.org/ebooks/25791.
+
+  "Apache" refers to a collection of Native American tribes known for
+  their resilience, strategic skills, and endurance ("fighting men").
+
+  The original software was the Apache HTTP server (get it as part of
+  the XAMPP distribution at apachefriends.org), "a patchy server".
+  #+end_quote
+
+- Apache Kafka - what is it? -> [[https://kafka.apache.org/intro][Video (10 min)]]
+  + Take notes of the main statements and concepts.
+  + Write down what you don't understand.
+  + I've recorded 10 sample topics.
+
+- What do the sections of this video talk about?
+  #+begin_quote
+  1. The world of databases vs. the world of Kafka (storage).
+  2. Connecting applications to data used by them (flow).
+  3. Doing interesting things with the data (scale)
+  #+end_quote
+
+- What is it then?
+  #+begin_quote
+  1) Think of events first and of things second.
+  2) Store events as logs with topics persistently (don't lose data).
+  3) Contrast event streaming with database batch processing.
+  4) Traditional databases are large, "monolithic", complex programs.
+  5) Modern data architecture is based on communicating microservices.
+  6) Modern applications consume data from (partitioned) topics.
+  7) Starting to use Apache Kafka can have a viral integration effect.
+  8) Applications want to do computations over the stored data.
+  9) Data in topics will have to be grouped, keyed, aggregated etc.).
+  10) Developers learn things by writing code.
+  #+end_quote
+
+- Examples for the concepts mentioned?
+  #+begin_quote
+  1) Thing: A Ship.
+  2) Event (state sequence): Ship arrived (A), unloaded (U), left (L).
+  3) Log: AUL--A-U--LAU-L-AULA-UL---AUL--
+  4) Database: a collection of data to extract, transform, load (ETL).
+  5) Monolith ("single stone"): database management program (RDBMS).
+  6) SaaS: Software as a Service (e.g. Google Docs over Internet).
+  7) Kafka Connect: a process that connects data and applications.
+  8) Microservices: small programs communicating via Kafka topics.
+  9) Enrichment (in Kafka) is the same as an Join (in SQL).
+  10) Kafka Streams: a Java API that processes streams of data.
+  11) Real-time analysis: process data for "instant" insight.
+  12) Fault-tolerance: resilient to losing data.
+  13) Scalable: can handle small to big data w/o architecture changes.
+  #+end_quote
+
+- Definition of Apache Kafka therefore?
+  #+begin_quote
+  A distributed event streaming platform for managing logs of events,
+  called topics,which store data durably, securely, and scalably.
+  #+end_quote
+
+- What is there to learn about Kafka?
+  #+begin_quote
+  1. The storage (disk, setup, topics)
+  2. The flow (producers, keys, serialization, consumers)
+  3. The scale (consumer groups, brokers, replication, consensus)
+  #+end_quote
+
+* Why Kafka Is an Excellent Illustration of Computer Architecture Concepts
+
+** Built Directly on Core Architecture Principles
+
+Kafka’s design maps cleanly to fundamental architecture ideas:
+append-only logs, sequential disk writes, and log-structured storage.
+You can see how low-level I/O patterns shape high-level system
+behavior.
+
+** Exposes Hardware Behavior Instead of Hiding It
+
+Kafka does not abstract away the OS or hardware. It leverages:
+- the page cache,
+- kernel read-ahead,
+- filesystem append semantics,
+- zero-copy transfer.
+These make hardware-level effects visible and measurable.
+
+** Demonstrates Parallelism Clearly (Partitions = Shards)
+
+Kafka partitions illustrate data parallelism:
+- multiple partitions on one machine → multi-core parallelism,
+- partitions spread across machines → horizontal scaling.
+You can see how partitioning maps to architectural parallelism.
+
+** Shows the Performance Difference Between Sequential and Random I/O
+
+Kafka’s high throughput comes from sequential disk writes.  The
+contrast to random I/O demonstrates:
+- disk seek behavior,
+- cache locality,
+- OS-level buffering.
+Architecture concepts become directly tied to real-world performance.
+
+** Makes Durability and Fault Tolerance Concrete
+
+Kafka replication and commit logs illustrate:
+- redundancy,
+- failsafe disk writes,
+- synchronous vs. asynchronous replication,
+- RAID-like trade-offs.
+These map directly onto storage architecture and reliability models.
+
+** Operationalizes Memory and Concurrency Models
+
+Kafka’s ordering and visibility guarantees depend on:
+- memory consistency,
+- write barriers,
+- concurrency control,
+- atomic commits.
+Yo see that distributed guarantees are rooted in CPU/OS models.
+
+** Industry-Relevant Example of Architecture in Action
+
+Kafka is widely used in data engineering, microservices, and stream
+processing. It provides a practical, high-impact way to show why CPU,
+memory, I/O, and OS concepts still matter in modern distributed
+systems.
+
+* Distributed computing challenges
+
+- *Append-only logs* (sequential disk I/O, log-structured storage)
+- *Partitioning and sharding* (data parallelism)
+- *Replication* (fault tolerance, redundancy)
+- *Page cache use / OS-level caching*
+- *Sequential vs. random I/O performance*
+- *Producer–consumer buffering*
+- *Backpressure and flow control*
+- *Distributed consensus* (controller election, ISR management)
+- *Message ordering and memory models*
+- *High-throughput networking* (zero-copy, batching)
+
+* How does Apache Kafka map onto the von Neumann architecture?
+
+1. CPU
+   - Role: Executes broker processes, handles compression, network,
+     replication; I/O-bound, not intensive.
+   - Optimization: Multi-core (8-12/broker); low overhead with KRaft.
+
+2. RAM
+   - Role: OS page cache for buffering/caching messages; JVM heap
+     ~4-6GB (Kafka is written in Java), rest for cache.
+   - Optional: 32-64GB/broker; maximizes reads from memory, avoids
+     garbage collection pauses.
+
+3. I/O Bus
+   - Role: Connects to disks (sequential writes/reads) & network
+     (replication, clients).
+   - Opt: Multiple SATA HDDs (JBOD); 10GbE+ network; partitioning for
+     load balance.
+
+* Installing Apache Kafka
+** Linux (Kafka's native environment)
+
+- I checked that this works in Google Cloud Shell:
+  [[https://ide.cloud.google.com][ide.cloud.google.com]]
+
+- Constraints: No administrative rights (local account admin only).
+  
+- If you fall behind, or if you need more information, invoke ~gemini~
+  straight from the commandline. Try this now, ask:
+
+  #+begin_example
+  user@cloudshell:~$ gemini "Explain 'Apache Kafka' like I'm 5 years old."
+  #+end_example
+
+  Here is the answer I got:
+  #+begin_quote
+  1. *Sending Mail (Producers):* You and your friends can write letters
+     (which are like pieces of information or data) and put them into
+     different mailboxes. For example, all letters about "games" go in
+     the "Games Mailbox," and all letters about "cartoons" go in the
+     "Cartoons Mailbox."
+
+  2. *The Magical Mailboxes (Kafka):* These aren't normal
+     mailboxes. They keep a copy of every letter put inside, in the
+     exact order they arrived. They are super organized and can handle
+     tons of letters from everyone at once.
+
+  3.  *Getting Mail (Consumers):* Any of your other friends who want to
+     read about games can go to the "Games Mailbox" and read the
+     letters. They don't take the letters out; they just read a
+     copy. This means many friends can all read the same letters
+     whenever they want.
+
+  So, *Apache Kafka* is like that super-fast, super-organized magical
+  mailbox system. It lets lots of different computer programs send
+  information (letters) and lets lots of other programs receive that
+  information, all at the same time, without getting messy.
+  #+end_quote
+
+  This is actually excellent!
+
+*** Check for/install Java (requires admin rights)
+
+#+begin_src bash :results none :exports both
+  java -version
+#+end_src
+
+Output:
+#+begin_example
+openjdk version "11.0.29" 2025-10-21
+OpenJDK Runtime Environment (build 11.0.29+7-post-Ubuntu-1ubuntu122.04)
+OpenJDK 64-Bit Server VM (build 11.0.29+7-post-Ubuntu-1ubuntu122.04, mixed mode, sharing)
+#+end_example
+
+If you don't see it, run
+#+begin_example
+sudo apt update
+sudo apt install default-jdk
+#+end_example
+
+*** Download & Extract Kafka binary (compressed file)
+
+Best don't do this inside Emacs, use a fully functional shell, like
+the terminal in Google Cloud Shell (https://ide.cloud.google.com)
+
+#+begin_example sh
+# Go to home folder
+cd ~
+
+# Download Kafka 3.9.0 (Scala 2.13) - faster via browser (116 MB)
+wget https://downloads.apache.org/kafka/3.9.1/kafka_2.13-3.9.1.tgz
+
+# Extract it
+tar -xzf kafka_2.13-3.9.1.tgz
+
+# Rename to 'kafka' for easy typing
+mv kafka_2.13-3.9.1 kafka
+
+# Enter the folder
+cd kafka
+#+end_example
+
+*** Configure Kafka logs to live in user space (locally)
+
+By default, Kafka might try to use /tmp, which is fine, but if you
+reboot, you lose your data.
+
+1) Create a =data= folder: =mkdir data=
+
+2) Edit the configuration:
+   #+begin_example
+   nano config/kraft/server.properties
+   #+end_example
+
+3) Find the line =log.dirs= (in =nano=, with CTRL-W)
+
+4) Comment: =# log.dirs=/tmp/kraft-combined-logs=
+
+5) Add instead: =log.dirs=/home/<YOUR_USERNAME>/kafka/data=
+
+6) Save and exit.
+
+*** Format storage (initialize Kafka cluster)[fn:1]
+
+This runs a Java script to create the system files. No root needed.
+
+#+begin_example sh
+# 1. generate cluster ID
+./bin/kafka-storage.sh random-uuid
+
+# 2. Format (Paste UUID)
+./bin/kafka-storage.sh format -t <PASTE_UUID_HERE> -c config/kraft/server.properties
+#+end_example
+
+Output:
+#+begin_example
+Formatting metadata directory /tmp/kraft-combined-logs with metadata.version 3.9-IV0.
+#+end_example
+
+The =meta.properties= file in =~/kafka/data=:
+#+begin_example
+#
+#Sat Nov 29 20:34:13 CST 2025
+node.id=1
+directory.id=zOfDbrDDdSgIDGKj3Y4j1w
+version=1
+cluster.id=cgXheDPcRqeB0LOeclRsyg
+#+end_example
+
+*** Start the Apache Kafka server
+
+This binds the server to port 9092. Since 9092 > 1024, Linux allows
+standard users to open it. Don't forget the *&* at the end of the
+command so that you can re-use the terminal!
+
+#+begin_example sh
+./bin/kafka-server-start.sh config/kraft/server.properties &
+#+end_example
+
+*** Verification
+
+Leave the server running in that shell. You can check with ~ps~ or
+with ~top~ - you will see that a ~java~ application is running.
+
+#+begin_example sh
+./bin/kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092
+#+end_example
+
+This creates a test topic.
+
+*** Activity: "Hello World" Messaging
+
+Assume that you want to stream messages from a fleet of trucks.
+
+1) Create a "Topic" (A file folder for your data/messages):
+   #+BEGIN_SRC cmd
+   ./bin/kafka-topics.sh --create --topic truck-gps --bootstrap-server localhost:9092
+   #+END_SRC
+
+   - You should see the message =Created topic truck-gps= at the end.
+   - The =data= directory also has a new directory =truck-gps-0=.
+
+2) Start a "Producer" (To write data):
+   #+BEGIN_SRC cmd
+   ./bin/kafka-console-producer.sh --topic truck-gps --bootstrap-server localhost:9092
+   #+END_SRC
+   - You will see a greater-than sign (>) - the Kafka console prompt.
+   - Type: ~Truck 101: Moving North~ and hit Enter.
+   - Type: ~Truck 101: Stopped~ and hit Enter.
+   - Press ~Ctrl+C~ to exit the producer.
+
+3) Start a "Consumer" (To read data back):
+   #+BEGIN_SRC cmd
+   ./bin/kafka-console-consumer.sh --topic truck-gps --from-beginning --bootstrap-server localhost:9092
+   #+END_SRC
+   - You should see your messages appear!
+   - When the end of the partition is reached, you can leave with CTRL+C.
+   - You'll see: =Processed a total of 2 messages= at the end.
+
+*** Shut the server down.
+
+Use the built-in stop script in another terminal window:
+
+#+begin_example sh
+./bin/kafka-server-stop.sh
+#+end_example
+
+8. If you check your =kafka/data= directory, you will see a number of
+   checkpoint and offset files and a topic directory with metadata.
+
+   #+attr_html: :width 600px :float nil:
+   [[../img/kafka_data.png]]
+
+** CANCELLED Windows (Windows / No-Admin)
+
+Sources: This content was provided by Gemini 3, tested and modified by
+me including multiple online sources (Stackoverflow.com etc.).
+
+*** Prerequisite Check
+1. Click the Windows Start button, type ~cmd~, and open "Command
+   Prompt".
+2. Type the following command and press Enter:
+   #+BEGIN_SRC cmd
+   java -version
+   #+END_SRC
+3. /Check Output:/ You should see a version number (e.g., "11", "17", or
+   "21").  (If you see "not recognized", raise your hand).
+
+*** Download & Install (The "Portable" Method)
+1. Open your web browser and go to:
+   [[https://kafka.apache.org/downloads]]
+2. Look under the *Binary downloads* section.
+3. Click the link for *Scala 2.13* (e.g., ~kafka_2.13-3.9.1.tgz~).
+4. Once downloaded, open the ~.tgz~ file (using 7-Zip or Windows Explorer).
+5. *CRITICAL STEP:*
+   - Inside the zip, you will see a folder (e.g., ~kafka_2.13-3.9.1~).
+   - Drag that folder directly to your *C:* drive.
+   - Rename the folder to simply ~Kafka~.
+   - /Result:/ You should now have a folder at ~C:\Kafka~.
+
+*** Configuration (Setting the Storage Path)
+1. Open the *Notepad* application.
+2. Go to *File > Open*.
+3. Navigate to: ~C:\Kafka\config\kraft~
+4. In the bottom-right dropdown menu, change "Text Documents (*.txt)"
+   to *"All Files (*.*)"* so you can see the configuration files.
+5. Select the file named ~server.properties~ and open it.
+6. Scroll down to find the line that starts with ~log.dirs~.
+7. Delete that line and replace it with this EXACT text (notice the
+   forward slashes '/'):
+   #+BEGIN_SRC properties
+   log.dirs=C:/Kafka/kafka-logs
+   #+END_SRC
+8. Press ~Ctrl+S~ to save, then close Notepad.
+
+*** Initialize the Cluster (Format the Hard Drive)
+1. Go back to your Command Prompt window.
+2. Navigate to your new Kafka folder:
+   #+BEGIN_SRC cmd
+   cd C:\Kafka
+   #+END_SRC
+3. Generate a unique ID for your cluster:
+   #+BEGIN_SRC cmd
+   bin\windows\kafka-storage.bat random-uuid
+   #+END_SRC
+   /Copy the code it prints out (e.g., MkU3OEVBNT...)./
+4. Format the storage directory (Replace <UUID> with your code):
+   #+BEGIN_SRC cmd
+   bin\windows\kafka-storage.bat format -t <UUID> -c config\kraft\server.properties
+   #+END_SRC
+   /Success Message:/ "Formatting metadata directory..."
+
+*** Start the Kafka Server
+Run this command to start the engine:
+#+BEGIN_SRC cmd
+   bin\windows\kafka-server-start.bat config\kraft\server.properties
+#+END_SRC
+- You will see text scrolling rapidly.
+- *DO NOT CLOSE THIS WINDOW.* This window is your running server.
+
+*** Activity: "Hello World" Messaging
+Since the first window is busy running the server, you need a second
+window to act as the user.
+
+1. Open a *SECOND* Command Prompt window.
+2. Go to the folder:
+   #+BEGIN_SRC cmd
+   cd C:\Kafka
+   #+END_SRC
+
+3. Create a "Topic" (A file folder for your data):
+   #+BEGIN_SRC cmd
+   bin\windows\kafka-topics.bat --create --topic truck-gps --bootstrap-server localhost:9092
+   #+END_SRC
+
+4. Start a "Producer" (To write data):
+   #+BEGIN_SRC cmd
+   bin\windows\kafka-console-producer.bat --topic truck-gps --bootstrap-server localhost:9092
+   #+END_SRC
+   - You will see a greater-than sign (>).
+   - Type: ~Truck 101: Moving North~ and hit Enter.
+   - Type: ~Truck 101: Stopped~ and hit Enter.
+   - Press ~Ctrl+C~ to exit the producer.
+
+5. Start a "Consumer" (To read data back):
+   #+BEGIN_SRC cmd
+   bin\windows\kafka-console-consumer.bat --topic truck-gps --from-beginning --bootstrap-server localhost:9092
+   #+END_SRC
+   - You should see your messages appear!
+
+*** Cleanup (End of Class)
+1. Go to the *Server* window (the first one).
+2. Press ~Ctrl+C~ to stop the server.
+3. If asked "Terminate batch job (Y/N)?", type ~Y~ and hit Enter.
+
+** CANCELLED Review: Kafka Setup in Windows without admin rights
+
+1. Why did we install Kafka at ~C:/Kafka~ and not deep inside our
+   ~/Downloads~ folder?
+
+   #+begin_quote
+   Windows has a hard ~MAX_PATH~ length limit on file paths (the length
+   of two tweets). Beyond that, it cannot read, extract or execute
+   files. Kafka is not just one =.exe= file like Chrome or Word, it's a
+   collection of hundreds of Java (=.jar=) libraries inside the =libs=
+   folder. Moving Kafka to the home directory shortens the start of
+   the path to 8 characters. Linux, by the way, has a limit of
+   ~PATH_MAX = 4096~ characters (that's 2 pages of text) -> *File system*.
+   #+end_quote
+
+2. When we edited ~server.properties~ to set the ~log.dirs~ value, why did
+   we use forward slashes (~C:/Kafka/kafka-logs~) instead of standard
+   Windows backslashes?
+   #+begin_quote
+   Because Kafka configuration files are read by Java, which treats
+   backslashes (C-style) as escape characters -> *Configuration*.
+   #+end_quote
+
+3. When you ran the ~format~ command in Kafka, you had to past a long
+   string (UUID). What is the purpose of that code?
+   #+begin_quote
+   It is the cluster ID: It brands the virtual hard drive so that the
+   broker knows it belongs to the correct cluster -> *Architecture*.
+   #+end_quote
+
+4. When you stopped your server at the end of the last class and
+   restarted it today, are your "Truck GPS" messages still there?
+   #+begin_quote
+   Yes. Kafka writes to the Disk (Sequential Log), not just (volatile)
+   RAM -> *Persistence*.
+   #+end_quote
+
+5. Which script starts the actual broker process (the one that must
+   stay running in the background for everything else to work):
+   =kafka-topics.bat=, or =kafka-server-start.bat=?
+   #+begin_quote
+   =kafka-server-start.bat= - the other scripts are just tools that talk
+   to this master process.
+   #+end_quote
+
+* Review: Kafka Setup in Linux (Cloud Shell)
+
+1. We installed Kafka by simply extracting a ~.tgz~ file to our home
+   directory. Why didn't we need ~sudo~ (Admin rights) to install or run
+   this server?
+   #+begin_quote
+   Because we installed it in our own **User Space** (Home Directory)
+   and the server listens on a port higher than 1024 (Port 9092). In
+   Linux, ports under 1024 are reserved for ~root~, but anything above
+   that is open for standard users -> *File System/Permissions*.
+   #+end_quote
+
+2. In ~server.properties~, we defined the ~log.dirs~ path starting with a
+   forward slash (~/home/student...~). What does that leading slash tell
+   the Linux system?
+   #+begin_quote
+   It indicates an **Absolute Path** starting from the system Root. This
+   ensures that the Kafka Broker can find its data directory exactly,
+   no matter which folder you happen to be in when you run the start
+   command -> *Configuration*.
+   #+end_quote
+
+3. When you ran the ~format~ command in Kafka, you had to paste a long
+   string (UUID). What is the purpose of that code?
+   #+begin_quote
+   It is the cluster ID: It brands the directory on the persistent
+   disk so that the broker knows it belongs to the correct cluster ->
+   *Architecture*.
+   #+end_quote
+
+4. When you stopped your server at the end of the last class and
+   restarted it today, are your "Truck GPS" messages still there?
+   #+begin_quote
+   Yes. Kafka writes to the Disk (Sequential Log), not just (volatile)
+   RAM, and our Cloud Shell Home Directory is backed by persistent
+   storage -> *Persistence*.
+   #+end_quote
+
+5. Which script starts the actual broker process (the one that must
+   stay running in the background for everything else to work):
+   =kafka-topics.sh=, or =kafka-server-start.sh=?
+   #+begin_quote
+   =kafka-server-start.sh= - the other scripts are just tools that talk
+   to this master process.
+   #+end_quote
+
+* Apache Kafka Theory
+
+- Apache Kafka functions as a distributed streaming platform that
+  treats data as immutable event logs known as topics, promoting an
+  event-first approach over traditional databases.
+
+- It supports scalable and fault-tolerant real-time data processing
+  through decoupled producers that write data and consumers that read
+  it.
+
+- Core elements include brokers for storage, partitions for
+  parallelism, replication for durability, and offsets for tracking
+  consumption progress.
+
+- The system is optimized for high-throughput workloads, ensuring
+  minimal downtime in handling large-scale streaming applications.
+
+- Sources: This section is largely based on DataCamp's "Introduction
+  to Apache Kafka" (by Mike Metzger) and Udemy's "Apache Kafka Series"
+  (Stephane Maarek, conduktor.io), with occasional help from GenAI.
+
+** Kafka topics
+#+attr_html: :width 600px :float nil:
+[[../img/topics.png]]
+
+- Topics act as unconstrained streams of data similar to database
+  tables, accommodating various message formats like logs or GPS
+  updates.
+
+- They are partitioned for ordered, immutable message sequences, with
+  configurable retention periods such as one week.
+
+- Offsets serve as partition-specific pointers, guaranteeing order
+  only within partitions unless keys direct distribution.
+
+- This enables multiple independent services to consume the same
+  stream for applications like real-time analytics.
+
+** Kafka Producers
+
+- Producers handle writing data to partitioned topics, automatically
+  selecting brokers and recovering from failures.
+
+- Messages can include keys for consistent hashing via murmur2 to
+  ensure ordering in the same partition, or null keys for round-robin
+  load balancing.
+
+- Each message contains keys, values, timestamps, headers, and
+  compression, serialized into bytes using formats like Avro or
+  Protobuf.
+
+- Serialization maintains compatibility, allowing deterministic
+  routing for fields like truck IDs in GPS tracking.
+
+- How a Kafka message looks like when created by the producer before
+  being sent to storage:
+  #+attr_html: :width 400px :float nil:
+  [[../img/message.png]]
+
+- Messages have to be serialized to transform the data into bytes. The
+  serializers are used on the value and the key.
+
+- Example: Message serialization for a {key,value} pair.
+  #+attr_html: :width 400px :float nil:
+  [[../img/serializer.png]]
+
+- Common serializers: String (JSON), int, float, avro, protobuf
+  #+begin_quote
+  Apache Avro is a serialization framework developed for Apache
+  Hadoop. Protocol Buffers (Protobuf) is a language- and
+  platform-neutral serialization format developed by Google. It is
+  faster and smaller than XML or JSON. Serialization involves schema
+  handling between producer and consumer - i.e. adding fields without
+  breaking existing applications.
+  #+end_quote
+
+** Kafka Consumers
+#+attr_html: :width 600px :float nil:
+[[../img/consumer.png]]
+
+- Consumers pull ordered data from topics via brokers, recovering from
+  failures and reading from low to high offsets per partition.
+
+- No cross-partition ordering is assured, focusing reliability on
+  sequential consumption within partitions.
+
+- Deserialization converts byte messages back to usable formats,
+  requiring matching configurations with producer serializers.
+
+- This ensures efficient stream processing while preserving topic
+  lifecycle compatibility.
+
+
+- The consumer needs to know in advance what the expected data formats
+  are to deserialize - it needs to be configured accordingly.
+  #+attr_html: :width 400px :float nil:
+  [[../img/deserializer.png]]
+
+- The serializer (producer) / deserialization (consumer) type must not
+  change during a topic lifecycle (instead create a new topic).
+
+** Consumer groups and consumer offsets
+
+- Groups enable collaborative reading where consumers handle exclusive
+  partitions, with extras as inactive standbys for scalability.
+
+- Multiple groups can consume the same topic independently, with
+  offsets stored in =__consumer_offsets= for progress tracking.
+
+- Periodic offset commits allow recovery after consumer failures,
+  supporting delivery semantics like at least once or exactly once.
+
+- Idempotence is advised to manage duplicates, balancing reliability
+  with performance in processing.
+
+- Consumers in an application read data as a group - each from
+  exclusive partitions.
+  #+attr_html: :width 600px :float nil:
+  [[../img/consumer_groups.png]]
+
+- If you have more consumers than partitions, some consumers will be
+  inactive (stand-by).
+  #+attr_html: :width 600px :float nil:
+  [[../img/inactive_consumer.png]]
+
+- You can have multiple consumer groups on the same topic.
+  #+attr_html: :width 600px :float nil:
+  [[../img/consumer_topics.png]]
+
+- As a table:
+  | Concept        | Relationship To…                 | Cardinality         |
+  |----------------+----------------------------------+---------------------|
+  | Topic          | → Partitions                     | 1 → N               |
+  | Partition      | → Topic                          | N → 1               |
+  | Partition      | → Consumer (in consumer group)   | 1 → 1               |
+  | Consumer       | → Partitions (in consumer group) | 1 → N               |
+  | Consumer       | → Application                    | N → 1               |
+  | Application    | → Consumers                      | 1 → N               |
+  | Topic          | → Consumer Groups                | 1 → N               |
+  | Consumer Group | → Partitions                     | N → N (constrained) |
+
+- In prose:
+  1) A topic is split into multiple partitions.
+  2) Each partition belongs to exactly one topic.
+  3) A partition is consumed by exactly one consumer within a group.
+  4) A consumer may read from multiple partitions.
+  5) Many consumers can belong to one application instance.
+  6) Applications scale by running many consumers.
+  7) Many consumer groups can read the same topic independently.
+  8) Partitions are distributed across consumers.
+  9) The number of consumers is smaller than the number of partitions.
+  10) If you have more consumers than partitions some are inactive.
+
+- When a consumer in a group has processed data received from Kafka,
+  it should be periodically committing the offsets.
+  #+attr_html: :width 600px :float nil:
+  [[../img/consumer_offsets.png]]
+
+- If a consumer "dies" (digitally) and comes back to life, it can read
+  back from where it left off b/c of the committed consumer offsets.
+
+- Delivery semantics for consumers (for manual commit):
+
+  1) At least once: commit offsets after message is processed. If it
+     goes wrong, message will be read again (with idempotence:
+     repeated processing does no harm).
+  2) At most once: offsets are committed as soon as messages are
+     received.
+  3) Exactly once: for Kafka-to-Kafka workflows (using the
+     transactional API, Kafka Streams API).
+
+- Explanation:
+  #+begin_quote
+  These "delivery semantics" describe what guarantees you get
+  depending on when you commit an offset (a pointer to where you are
+  in partition at the time):
+  1) *At least once* means commit *after* processing:
+     1. Read message
+     2. Process message
+     3. Commit offset
+     -----
+     - *Guarantee:* You will never miss a message.
+     - *Risk:* If consumer crashes after processing but before commit,
+       the offset is not updated and the message is delivered again.
+     - *Outcome*: Duplicate processing is possible (got to be idempotent
+       to be safe).
+     - *Use*: Most applications (safe default); logging, analytics, DB
+       writes.
+
+  2) *At most once* means commit *before* processing:
+     1. Receive message
+     2. Commit offset
+     3. Process message
+     -----
+     - *Guarantee:* You will never process a message twice.
+     - *Risk:* If the consumer crashes after commit but before
+       processing, the message is lost forever (Kafka thinks it's
+       already processed).
+     - *Outcome*: Fast, but unsafe.
+     - *Use*: Low-value telemetry, monitoring updates, anything where
+       losing some message is acceptable.
+
+  3) *Exactly once* is only guaranteed for Kafka-to-Kafka workflows,
+     using transactions.
+     1. Message is processed once.
+     2. Result is written once.
+     3. Consumer's offset is committed atomically with the output.
+     -----
+     - *Guarantee:* No duplication, no loss. Only within Kafka. Not
+       available to general external sinks like databases unless the
+       external system itself supports idempotent/transactional
+       writes.
+     - *Use*: Stream processing pipelines topic->processing->topic
+
+  | Semantics     | When Offset Is Committed      | Duplicate Risk | Loss Risk |
+  |---------------+-------------------------------+----------------+-----------|
+  | At least once | After processing              | Yes            | No        |
+  | At most once  | Before processing             | No             | Yes       |
+  | Exactly once  | Transactionally (Kafka↔Kafka) | No             | No        |
+  #+end_quote
+
+** Brokers and topics
+
+- Clusters consist of multiple ID-identified brokers hosting topic
+  partitions for horizontal data distribution and scaling.
+
+- Any bootstrap broker provides access to the full cluster metadata
+  upon connection.
+
+- Topics with varying partitions (e.g., 3 or 2) are spread across
+  brokers for efficient load balancing.
+
+- This setup eliminates centralized dependencies beyond initial
+  connections, enhancing scalability.
+
+- Relationship between brokers, topics and partitions: =Topic-A= has 3
+  partitions, and =Topic-B= has 2 partitions.
+  #+attr_html: :width 600px :float nil:
+  [[../img/broker.png]]
+
+- Every Kafka broker in a cluster is a "bootstrap server" (that's part
+  of the CLI commands.). When it is connected, it returns all the
+  details on the cluster to the client.
+  #+attr_html: :width 600px :float nil:
+  [[../img/cluster.png]]
+
+- The bootstrap broker is like a gateway server, and each broker is
+  like a smart network switch in a network.
+
+** Topic replication
+
+- Clusters consist of multiple ID-identified brokers hosting topic
+  partitions for horizontal data distribution and scaling.
+
+- Any bootstrap broker provides access to the full cluster metadata
+  upon connection.
+
+- Topics with varying partitions (e.g., 3 or 2) are spread across
+  brokers for efficient load balancing.
+
+- This setup eliminates centralized dependencies beyond initial
+  connections, enhancing scalability.
+
+- Example: =Topic-A= nas 2 partitions with a replication factor 2
+  #+attr_html: :width 600px :float nil:
+  [[../img/replication.png]]
+
+- If we lose Broker 102, both topic partitions are fine.
+
+- At any time only one broker can be a leader, and producers can only
+  send data to the broker that leads a partition. Here, 101 leads
+  partition 0, and 102 leads partition 1.
+  #+attr_html: :width 600px :float nil:
+  [[../img/leader_broker.png]]
+
+- ISR = In-Synch-Replica:
+  #+begin_quote
+  Kafka keeps multiple copies (replicas) of each partition for fault
+  tolerance. The *In-Sync Replicas* (ISR) are the set of replicas that:
+
+  - have fully caught up with the leader’s log, and
+  - are actively receiving new writes with minimal lag.
+
+  Only replicas in the ISR are eligible to take over as leader if the
+  current leader fails. If a replica falls too far behind, it is
+  removed from the ISR until it catches up again.
+  #+end_quote
+
+- Producers can only write to leader broker for a partition, consumers
+  by default will read from it.
+  #+attr_html: :width 600px :float nil:
+  [[../img/leaders.png]]
+
+- Since v2.4, consumers can be configured to read from the closest
+  replica, too
+  #+attr_html: :width 600px :float nil:
+  [[../img/leaders2.png]]
+
+** Producer acknowledgement & topic durability
+
+- Acknowledgments (=acks=) options include 0 for speed with loss risk, 1
+  for leader-only with limited loss, and all for full replica
+  confirmation with no loss.
+
+- Replication factor N allows tolerance of up to N-1 broker failures
+  without data loss.
+
+- This configurable balance supports high durability for critical
+  applications.
+
+- Acks enhance topic reliability in varying operational scenarios.
+
+- Producers can choose to receive acknowledgements of data writes:
+  | ~acks=0~   | won't wait for acknowledgement       | possible data loss |
+  | ~acks=1~   | will wait for leader acknowledgement | limited data loss  |
+  | ~acks=all~ | leader + replicas acknowledge        | no data loss       |
+
+- For a topic replication factor = 2, Kafka can lose 2 brokers: for a
+  replication factor of N > 1, you can permanently lose up to N-1 brokers
+  and still recover your data.
+
+** Zookeeper
+
+- Zookeeper coordinates Kafka by managing broker lists, leader
+  elections, metadata storage, and change notifications.
+
+- It uses odd-numbered ensembles for quorum reliability but is phasing
+  out in favor of KRaft from Kafka 3.x.
+
+- Full removal is set for version 4.0, with restricted ports for
+  security to brokers only.
+
+- This service ensures cluster stability in older Kafka setups.
+
+- Zookeeper operates with an odd number of servers (an ensemble):
+  #+attr_html: :width 600px :float nil:
+  [[../img/zookeeper.png]]
+
+- All APIs and commands that used Zookeeper are migrated to use Kafka
+  instead so that when clusters are migrated, no change is visible.
+
+- Zookeeper is less safe: Zookeeper ports should only be opened to
+  allow traffic from Kafka brokers, not Kafka clients.
+
+** Why Older Versions of Kafka Required ZooKeeper
+
+- ZooKeeper enabled leader election and tracking for partitions,
+  ensuring single-leader reliability.
+
+- It stored cluster metadata like broker registrations, topics, and
+  early ISR details.
+
+- Failure detection via heartbeats allowed rebalancing, with
+  consistency preventing split-brain issues.
+
+- As Kafka's external coordination layer, it provided atomic changes
+  until replaced by internal KRaft.
+
+- ZooKeeper provided the distributed coordination services that Kafka
+  originally did not implement itself. Specifically, ZooKeeper handled:
+
+  1. Leader Election: Kafka partitions need a single leader
+     replica. ZooKeeper elected and tracked the leader for every
+     partition reliably.
+
+  2. Metadata Storage: ZooKeeper stored cluster-wide metadata:
+     - broker registrations
+     - topic configurations
+     - partition assignments
+     - ISR (in-sync replica) membership (early versions)
+
+  3. Failure Detection: ZooKeeper monitored broker heartbeats. When a
+     broker died, ZooKeeper informed Kafka so partitions could be
+     rebalanced.
+
+  4. Consistency Guarantees: ZooKeeper provided a strongly consistent
+     coordination layer that Kafka relied on for:
+     - atomic state changes,
+     - avoiding split-brain,
+     - ensuring only one leader at a time.
+
+  - Summary: Kafka originally lacked built-in coordination
+    mechanisms. ZooKeeper served as the external, reliable “source of
+    truth” for cluster state, leadership, and failure detection until
+    Kafka’s own Raft-based metadata quorum (KRaft) replaced it.
+
+** Kafka KRaft (removing Zookeeper - since 2020)
+
+- KRaft embeds Raft consensus in Kafka for metadata, overcoming
+  ZooKeeper's scaling limits beyond 100,000 partitions.
+
+- It supports millions of partitions, simplifying monitoring,
+  security, administration, and recovery.
+
+- APIs remain unchanged for seamless migration, introduced in 2020 and
+  standard from 3.x.
+
+- ZooKeeper support ends by Kafka 4.0, boosting overall cluster
+  performance.
+
+** Summary
+
+- Kafka clusters feature brokers with replicated, partitioned topics,
+  leaders, and ISRs for fault tolerance.
+
+- Producers employ keys, round-robin, and acks for ordered, durable
+  writes.
+
+- Consumers use groups, offsets, and semantics for reliable reading.
+
+- The shift from ZooKeeper to KRaft enhances coordination in scalable
+  streaming architectures.
+
+#+attr_html: :width 600px :float nil:
+[[../img/kafka_summary.png]]
+
+* Using Kafka Lab 1: The Foundation (Read & Write)
+
+** The Problem: Batch vs. Streaming
+
+*Concept:* Imagine a retail store manager. At 9:00 PM every night, they
+download a CSV file of all the day's sales, put it on a USB stick, and
+email it to Headquarters.
+
+*Questions:*
+- If a credit card was stolen at 10:00 AM and used for fraud, when
+  does HQ find out? (Answer: Not until the next day).
+- This is called *Batch Processing*. It's like a bucket of water. You
+  wait for it to fill up, then you carry it.
+
+*The New Way (Event Streaming):*
+- In modern systems (Uber, Netflix, Banks), every mouse click, every
+  ride request, and every payment is an *Event*.
+- We process these events *continuously*, the millisecond they happen.
+- This is *Stream Processing*. It's like a garden hose—the water flows
+  constantly.
+
+** The Solution: Apache Kafka
+
+*Definition:* Apache Kafka is a distributed event streaming platform. It
+connects things that create data (Producers) to things that use data
+(Consumers).
+
+*The "Secret Sauce": The Append-Only Log*
+- Why are standard databases (SQL) slow for this?
+  #+begin_export ascii
+  They have to jump around the hard drive to update rows (Random I/O).
+  #+end_export
+
+- Why is Kafka fast?
+  #+begin_quote
+  - Kafka is an *Append-Only Log*. It only writes to the *end* of the file
+    (Sequential I/O).
+  - It relies on the physics of the disk: writing in a straight line
+    is faster than jumping around.
+  #+end_quote
+
+- *Key Kafka architecture concepts:*
+  - *Topic:* A category or feed name (like a folder).
+  - *Producer:* The app sending data.
+  - *Broker:* The server storing the data.
+  - *Consumer:* The app reading the data.
+
+** Lab Guide: Kafka on Linux (Cloud Shell)
+
+*** Installation & Setup
+
+If you installed Kafka before in your home drive, it will persist.
+
+**** Download & Extract
+
+1. Open your Cloud Shell Terminal.
+
+2. Download the Kafka binaries (Scala 2.13 version):
+   #+begin_src bash
+     wget https://downloads.apache.org/kafka/3.9.0/kafka_2.13-3.9.0.tgz
+   #+end_src
+3. Extract the archive:
+   #+begin_src bash
+     tar -xzf kafka_2.13-3.9.0.tgz
+   #+end_src
+4. Rename the folder to simply ~kafka~ for easier typing:
+   #+begin_src bash
+     mv kafka_2.13-3.9.0 kafka
+   #+end_src
+5. Enter the directory:
+   #+begin_src bash
+     cd kafka
+   #+end_src
+
+**** Configure Storage (User Space)
+
+We need to tell Kafka to store data in your home directory so it
+persists if the session restarts.
+
+1. Create a data directory:
+   #+begin_src bash
+     mkdir data
+   #+end_src
+2. Open the configuration file in Nano:
+   #+begin_src bash
+     nano config/kraft/server.properties
+   #+end_src
+3. Find the line starting with ~log.dirs~.
+4. Change it to use your home path (replace ~<USER>~ with your actual username, or use the absolute path):
+   #+begin_src properties
+   log.dirs=/home/<YOUR_USER>/kafka/data
+   #+end_src
+   /(Tip: You can use ~$PWD/data~ if you are unsure of your username, but
+   absolute paths are safer.)/
+
+5. Press ~Ctrl+O~ (Enter) to save, then ~Ctrl+X~ to exit.
+
+n**** Initialize the Cluster (Formatting)
+1. Generate a unique Cluster ID (UUID):
+   #+begin_src bash
+     ./bin/kafka-storage.sh random-uuid
+   #+end_src
+   /Copy the alphanumeric string it outputs./
+2. Format the storage directory (Paste your UUID):
+   #+begin_src bash
+     ./bin/kafka-storage.sh format -t <YOUR_UUID_HERE> -c config/kraft/server.properties
+   #+end_src
+
+*** Start the Broker
+
+Run the server start script.
+#+begin_src bash
+  ./bin/kafka-server-start.sh config/kraft/server.properties
+#+end_src
+
+*Observation:* You will see text scrolling. Once it stops, the server is live.
+
+*Action:* Do NOT close this tab. (You could also use one tab with ~&~, for
+example if you're ssh-ing into a computer and want to reuse one terminal).
+
+*** "Hello World" Messaging
+
+**** Create a Topic
+1. Click the "+" icon to open a *New Terminal Tab*.
+2. Navigate to your folder:
+   #+begin_src bash
+     cd kafka
+   #+end_src
+3. Create a topic named "truck-gps":
+   #+begin_src bash
+     ./bin/kafka-topics.sh --create --topic truck-gps --bootstrap-server localhost:9092
+   #+end_src
+
+**** Produce Data (Write)
+1. Start the Console Producer:
+   #+begin_src bash
+     ./bin/kafka-console-producer.sh --topic truck-gps --bootstrap-server localhost:9092
+   #+end_src
+2. You will see a ~>~ prompt. Type messages and hit Enter:
+   #+begin_example
+   > Truck 101: Moving North
+   > Truck 101: Stopped at red light
+   > Truck 101: Moving South
+   #+end_example
+3. Press ~Ctrl+C~ to exit the producer.
+
+**** Consume Data (Read)
+
+Run the Console Consumer to read back what you wrote:
+#+begin_src bash
+  ./bin/kafka-console-consumer.sh --topic truck-gps --from-beginning --bootstrap-server localhost:9092
+#+end_src
+
+*** Under the Hood Inspection - Log files
+
+Let's prove that Kafka is just writing to a file on the disk.
+1. Navigate to your data directory:
+   #+begin_src bash
+     cd ~/kafka/data/truck-gps-0
+   #+end_src
+2. List the files:
+   #+begin_src bash
+     ls -lh
+   #+end_src
+   /You will see a .log file, a .index file, and a .timeindex file./
+3. View the content of the log:
+   #+begin_src bash
+     cat *.log
+   #+end_src
+
+   *Analysis:* You will see your text ("Truck 101...") mixed with
+   "garbage" characters. Those garbage characters are the binary
+   overhead (offsets, timestamps, serialization) that Kafka adds for
+   efficiency.
+
+*** Stop the broker
+
+Use the built-in stop script in another terminal window:
+
+#+begin_example sh
+./bin/kafka-server-stop.sh
+#+end_example
+
+Check with ~ps~.
+
+* Using Kafka Lab 2: The Data Flow (Keys & Serialization)
+
+** Review & Reboot
+
+*Concept:* We proved last time that Kafka is a "Log." Today we look at
+the /envelope/ we send to that log.
+
+*Action:* Since Cloud Shell environments might have reset, we need to
+restart our engine first. (See Lab 1 Step 1).
+
+** Anatomy of a Message
+
+A message packet contains:
+1. A *Key:* (Optional) Used for routing.
+2. A *Value:* The actual data (JSON, Text, Binary).
+3. A *Timestamp:* When it happened.
+4. A *Headers:* Metadata (like email headers).
+
+** The "Router" Logic (Keys)
+
+*The Big Question:* If we have a Topic with 3 Partitions (3 folders),
+how does the Producer decide which folder to drop the message into?
+
+*Scenario A: Key = Null*
+
+- Logic: *Round Robin* ("Load Balancing").
+- "Message 1 -> Part 0", "Message 2 -> Part 1", "Message 3 -> Part 2".
+- *Pros:* Even distribution.
+- *Cons:* No ordering guarantee between related messages.
+
+*Scenario B: Key = "Truck-101"*
+- Logic: *Hashing*.
+- Formula: ~targetPartition = hash(Key) % numPartitions~ (murmur 2)
+- *Guarantee:* All messages with the Key "Truck-101" will ALWAYS go to
+  the exact same partition.
+- *Why?* To keep the GPS history of that specific truck in strict
+  chronological order.
+
+** PRACTICE Lab 2 exercise
+
+*** Restart the Engine
+
+1. Open Cloud Shell.
+2. Navigate to your folder: ~cd kafka~
+3. Start the server (if not running)[fn:2]:
+   #+begin_example bash
+     ./bin/kafka-server-start.sh config/kraft/server.properties
+   #+end_example
+4. Do not close this tab.
+5. Open a new tab.
+
+*** Create a Multi-Partition Topic
+
+We need 3 partitions to see the routing logic work.
+
+1. Open a *New Tab*.
+
+2. Run:
+   #+begin_example bash
+     ./bin/kafka-topics.sh --create
+                           --topic orders
+                           --bootstrap-server localhost:9092
+                           --partitions 3
+   #+end_example
+
+   You're told: =Created topic orders=.
+
+*** The "Keyed" Producer
+
+We will turn on two hidden flags: one to parse keys, and one to define
+the separator.
+
+1. Run this command carefully:
+   #+begin_example bash
+     ./bin/kafka-console-producer.sh --topic orders
+                                     --bootstrap-server localhost:9092 \
+                                     --property "parse.key=true" \
+                                     --property "key.separator=:"
+   #+end_example
+2. You are now in "Key Mode". Type these messages:
+   #+begin_example
+   truck1:moving north
+   truck2:moving south
+   truck1:stopped
+   truck2:delivering
+   truck3:starting engine
+   #+end_example
+3. Press ~Ctrl+C~.
+
+*** The "Inspection" Consumer
+Now we read them back, asking Kafka to reveal /where/ it put them.
+1. Run:
+   #+begin_example bash
+     ./bin/kafka-console-consumer.sh --topic orders --bootstrap-server localhost:9092 \
+                                --from-beginning \
+                                --property "print.key=true" \
+                                --property "print.partition=true"
+   #+end_example
+
+   *Observation:*
+   - Look at "Partition: 1" (or 0 or 2).
+   - You will see that *all* ~truck1~ messages landed in the *same*
+     partition.
+   - You will see that ~truck2~ messages might be in a *different*
+     partition, but they are all together.
+   - *Conclusion:* The Key determined the destination. The data is split
+     up across the cluster.
+
+*** Explanation for the output
+
+The output shows a *hash collision*:
+#+begin_example
+Partition:1      truck1 moving north
+Partition:1      truck2 moving south
+Partition:1      truck1 stopped
+Partition:1      truck2 delivering
+Partition:2      truck3 starting engine
+#+end_example
+
+Both =truck1= and =truck2= messages went to =Partition 1=. Why?
+
+We created the topic with 3 partitions 0,1,2. The hashing formula
+target partition = hash(key) % number of partitions, yielded:
+#+begin_example
+Key "truck1": Kafka hashed it -> divided by 3 -> Remainder was 1.
+Key "truck2": Kafka hashed it -> divided by 3 -> Remainder was 1.
+Key "truck3": Kafka hashed it -> divided by 3 -> Remainder was 2.
+#+end_example
+
+What does matter is that all =truck1= messages go to 1.
+
+The fact that =truck2= is also in 1 is fine:
+- In a real system, you may have 100 partitions and 10,000 trucks.
+- Every partition will only hold data for 100 different trucks.
+- Partition 1 is the 'apartment' shared by =truck1= and =truck2=.
+
+*** Concept: Hash Collisions & Partition Assignment
+
+**** The Observation (What you saw)
+
+When you ran the "Inspection Consumer" with ~--print-key~, you noticed
+that both ~truck1~ and ~truck2~ landed in the same partition (Partition
+1), while ~truck3~ landed elsewhere (Partition 2).
+
+#+begin_example
+Partition:1      truck1 moving north
+Partition:1      truck2 moving south
+Partition:1      truck1 stopped
+Partition:1      truck2 delivering
+Partition:2      truck3 starting engine
+#+end_example
+
+**** The Math (Why it happened)
+
+Kafka uses the *Murmur2* hashing algorithm to turn the Key string into
+an integer, then uses the *Modulo* operator (%) to assign it to one of
+the 3 available partitions (0, 1, 2).
+
+$\text{Target Partition} = \text{abs}(\text{Murmur2}(\text{Key})) \%\text{NumPartitions}$
+
+In our specific case with 3 Partitions:
+
+| Key      | Hash (Approx) |  Abs Value | Math (/ 3)  | Mod (%) | Result      |
+|----------+---------------+------------+-------------+---------+-------------|
+| "truck1" |   -1032868205 | 1032868205 | 344,289,401 | *1*       | Partition 1 |
+| "truck2" |    -243179237 |  243179237 | 81,059,745  | *1*       | Partition 1 |
+| "truck3" |    1285324316 | 1285324316 | 428,441,438 | *2*       | Partition 2 |
+
+*The Hash Collision:* Both ~truck1~ and ~truck2~ resulted in a remainder of
+*1*. This is a "Hash Collision" in the context of partition
+assignment. It is normal and expected behavior.
+
+*** The Analogy (The "House Number" Rule)
+
+Imagine a street with exactly 3 houses (Partition 0,1,2). You are a
+mail carrier. You have a rule: take the last digit of the ZIP code,
+divide by 3, and the remainder is the house number.
+
+- Letter 1 (ZIP 90210): Ends in 0. 0 / 3 remainder is 0. Deliver to House 0.
+- Letter 2 (ZIP 90210): Ends in 0. 0 / 3 remainder is 0. Deliver to House 0.
+- Letter 5,000 (ZIP 90210): Ends in 0. 0 / 3 remainder is 0. Deliver to House 0.
+
+You don't need to remember where you put the previous letters. As long
+as the ZIP code (Key) stays 90210 and the number of houses
+(Partitions) stays 3, the math always yields the same result.
+
+This rule ("stateless hashing") only breaks down if the number of
+partitions changes - which is why Kafka does rarely change the number
+of partitions on a live topic. If it does, the existing keys jump and
+you lose ordering guarantee for that specific moment (then you need to
+"rehash").
+
+*** The Takeaway (Ordering Rules)
+
+- *Success:* Even though they share a "room" (Partition 1), ALL ~truck1~
+  messages are together.
+
+- *Guarantee:* Kafka guarantees that if you send 1,000 messages for
+  ~truck1~, they will *all* go to Partition 1. They will never be split
+  across 0 or 2.
+
+- *Strict Ordering:* Because they are in the same partition, the
+  consumer is guaranteed to read "moving north" *before* it reads
+  "stopped".
+
+** Review Questions
+
+1. If I send a message with NO key, which partition does it go to?
+   #+begin_quote
+   Answer: Random/Round-Robin for load balancing.
+   #+end_quote
+
+2. Why do we bother Serializing data to bytes?
+   #+begin_export ascii
+   Efficiency and disk space.
+   #+end_export
+
+* Using Kafka Lab 3: The Distributed System (Scale & Consumers)
+#+attr_html: :width 400px :float nil:
+[[../img/failures.jpg]]
+
+Review first, then "Theory", then lab exercises.
+
+** Review: Message storage and routing
+
+1. What is Kafka's storage medium?
+   #+begin_quote
+   *Storage:* It's a Log on a Disk.
+   #+end_quote
+
+2. How does Kafka determine which partition to write to?
+   #+begin_quote
+   *Routing:* Keys determine the partition.
+   #+end_quote
+
+** The "Firehose" Problem
+
+*Concept:* Imagine the "orders" topic is receiving 1 million messages
+per second. If you have *one* consumer (one Java app), it will crash or
+fall behind.
+
+*What to do*: Two moves are possible
+- *Vertical Scaling:* Buy a faster computer (Expensive, limited). That's
+  a hardware solution (we won't do it).
+
+- *Horizontal Scaling:* Run 5 copies of the app (Consumer Group). That's
+  a software solution (we'll do it).
+
+** Consumer Groups
+
+- Topic has 3 Partitions (P0, P1, P2).
+- Group has 3 Consumers (C1, C2, C3).
+- *Magic:* Kafka automatically assigns P0->C1, P1->C2, P2->C3.
+- They process in parallel.
+
+** Fault Tolerance (Rebalancing)
+
+- *Scenario:* Consumer C2 crashes ("Blue Screen of Death").
+- *The Fix:* Kafka detects the crash. It triggers a "Rebalance."
+  + P1 (which belonged to C2) is instantly reassigned to C3.
+  + *Result:* No data is lost. The system heals itself.
+
+* Lab 3: Scalability & Fault Tolerance
+
+- Use Google Cloud Shell for this.
+
+*** Restart the engine
+
+1. Open your *Server Tab* (or check that it is running):
+   #+begin_example sh
+   ps aux | grep kafka.Kafka # notice the upper case letter
+   #+end_example
+
+2. If it's not running, start it on the ~bootstrap~ server on port 9092:
+   #+begin_example sh
+   ./bin/kafka-start-server.sh config/kafka/server.properties
+   #+end_example
+
+   Check again:
+   #+begin_example sh
+   pgrep -f kafka            # returns only the process ID
+   lsof -i :9092             # list open files on port 9092
+   #+end_example
+
+   The last command returns this:
+   #+begin_example
+   COMMAND   PID        USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+   java    13777 birkenkrahe  230u  IPv4  83282      0t0  TCP *:9092 (LISTEN)
+   #+end_example
+
+3. How can you quickly verify that your data is safe and sound after a
+   restart? You read the log from the start, for example for the
+   =truck-gps= topic:
+
+   #+begin_example sh
+   ./bin/kafka-console-consumer.sh --topic truck-gps --from-beginning --bootstrap-server localhost:9092
+   #+end_example
+
+   Output:
+   #+begin_example
+   Truck 101: Moving North
+   Truck 101: Stopped
+   #+end_example
+
+4. Or to see which topics currently exist in your Kafka cluster:
+   #+begin_example sh
+   ./bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+   #+end_example
+
+   Output:
+   #+begin_example sh
+   __consumer_offsets
+   orders
+   test-topic
+   truck-gps
+   #+end_example
+
+   The first topic is a system topic created to store the read-offsets
+   for all the partitions.
+
+*** Prepare the Topic
+
+We need a topic with 3 partitions to allow 3 consumers to work in parallel.
+
+1. In a client tab (not where the server is running), run this command
+   to make sure the topic exists and has 3 partitions:
+
+   #+begin_src bash
+     ./bin/kafka-topics.sh --create --topic orders --bootstrap-server localhost:9092 --partitions 3 --if-not-exists
+   #+end_src
+
+2. (Optional) If you suspect it already exists with the wrong partition count, you can check it:
+   #+begin_src bash
+     ./bin/kafka-topics.sh --describe --topic orders --bootstrap-server localhost:9092
+   #+end_src
+   In the output, look for "PartitionCount: 3":
+   #+attr_html: :width 700px :float nil:
+   [[../img/orders.png]]
+
+*** Start the Consumer Group
+
+We will simulate 3 different computers connecting to this topic.
+1. Open *3 separate Terminal Tabs* (let's call them C1, C2, and C3).
+2. In each tab, reset the prompt so that you know where you are:
+   #+begin_example sh
+   cd kafka; export PS1="C1 > "   # in the first tab
+   cd kafka; export PS1="C2 > "   # in the second tab
+   cd kafka; export PS1="C3 > "   # in the third tab      
+   #+end_example
+
+   You don't have to rewrite this command in a new terminal - the
+   ~history~ carries over to new terminals.
+   
+3. In *ALL THREE tabs*, run this EXACT command:
+   #+begin_src bash
+     ./bin/kafka-console-consumer.sh --topic orders --bootstrap-server localhost:9092 --group my-app
+   #+end_src
+
+   *Observation:* All three tabs will sit blank. They have joined the
+   group ~my-app~ and are waiting for work.
+
+4. In the client tab, check that the consumers have actually linked up
+   as a group:
+
+   #+begin_example sh
+   ./bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group my-app
+   #+end_example
+
+   Output (sample):
+   #+begin_example sh
+   GROUP  TOPIC  PARTITION  CURRENT-OFFSET LOG-END-OFFSET  LAG CONSUMER-ID                                           HOST        CLIENT-ID
+   my-app orders 1          54             54              0   console-consumer-8c60e378-ae82-4d6d-8024-3ab2d55d9316 /127.0.0.1  console-consumer
+   my-app orders 2          1              1               0   console-consumer-a7af794a-4fee-41cd-88f0-bdad3ebf56e7 /127.0.0.1  console-consumer
+   my-app orders 0          56             56              0   console-consumer-1e8b7ff6-cf78-40bc-9da1-b9a72d9ffdc1 /127.0.0.1  console-consumer
+   #+end_example
+
+*** Flood the System with Messages 1
+
+1. Open a (new) *Producer Tab* (this is your 4th or 5th tab).
+   
+2. Start the producer:
+   #+begin_src bash
+     ./bin/kafka-console-producer.sh --topic orders --bootstrap-server localhost:9092
+   #+end_src
+
+   This starts the producer console with its own ~>~ prompt.
+
+3. At the prompt, type messages rapidly (simulate a busy day):
+   #+begin_example
+   order-101
+   order-102
+   order-103
+   order-104
+   order-105
+   order-106
+   #+end_example
+
+*** Verify Load Balancing
+
+1. Click through your 3 Consumer Tabs (C1, C2, C3).
+   
+2. You will (probably) see that all messages ended up in C1
+   anyway. Kafka was not fooled: It is inefficient to open connections
+   to different partitions for tiny packets.
+
+3. *Conclusion*: You have to simulate a real flood.
+
+*** Flood the System with Messages 2
+
+1. Close the manual producer (CTRL + C).
+
+2. Run this simple bash script to fire 50 messages in 1 second:
+
+   #+begin_example sh
+   for i in {1..50}; do echo "order-$i"; done | ./bin/kafka-console-producer.sh --topic orders --bootstrap-server localhost:9092 --producer-property batch.size=1
+   #+end_example
+
+3. Looking better: the ~describe~ command gives you some partially
+   filled partitions, while C3 may still be empty.
+
+   #+begin_example
+   GROUP  TOPIC  PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG  CONSUMER-ID                                           HOST       CLIENT-ID
+   my-app orders 1          573             573             0    console-consumer-8c60e378-ae82-4d6d-8024-3ab2d55d9316 /127.0.0.1 console-consumer
+   my-app orders 2          16              16              0    console-consumer-a7af794a-4fee-41cd-88f0-bdad3ebf56e7 /127.0.0.1 console-consumer
+   my-app orders 0          72              72              0    console-consumer-1e8b7ff6-cf78-40bc-9da1-b9a72d9ffdc1 /127.0.0.1 console-consumer
+   #+end_example
+
+4. Observation:
+
+   - Look at the PARTITION column: All three partitions (0, 1, 2) now
+     have data (offsets > 0).
+   - Look at the CONSUMER-ID column: We see three different IDs (e.g.,
+     ...9316, ...56e7, ...fdc1).
+   - The message counts are uneven (Partition 1 has 573, while
+     Partition 2 has only 16) because Partition 1 absorbed the heavy
+     traffic from our previous "sticky" test. However, the new traffic
+     is finally reaching the other partitions.
+
+5. Conclusion:
+
+   - Success: We have achieved Horizontal Scaling.
+   - By forcing the Producer to break its "Sticky" habit (using
+     batch.size=1), we proved that Kafka can distribute work to 3
+     separate computers simultaneously.
+   - If we had 1 million messages now, all 3 consumers would be
+     working together to clear the queue 3x faster than a single
+     machine could.
+
+*** TODO Phase 3: The "Chaos Monkey" (10 Minutes)
+
+**** Step 5: Simulate a Crash
+
+1. Pick one consumer (e.g., *Tab C3*) and kill it by pressing ~Ctrl+C~.
+2. Go back to your *Producer Tab*.
+3. Type more messages: ~order-200~, ~order-201~, ~order-202~...
+
+**** Step 6: Verify Healing (Rebalancing)
+1. Check the remaining consumers (*Tab C1* and *Tab C2*).
+2. *Observation:* One of them has suddenly started doing "double duty." It is now receiving the messages that /would/ have gone to the dead tab.
+3. *Conclusion:* Kafka detected the failure and moved the "ownership" of the partition to a survivor.
+
+*** TODO Phase 4: The Admin View (Bonus)
+
+**** Step 7: Inspect the Group
+Let's see the assignments in a nice table.
+1. Keep your remaining consumers running.
+2. In your Producer or Server tab (hit Ctrl+C to exit producer first), run this command:
+   #+begin_src bash
+     ./bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group my-app
+   #+end_src
+3. *Analyze the Output:*
+   - Look at the columns: ~TOPIC~, ~PARTITION~, ~CONSUMER-ID~, ~HOST~.
+   - You will see exactly which Consumer ID is assigned to Partition 0, 1, and 2.
+   - Look at the ~LAG~ column: If it is ~0~, your consumers are caught up!
+
+* Gemini Prompts for Kafka Labs
+:PROPERTIES:
+:USAGE:    Copy and paste these into the Gemini Chat pane to unblock yourself or learn more.
+:END:
+
+** Lab 1: The Foundation (Setup & Logs)
+
+*** Troubleshooting (If you are stuck)
+
+- "I tried to run =wget= but it says command not found. How do I fix
+  this in Debian Linux?"
+
+- "I accidentally closed my terminal tab with the server running. How
+  do I check if the Kafka process is still running in the background?"
+
+- "How do I delete a folder that isn't empty in Linux? =rm= isn't
+  working."
+
+*** Concepts (To learn more)
+
+- "I see a =00000.log= file in my data directory. Can you explain what
+  the binary characters inside it represent in Kafka?"
+
+- "Why do we need to format the storage directory with a UUID before
+  starting the server?"
+
+** Lab 2: Data Flow (Keys & Partitions)
+
+*** Troubleshooting
+
+- "Write a command to start a Kafka console producer that uses a colon
+  as a key separator."
+
+- "I'm getting a =Connection refused= error when trying to produce
+  messages. What should I check?"
+
+*** Concepts
+
+- "If I send the key 'truck1' to a topic with 3 partitions, how does
+  Kafka decide which partition it goes to? Show me the math."
+
+- "What is the difference between =--from-beginning= and without it in
+  the console consumer?"
+
+- "Why did my messages go to different partitions when I didn't
+  provide a key?"
+
+** Lab 3: Distributed Systems (Consumer Groups)
+
+*** Troubleshooting
+
+- "Give me a command to start a console consumer that belongs to the
+  group 'my-app'."
+
+- "How do I force kill a specific process ID in Linux if =Ctrl+C=
+  isn't working?"
+
+*** Concepts
+
+- "I have 3 partitions and 3 consumers in a group. What happens if I
+  add a 4th consumer?"
+
+- "Explain 'Rebalancing' in Kafka like I'm 5 years old."
+
+- "Why does the consumer offset matter when a consumer crashes and
+  restarts?"
+
+* Reviews
+
+I created these reviews for myself as I was coming back to the
+material after a few days in between. I will use them for the end of
+week test.
+
+** Review I: Topics and Producers
+
+1. On Message Ordering: You have a topic named =truck_gps= with 10
+   partitions. You need to read messages in the exact order they were
+   created. Does Kafka guarantee that all messages in the =truck_gps=
+   topic are ordered by default?
+
+   #+begin_quote
+   No. Order is not guaranteed across the entire topic, only within a
+   specific partition. Offsets only have meaning within that
+   partition.
+   #+end_quote
+
+2. On Producer Keys (Load Balancing): If a Producer sends a message
+   with =key=null=, how does Kafka decide which partition to write the
+   data to?
+
+   #+begin_quote
+   If =key=null= then the partitions are written to in round robin
+   style, starting from partition 0 to n and wrapping around until all
+   messages are written.
+   #+end_quote
+
+3. On Producer Keys (Ordering): You want to ensure that all GPS data
+   for "Truck ID 101" always ends up in the exact same partition. What
+   specific action must the producer take to make this happen?
+
+   #+begin_quote
+   Send the truck ID as the key. If =key!=null= then all messages
+   sharing that key will map to the exact same partition.
+   #+end_quote
+
+4. The "Under the Hood" Math: When a key is provided, the producer
+   uses a formula to calculate the target partition: What is the name
+   of the hashing algorithm used here?
+   #+begin_example
+   targetPartition=Math.abs(Utils.murmur2(keyBytes)) % (numPartitions - 1)
+   #+end_example
+   #+begin_quote
+   murmur2 is the default hashing algorithm used here.
+   #+end_quote
+
+5. Anatomy of a Message: Besides the actual Key and Value (and the
+   Partition+Offset), name at least two other fields that are
+   contained inside a Kafka message when it is created.
+
+   #+begin_quote
+   Timestamp, compression type, and message headers.
+   #+end_quote
+
+** Review II: Consumers and Brokers
+
+1. How many partitions can a Kafka topic have?
+   #+begin_quote
+   As many as you want; Kafka imposes no fixed limit, but performance
+   and manageability set practical limits.
+   #+end_quote
+
+2. At which level are offsets relevant - topic, topic-partition?
+   #+begin_quote
+   Offsets exist at the *topic-partition* level; each partition has its
+   own offset sequence.
+   #+end_quote
+
+3. What are offsets relevant for - producer or consumer?
+   #+begin_quote
+   Offsets matter to *consumers*; producers do not track offsets.
+   #+end_quote
+
+4. Once sent to a topic, a message can be modified. True or false?
+   #+begin_quote
+   False; Kafka logs are immutable—messages cannot be altered after
+   being written.
+   #+end_quote
+
+5. What are brokers identified by?
+   #+begin_quote
+   Each broker is identified by a unique numeric broker ID.
+   #+end_quote
+
+6. What is an alternative name for Kafka brokers?
+   #+begin_quote
+   "Kafka servers"—the terms are interchangeable.
+   #+end_quote
+
+7. A broker contains only a subset of the topics and the
+   partitions. True or false?
+   #+begin_quote
+   True; brokers host only the partitions assigned to them, not the
+   entire cluster’s data.
+   #+end_quote
+
+8. How many brokers will a partition live on if the replication factor is 3?
+   #+begin_quote
+   Exactly 3 brokers: one leader and two followers.
+   #+end_quote
+
+9. If a topic has a replication factor of 3, what maximum number of
+   brokers can be stopped without impacting the topic availability?
+   #+begin_quote
+   You can lose 2 brokers and still have one in-sync replica
+   available.
+   #+end_quote
+
+10. How many leaders and how many replicas can a partition have?
+    #+begin_quote
+    One leader per partition; replicas = replication factor (including
+    the leader).
+    #+end_quote
+
+11. What is a leader?
+    #+begin_quote
+    The broker replica responsible for handling all reads and writes
+    for a partition.
+    #+end_quote
+
+12. What does ISR mean?
+    #+begin_quote
+    In-Sync Replicas: the set of replicas fully caught up with the
+    leader’s log.
+    #+end_quote
+
+13. What must a producer provide to a Kafka client to send data to a
+    topic?
+    #+begin_quote
+    The bootstrap server list (brokers) and the target topic name.
+    #+end_quote
+
+14. What is a Kafka message?
+    #+begin_quote
+    A record consisting of a key, value, timestamp, and metadata
+    stored in a partition.
+    #+end_quote
+
+15. How is Kafka configured to get acknowledgement of writes to only
+    the leader?
+    #+begin_quote
+    Set the producer configuration `acks=1`.
+    #+end_quote
+
+16. What does the =ack=all= flag mean?
+    #+begin_quote
+    A write is acknowledged only when all in-sync replicas have
+    confirmed the write.
+    #+end_quote
+
+17. Which Kafka configuration is needed for a consumer to read data
+    from a topic?
+    #+begin_quote
+    The consumer needs bootstrap servers, a group ID, and subscription
+    to the topic.
+    #+end_quote
+
+18. What is a Kafka client?
+    #+begin_quote
+    Any application using the Kafka API: producers, consumers, or
+    admin tools.
+    #+end_quote
+
+19. Two consumers that have the same consumer group ID will read from
+    mutually exclusive partitions. True or false?
+    #+begin_quote
+    True; partitions are divided among consumers within a group with
+    no overlap.
+    #+end_quote
+
+20. Where are Kafka offsets stored?
+    #+begin_quote
+    In the internal Kafka topic ~__consumer_offsets~ (unless the
+    consumer uses manual external storage).
+    #+end_quote
+
+** Review III: Kafka Architecture Review Sheet
+
+*** Partitions and Log Structure
+- Topics contain any number of partitions.
+- Each partition is an append-only log.
+- Offsets are per-partition and tracked by consumers.
+
+*** Brokers and Replication
+- A broker = Kafka server, identified by broker ID.
+- Brokers host only some partitions.
+- Replication factor determines how many brokers hold each partition.
+- One leader per partition; remaining replicas follow.
+- ISR = In-Sync Replicas fully caught up with the leader.
+
+*** Producers
+- Need bootstrap servers + target topic.
+- Messages are immutable once written.
+- acks=1 → leader-only acknowledgement.
+- acks=all → all ISR replicas must acknowledge.
+
+*** Consumers
+- Need bootstrap servers + group ID + topic subscription.
+- Offsets matter only to consumers (not producers).
+- Offsets stored in __consumer_offsets unless overridden.
+- Consumers in same group divide partitions: no overlap.
+
+*** Fault Tolerance
+- With replication factor N, system tolerates N-1 broker failures.
+- Leader election among ISR ensures consistency.
+
+*** Kafka Clients
+- Any code using Kafka APIs: producer, consumer, admin, streams.
+
+* Footnotes
+[fn:2]When you pass the config file, the server reads the =data=, finds
+=meta.properties= and uses it to reconstitute the Kafka cluster.
+
+[fn:1]This is a critical step: The UUID (Universally Unique
+Identifier) is a Base64-encoded, 128-bit number that is unique across
+the universe to identify your Kafka cluster. All brokers belong to
+it. The =format= command physically stamps the hard drive with the
+ID. The ID is written into a specific file =meta.properties= in the =log=
+directory.
