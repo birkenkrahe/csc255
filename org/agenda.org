@@ -2413,7 +2413,7 @@ These builds are graded: Submit your files in one Zip file
                       = 1 0 0 0
    #+end_example
 
-* Week 14: Distributed Processing Architecture - Dec 1, 3, 5
+* DONE Week 14: Distributed Processing Architecture - Dec 1, 3, 5
 #+attr_html: :width 400px :float nil:
 [[../img/kafka.jpg]]
 
@@ -2423,11 +2423,11 @@ These builds are graded: Submit your files in one Zip file
 - [X] Test 9 is available (binary arithmetic/adders in HDL)
 - [X] Change of topic: Distributed Computer Architecture
 
-- [ ] *Please fill in the course evaluation now! (5 min)*
-- [ ] Apache Kafka basic review questions
-- [ ] Test 10: Apache Kafka (next week) - Basics & Usage
+- [X] *Please fill in the course evaluation now! (5 min)*
+- [X] Apache Kafka basic review questions
+- [X] Test 10: Apache Kafka (next week) - Basics & Usage
 
-** DONE Why change course?
+** Why change course?
 
 The idea came to me first after I (recently) dug more deeply into data
 engineering where the relationship between hardware and software
@@ -2442,25 +2442,25 @@ Apache Kafka (and other platforms like it) runs as software on servers
 built around the von Neumann computer architecture (CPU + RAM + I/O),
 and leverages the hardware elements for fast streaming of big data.
 
-** DONE Part 1: Distributed computing architectures
+** Part 1: Distributed computing architectures
 
 - Challenges
 - Lambda architecture
 - Kappa architecture
   
-** DONE Part 2: Intro to Apache Kafka & Installation
+** Part 2: Intro to Apache Kafka & Installation
 
 - Zero to Hero: Apache Kafka (video analysis)
 - Apache Kafka concepts (viz von Neumann architecture)
 - Installing Apache Kafka on Google Cloud Shell [Linux or Windows]
 
-** Part 3: Using Apache Kafka
+** SOMEDAY Part 3: Using Apache Kafka
 
 - Batch vs streaming & logging
 - Keys & message serialization
 - Scale & consumer groups
 
-** DONE Review Data Architecture and Theory
+** Review Data Architecture and Theory
 
 [I asked Gemini to produce 5 review questions based on the whiteboard
 screenshots from the last class.]
@@ -2512,13 +2512,11 @@ screenshots from the last class.]
      *Horizontal Scaling*.
    #+end_quote
 
-
-** NEXT Review Apache Kafka Basics
+** Review Apache Kafka Basics
 
 1. I tested the scripts in a folder =kafka= that contains all the
    installation, the =data= storage and the metadata. If I now rename
    =kafka= -> =kafka2=, do I have to make any changes?
-
    #+begin_quote
    All links inside =kafka= are relative links. The only change you have
    to make (not while running a Kafka instance - you must stop the
@@ -2529,14 +2527,14 @@ screenshots from the last class.]
 2. What does "fault-tolerance" mean and how is it achieved in a
    distributed computing architecture, e.g. with Apache Kafka?
    #+begin_quote
-   Resilience through redundancy: The system continues operating by
+   *Resilience through redundancy:* The system continues operating by
    replicating data across multiple brokers so that another replica
    takes over when one fails.
    #+end_quote
 
 3. What are the three things Apache Kafka excels at?
    #+begin_quote
-   Topic-based messaging, durable distributed logs, and scalable data
+   Topic-based *messaging*, durable distributed *logs*, and *scalable* data
    integration via Kafka Connect
    #+end_quote
 
@@ -2548,7 +2546,8 @@ screenshots from the last class.]
 
 5. What data structure is used inside Apache Kafka to access logs?
    #+begin_quote
-   An append-only log indexed by increasing (remembered) offsets.
+   An append-only log indexed by increasing (remembered) offsets =
+   partition.
    #+end_quote
 
 6. What is "ZooKeeper", and what is "KRaft"?
@@ -2562,7 +2561,7 @@ screenshots from the last class.]
    (where to duplicate data?).
    #+end_quote
    
-** TODO Review Apache Kafka Usage
+** SOMEDAY Review Apache Kafka Usage
 
 1. *The "Idle" Consumer:* In the diagram showing a Consumer Group with 4
    consumers (C1, C2, C3, C4) subscribed to a Topic with only 3
@@ -2640,3 +2639,10 @@ screenshots from the last class.]
    #+end_quote   
    
 * Week 15: Your project presentations
+#+attr_html: :width 600px :float nil:
+[[../img/last_week.png]]
+
+- [ ] Schedule optional final oral exam in my office (Mon Dec 15).
+- [ ] Last quiz with 40 questions on distributed computing (Dec 12).
+- [ ] Remember to put the link to your materials into the Canvas page.
+- [ ] I will only grade projects whose materials I can access (Dec 12)
